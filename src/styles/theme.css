@@ -507,7 +507,9 @@ a:hover > .arrow {
   isolation: isolate;
   overflow: hidden;
   border-radius: clamp(16px, 2.2vw, 28px);
-  padding: clamp(2.75rem, 6vw, 5rem) clamp(1.5rem, 4vw, 3rem) clamp(6.5rem, 13vw, 10.5rem);
+  /* Top padding clears the floating CardNav, which is 60px tall and sits
+     ~1.2em down inside this section rather than in the document flow. */
+  padding: clamp(7rem, 11vw, 9rem) clamp(1.5rem, 4vw, 3rem) clamp(4.5rem, 9vw, 7rem);
   text-align: center;
   /* The tail runs long on purpose: a short final stop leaves the radial's
      ellipse edge visible as an arc across the white part of the card. */
@@ -667,119 +669,6 @@ a:hover > .arrow {
 #pf-edvation:checked ~ .panels #panel-edvation,
 #pf-advohub:checked ~ .panels #panel-advohub,
 #pf-trustproperty:checked ~ .panels #panel-trustproperty {
-  display: block;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SCROLL EXPAND — the hero screen opens as the page scrolls
-   ───────────────────────────────────────────────────────────────
-   React Bits' ScrollExpand animates clip-path on a pinned stage
-   with a rAF lerp. This is the same read in four lines: a scroll
-   progress timeline driving transform only.
-
-   Transform rather than clip-path because clip-path also clips the
-   panel's shadow, and transform stays on the compositor. Nothing
-   animates opacity, so the panel is never invisible to a crawler
-   or a screenshot. Browsers without scroll timelines get the
-   finished state, which is the correct resting design.
-
-   When the real UI captures land, this can become clip-path plus a
-   counter-scale on the <img> for a true reveal — there is nothing
-   to reveal while the slot is empty.                              */
-@supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
-    @keyframes screen-open {
-      from {
-        transform: scale(0.87) translateY(26px);
-      }
-      to {
-        transform: scale(1) translateY(0);
-      }
-    }
-    .screen-open {
-      transform-origin: 50% 0%;
-      animation: screen-open linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 460px;
-    }
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   BENTO PROOF GRID
-   ───────────────────────────────────────────────────────────────
-   Magic Bento's layout without its GSAP particles, tilt or
-   magnetism — those need a 70 KB dependency and read as gimmick to
-   someone buying software they will be audited on. The one effect
-   worth keeping is the cursor glow, which is a radial gradient
-   positioned by two custom properties.                            */
-.tile {
-  position: relative;
-  isolation: isolate;
-  background: var(--color-paper);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-panel);
-  padding: clamp(1.25rem, 2.5vw, 1.75rem);
-  transition: border-color var(--dur-state) var(--ease-out);
-}
-.tile::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--dur-state) var(--ease-out);
-  background: radial-gradient(
-    240px circle at var(--gx, 50%) var(--gy, 50%),
-    rgb(43 70 212 / 0.1),
-    transparent 68%
-  );
-}
-@media (hover: hover) {
-  .tile:hover {
-    border-color: var(--color-control);
-  }
-  .tile:hover::after {
-    opacity: 1;
-  }
-}
-
-/* Tiles rise as the grid enters view. Transform only, staggered by
-   shifting each tile's range rather than by a delay — scroll-driven
-   animations have no clock to delay against. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    @keyframes tile-rise {
-      from {
-        transform: translateY(26px);
-      }
-      to {
-        transform: translateY(0);
-      }
-    }
-    .tile-rise {
-      animation: tile-rise linear both;
-      animation-timeline: view();
-      animation-range: entry calc(4% + var(--i, 0) * 5%) entry calc(72% + var(--i, 0) * 5%);
-    }
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   GRADUAL BLUR — see components/GradualBlur.astro
-   Stacked backdrop-filter layers behind a mask ramp. Expensive to
-   composite, so one instance per page and never more than 6 layers.
-   ═══════════════════════════════════════════════════════════════ */
-.grad-blur {
-  position: absolute;
-  pointer-events: none;
-  z-index: 0;
-}
-.grad-blur > span {
-  position: absolute;
-  inset: 0;
   display: block;
 }
 

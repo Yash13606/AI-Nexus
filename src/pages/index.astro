@@ -2,7 +2,10 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
-import GradualBlur from '../components/GradualBlur.astro';
+import CardNav from '../components/react/CardNav';
+import ScrollExpand from '../components/react/ScrollExpand';
+import GradualBlur from '../components/react/GradualBlur';
+import MagicBento from '../components/react/MagicBento';
 import { platforms } from '../content/platforms';
 import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
@@ -13,19 +16,72 @@ import {
 import { entities, contact } from '../content/site';
 
 const agentsPlanned = isPlanned('/ai-agents/');
+
+/** CardNav's three panels. Tinted from the system rather than the
+ *  component's stock #1B1722 / #2F293A darks. */
+const navCards = [
+  {
+    label: 'Platforms',
+    bgColor: '#f4f7fc',
+    textColor: '#0b1220',
+    links: [
+      { label: 'MedOrbit — hospitals', href: '/platforms/medorbit/', ariaLabel: 'MedOrbit for hospitals' },
+      { label: 'Edvation — schools', href: '/platforms/edvation/', ariaLabel: 'Edvation for schools' },
+      { label: 'AdvoHub — law practices', href: '/platforms/advohub/', ariaLabel: 'AdvoHub for law practices' },
+      { label: 'TrustProperty — property', href: '/platforms/trustproperty/', ariaLabel: 'TrustProperty for property' },
+    ],
+  },
+  {
+    label: 'Solutions',
+    bgColor: '#eaeeff',
+    textColor: '#0b1220',
+    links: [
+      { label: 'For hospitals', href: '/solutions/hospitals/', ariaLabel: 'Solutions for hospitals' },
+      { label: 'For schools', href: '/solutions/schools/', ariaLabel: 'Solutions for schools' },
+      { label: 'For law firms', href: '/solutions/law-firms/', ariaLabel: 'Solutions for law firms' },
+      { label: 'For property', href: '/solutions/property/', ariaLabel: 'Solutions for property' },
+    ],
+  },
+  {
+    label: 'Company',
+    bgColor: '#2b46d4',
+    textColor: '#ffffff',
+    links: [
+      { label: 'Security & data residency', href: '/security/', ariaLabel: 'Security and data residency' },
+      { label: 'About', href: '/about/', ariaLabel: 'About AI Nexus' },
+      { label: 'Contact', href: '/contact/', ariaLabel: 'Contact AI Nexus' },
+    ],
+  },
+];
 ---
 
 <Base
   title="AI Nexus Innovations Hub — AI Platforms for Health, Education, Law, Property"
   description={hero.lede}
   jsonldFaq
+  ownNav
 >
   {/* ══════════════ HERO ══════════════
       An inset card: white where the type sits, blue pooling at the bottom,
       with the product screen breaking the card's lower edge. Everything is
       at final opacity in the HTML — the gradient is the only decoration and
       it is CSS, so there is no image to wait for and nothing to crop. */}
-  <section style="padding: clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.5rem) 0;">
+  <section class="relative" style="padding: clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.5rem) 0;">
+    {/* React Bits CardNav, floating over the gradient. Paper base, Nexus
+        Indigo CTA, panel tints from the system rather than its stock darks. */}
+    <CardNav
+      client:load
+      logo="/logo-wordmark.svg"
+      logoAlt="AI Nexus Innovations Hub"
+      items={navCards}
+      baseColor="#ffffff"
+      menuColor="#0b1220"
+      buttonBgColor="#2b46d4"
+      buttonTextColor="#ffffff"
+      ctaLabel="Book a demo"
+      ctaHref="/contact/"
+    />
+
     <div class="hero-card">
       <div class="hero-inner">
         <p class="t-label" style="color: var(--color-muted);">{hero.eyebrow}</p>
@@ -44,84 +100,102 @@ const agentsPlanned = isPlanned('/ai-agents/');
         <p class="t-cap mt-8 mono" style="color: var(--color-muted);">{hero.summary}</p>
       </div>
 
-      {/* Frosts the streak texture where the screen breaks the card's edge. */}
-      <GradualBlur position="bottom" size="7rem" strength={2} layers={5} />
-    </div>
-
-    {/* Opens as the page scrolls — see .screen-open in theme.css. */}
-    <div class="hero-screen shell" style="max-width: 1040px;">
-      <div class="screen screen-open">
-        <p class="screen-empty m-0">Product screen — capture pending</p>
-      </div>
+      {/* React Bits GradualBlur — frosts the streak texture at the card's edge. */}
+      <GradualBlur
+        client:visible
+        target="parent"
+        position="bottom"
+        height="7rem"
+        strength={2}
+        divCount={5}
+        curve="bezier"
+        exponential
+        opacity={1}
+      />
     </div>
   </section>
 
-  {/* ══════════════ PROOF — bento grid ══════════════
-      Magic Bento's layout, none of its GSAP. Every figure is server-rendered
-      at its final value; the only motion is a transform-only rise on scroll
-      and a cursor glow driven by two custom properties. */}
+  {/* ══════════════ SCROLL EXPAND ══════════════
+      React Bits ScrollExpand on window scroll: the frame opens from an inset
+      rect to full bleed while the media counter-zooms back to 1. The overlay
+      copy is duplicated in a visually-hidden block below so the section is
+      still readable to a crawler while the overlay sits at opacity 0. */}
+  <section aria-label="What the platforms do">
+    <ScrollExpand
+      client:load
+      src="/screen-placeholder.svg"
+      alt="AI Nexus platform interface"
+      title="Four platforms. One discipline."
+      scrollHint="Scroll to open"
+      useWindowScroll
+      startWidth={46}
+      startHeight={58}
+      startRadius={24}
+      endRadius={0}
+      mediaZoom={1.25}
+      scrollDistance={1.1}
+      holdDistance={0.3}
+      smoothing={0.1}
+      overlayScrim={0.5}
+    >
+      <h2 class="t-h2" style="color: #fff; max-width: 22ch;">Every answer shows its source.</h2>
+      <p class="t-lede mt-4" style="color: rgb(255 255 255 / 0.86); margin-inline: auto;">
+        Page citations in education. Indian Kanoon verification in law. Chart-grounded outputs in
+        health. Explainable scores in property.
+      </p>
+    </ScrollExpand>
+
+    <p class="sr-only">
+      Every answer shows its source. Page citations in education. Indian Kanoon verification in law.
+      Chart-grounded outputs in health. Explainable scores in property.
+    </p>
+  </section>
+
+  {/* ══════════════ PROOF — React Bits MagicBento ══════════════
+      Upstream logic, retinted: paper cards, hairline borders, ink text and a
+      Nexus Indigo glow in place of the stock #120F17 / #8400ff purple. The
+      card copy is duplicated as a visually-hidden list because the grid is
+      client-rendered and the figures must still reach a crawler. */}
   <section class="section" id="proof">
     <div class="shell">
       <p class="t-label" style="color: var(--color-accent);">{proof.kicker}</p>
       <h2 class="t-h2 mt-4" style="max-width: 20ch;">{proof.heading}</h2>
 
-      <div class="bento mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {/* Lead tile — twice the width, twice the height, and the only one
-            carrying prose. Asymmetry is what stops this reading as a stat row. */}
-        <div class="tile tile-rise sm:col-span-2 xl:row-span-2 flex flex-col justify-end gap-5" style="--i:0;">
-          <p
-            class="m-0 mono"
-            style="font-size: clamp(3.5rem, 9vw, 5.5rem); line-height: 0.95; letter-spacing: -0.04em; font-weight: 500; color: var(--color-ink);"
-          >
-            {proof.lead.figure}
-          </p>
-          <div>
-            <p class="t-h4">{proof.lead.label}</p>
-            <p class="t-sm mt-3">{proof.lead.body}</p>
-          </div>
-        </div>
+      <div class="mt-10">
+        <MagicBento
+          client:visible
+          textAutoHide={false}
+          enableStars
+          enableSpotlight
+          enableBorderGlow
+          enableTilt={false}
+          enableMagnetism={false}
+          clickEffect
+          spotlightRadius={400}
+          particleCount={10}
+          glowColor="43, 70, 212"
+        />
+      </div>
 
-        {/* The last tile runs wide so the second row closes flush against the
-            lead tile. A 4-column grid with a 2×2 tile and three 1×1s leaves a
-            hole otherwise. */}
-        {proof.tiles.map((t, i) => (
-          <div
-            class={`tile tile-rise flex flex-col gap-2 justify-end min-h-[168px] ${
-              i === proof.tiles.length - 1 ? 'sm:col-span-2' : ''
-            }`}
-            style={`--i:${i + 1};`}
-          >
-            <p
-              class="m-0 mono"
-              style={`color: var(--color-ink); font-weight: 500; overflow-wrap: anywhere; ${
-                t.figure.length > 4
-                  ? 'font-size: var(--text-h3); line-height: 1.2;'
-                  : 'font-size: var(--text-mono-lg); line-height: 1.05; letter-spacing: -0.02em;'
-              }`}
+      <ul class="sr-only">
+        <li>{proof.lead.figure} {proof.lead.label}. {proof.lead.body}</li>
+        {proof.tiles.map((t) => <li>{t.figure} — {t.label}</li>)}
+      </ul>
+
+      <div class="mt-8">
+        <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
+          {standards.map((s, i) => (
+            <li
+              class="chip-verify pill mono tx-fast"
+              style={`--i:${i}; border: 1px solid var(--color-hairline); background: var(--color-paper);`}
             >
-              {t.figure}
-            </p>
-            <p class="t-cap" style="color: var(--color-muted);">{t.label}</p>
-          </div>
-        ))}
-
-        {/* Standards ride the full width as the grid's closing row, which
-            keeps them a proof point rather than a decorative chip band. */}
-        <div class="tile tile-rise sm:col-span-2 xl:col-span-4" style="--i:4;">
-          <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
-            {standards.map((s, i) => (
-              <li
-                class="chip-verify pill mono tx-fast"
-                style={`--i:${i}; border: 1px solid var(--color-hairline); background: var(--color-paper);`}
-              >
-                {s}
-              </li>
-            ))}
-          </ul>
-          <p class="t-cap mt-4" style="color: var(--color-muted);">
-            Capability statements, not certification logos. Certificates are published only when they exist.
-          </p>
-        </div>
+              {s}
+            </li>
+          ))}
+        </ul>
+        <p class="t-cap mt-4" style="color: var(--color-muted);">
+          Capability statements, not certification logos. Certificates are published only when they exist.
+        </p>
       </div>
     </div>
   </section>
@@ -514,24 +588,4 @@ const agentsPlanned = isPlanned('/ai-agents/');
     </div>
   </section>
 
-  <script>
-    // The bento cursor glow — the one Magic Bento effect kept, at 8 lines
-    // instead of a GSAP dependency. Delegated to the grid, pointer devices
-    // only, and it writes two custom properties. The grid is complete and
-    // correct without it ever running.
-    const bento = document.querySelector('.bento');
-    if (bento && matchMedia('(hover: hover)').matches) {
-      bento.addEventListener(
-        'pointermove',
-        (e) => {
-          const tile = (e.target as HTMLElement).closest<HTMLElement>('.tile');
-          if (!tile) return;
-          const r = tile.getBoundingClientRect();
-          tile.style.setProperty('--gx', `${(e as PointerEvent).clientX - r.left}px`);
-          tile.style.setProperty('--gy', `${(e as PointerEvent).clientY - r.top}px`);
-        },
-        { passive: true }
-      );
-    }
-  </script>
 </Base>
