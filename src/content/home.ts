@@ -11,12 +11,21 @@ export const showcase = {
   heading: 'Pick an institution. Watch what the agent actually does.',
 };
 
-export const heroStats = [
-  { figure: '4', label: 'AI platforms' },
-  { figure: '48', label: 'named AI agents' },
-  { figure: '22', label: 'Indian languages' },
-  { figure: '2', label: 'countries, India + Singapore' },
-];
+/** Bento proof grid. Every figure renders at final value — no count-up. */
+export const proof = {
+  kicker: 'Shipped, not roadmapped',
+  heading: 'The whole system, counted.',
+  lead: {
+    figure: '48',
+    label: 'named AI agents',
+    body: 'Eleven in MedOrbit, twenty in Edvation, ten in AdvoHub, seven in TrustProperty. Each does a single job someone would otherwise do by hand, and each carries its own guardrails, its own audit trail and its own cost ceiling in rupees.',
+  },
+  tiles: [
+    { figure: '4', label: 'platforms, one per industry' },
+    { figure: '22', label: 'Indian languages' },
+    { figure: 'ap-south-1', label: 'AWS Mumbai — your data stays in India' },
+  ],
+};
 
 /** Standards strip. Capability statements — never rendered as logos. */
 export const standards = [
