@@ -12,6 +12,9 @@ node_modules/
 .DS_Store
 Thumbs.db
 
+# Local Claude Code settings — per-machine, not shared
+.claude/settings.local.json
+
 # Third-party reference material — full-page screencaptures and screen
 # recordings of other companies' websites (arcade.software, amplemarket.com),
 # ~43 MB of binaries. Kept local: not ours to republish, and not needed to

@@ -6,7 +6,7 @@ import { platforms } from '../content/platforms';
 import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
 import {
-  hero, heroStats, standards, disciplineBody, governance,
+  hero, standards, showcase, disciplineBody, governance,
   deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs, aboutBlock,
 } from '../content/home';
 import { entities, contact } from '../content/site';
@@ -20,43 +20,43 @@ const agentsPlanned = isPlanned('/ai-agents/');
   jsonldFaq
 >
   {/* ══════════════ HERO ══════════════
-      The focal moment. Content is at final opacity in the HTML; a rule sweeps
-      beneath the headline and the standards below it tick from unverified gray
-      to verified teal. The check happens — it never reveals the content. */}
-  <section class="section" style="padding-block: clamp(3.5rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem);">
-    <div class="shell">
-      <h1 class="t-display" style="max-width: 18ch;">{hero.headline}</h1>
+      An inset card: white where the type sits, blue pooling at the bottom,
+      with the product screen breaking the card's lower edge. Everything is
+      at final opacity in the HTML — the gradient is the only decoration and
+      it is CSS, so there is no image to wait for and nothing to crop. */}
+  <section style="padding: clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.5rem) 0;">
+    <div class="hero-card">
+      <div class="hero-inner">
+        <p class="t-label" style="color: var(--color-muted);">{hero.eyebrow}</p>
 
-      <div class="sweep-rule mt-8 h-px w-full max-w-[560px]" style="background: var(--color-accent);"></div>
+        <h1 class="t-display mt-6" style="font-weight: 500;">{hero.headline}</h1>
 
-      <p class="t-lede mt-8">{hero.lede}</p>
-      <p class="t-sm mt-5 mono" style="color: var(--color-muted);">{hero.byline}</p>
+        <p class="t-lede mt-6" style="margin-inline: auto;">{hero.lede}</p>
 
-      <div class="mt-9 flex flex-wrap gap-3">
-        <a href="/contact/" class="btn btn-primary tx-fast">
-          Book a demo <Icon name="arrow-right" class="arrow" />
-        </a>
-        <a href="/platforms/" class="btn btn-secondary tx-fast">Explore the four platforms</a>
+        <div class="mt-9 flex flex-wrap gap-3 justify-center">
+          <a href="/contact/" class="btn btn-primary tx-fast">
+            Book a demo <Icon name="arrow-right" class="arrow" />
+          </a>
+          <a href="#see-it-work" class="btn btn-secondary tx-fast">Watch it work</a>
+        </div>
+
+        <p class="t-cap mt-8 mono" style="color: var(--color-muted);">{hero.summary}</p>
       </div>
+    </div>
 
-      <p class="t-cap mt-10 mono" style="color: var(--color-muted);">{hero.summary}</p>
+    <div class="hero-screen shell" style="max-width: 1040px;">
+      <div class="screen">
+        <p class="screen-empty m-0">Product screen — capture pending</p>
+      </div>
+    </div>
+  </section>
 
-      {/* Stat strip. Server-rendered at final value — DESIGN.md §1.1. */}
-      <dl class="mt-5 grid grid-cols-2 md:grid-cols-4 m-0 card overflow-hidden">
-        {heroStats.map((s, i) => (
-          <div
-            class="flex flex-col gap-1.5 p-6"
-            style={`border-right: ${i < 3 ? '1px' : '0'} solid var(--color-hairline); border-top: ${i > 1 ? '1px' : '0'} solid var(--color-hairline);`}
-          >
-            <dd class="m-0 mono" style="font-size: var(--text-mono-lg); line-height: 1.1; letter-spacing: -0.02em; font-weight: 500; color: var(--color-ink);">
-              {s.figure}
-            </dd>
-            <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
-          </div>
-        ))}
-      </dl>
-
-      <ul class="mt-6 flex flex-wrap gap-2 list-none m-0 p-0">
+  {/* ══════════════ STANDARDS STRIP ══════════════
+      The trust bar every reference carries. Capability statements, so it is
+      text in a real list rather than a wall of logos we have not earned. */}
+  <section style="padding-block: clamp(2.5rem, 5vw, 4rem);">
+    <div class="shell text-center">
+      <ul class="flex flex-wrap gap-2 justify-center list-none m-0 p-0">
         {standards.map((s, i) => (
           <li
             class="chip-verify pill mono tx-fast"
@@ -66,9 +66,76 @@ const agentsPlanned = isPlanned('/ai-agents/');
           </li>
         ))}
       </ul>
-      <p class="t-cap mt-3" style="color: var(--color-muted);">
+      <p class="t-cap mt-4" style="color: var(--color-muted);">
         Capability statements, not certification logos. Certificates are published only when they exist.
       </p>
+    </div>
+  </section>
+
+  {/* ══════════════ SEE IT WORK — four platforms, one screen ══════════════
+      Radio-driven tabs: arrow keys move between them for free, all four
+      panels stay in the DOM for crawlers, and with CSS off they render
+      stacked rather than vanishing. No JavaScript reaches the browser. */}
+  <section class="section band" id="see-it-work">
+    <div class="shell">
+      <div class="text-center">
+        <p class="t-label" style="color: var(--color-accent);">{showcase.kicker}</p>
+        <h2 class="t-h2 mt-4" style="max-width: 22ch; margin-inline: auto;">{showcase.heading}</h2>
+      </div>
+
+      <div class="tabs mt-10">
+        {platforms.map((p, i) => (
+          <input type="radio" name="platform-tab" id={`pf-${p.slug}`} checked={i === 0} />
+        ))}
+
+        <div class="tablist">
+          {platforms.map((p) => <label for={`pf-${p.slug}`}>{p.name}</label>)}
+        </div>
+
+        <div class="panels mt-12">
+          {platforms.map((p) => (
+            <div class="panel" id={`panel-${p.slug}`}>
+              <div class="grid gap-10 lg:gap-14 lg:grid-cols-2 lg:items-center">
+                <div>
+                  <p class="t-label" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
+                  <h3 class="t-h2 mt-4">{p.headline}</h3>
+                  <p class="t-body mt-5 prose">{p.evidence.input}</p>
+                  <p class="t-body mt-3 prose" style="color: var(--color-ink); font-weight: 500;">
+                    {p.evidence.output}
+                  </p>
+
+                  <ul class="mt-8 grid gap-x-8 gap-y-3 sm:grid-cols-2 list-none m-0 p-0">
+                    {p.bullets.map((b) => (
+                      <li class="t-sm flex gap-2.5">
+                        <Icon name="check" class="mt-1 shrink-0" size={14} />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p
+                    class="t-sm mt-8 p-4"
+                    style="background: var(--color-mist); border-radius: var(--radius-card);"
+                  >
+                    <span class="t-label block mb-1.5" style="color: var(--color-muted);">The control</span>
+                    {p.evidence.control}
+                  </p>
+
+                  <a href={`/platforms/${p.slug}/`} class="link-accent mt-8 group/link">
+                    Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
+                  </a>
+                </div>
+
+                <div class="screen-glow">
+                  <div class="screen">
+                    <p class="screen-empty m-0">{p.name} screen — capture pending</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   </section>
 

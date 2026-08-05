@@ -1,8 +1,14 @@
 export const hero = {
-  headline: 'Four AI platforms for the institutions India runs on.',
-  lede: 'AI Nexus Innovations Hub builds MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices and TrustProperty for property — 48 AI agents that cite their sources, on operating systems that run the whole institution.',
-  byline: 'AI product company · Bengaluru + Singapore',
-  summary: '4 platforms · 48 AI agents · 22 Indian languages · Data in AWS Mumbai',
+  eyebrow: 'AI product company · Bengaluru + Singapore',
+  headline: 'AI that shows its work.',
+  lede: 'MedOrbit runs hospitals. Edvation runs schools. AdvoHub runs law practices. TrustProperty runs property. 48 AI agents across all four — and every one of them shows exactly how it got its answer.',
+  summary: '48 AI agents · 22 Indian languages · Data hosted in India (AWS Mumbai)',
+};
+
+/** Section 2 tab switcher. One line per platform — the proof, not the pitch. */
+export const showcase = {
+  kicker: 'One screen, four institutions',
+  heading: 'Pick an institution. Watch what the agent actually does.',
 };
 
 export const heroStats = [
