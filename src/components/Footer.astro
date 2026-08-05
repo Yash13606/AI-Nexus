@@ -1,0 +1,91 @@
+---
+import Icon from './Icon.astro';
+import { footerCols, productSites, contact, entities, orgDescription, isPlanned } from '../content/site';
+---
+
+<footer style="background: var(--color-ink); color: #a8b4c8;">
+  <div class="shell" style="padding-block: 5rem 2.5rem;">
+    <div class="grid gap-12 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
+      <div class="flex flex-col gap-4">
+        <p class="t-h4" style="color: #fff;">AI Nexus Innovations Hub</p>
+        <p class="t-sm" style="max-width: 42ch;">{orgDescription}</p>
+      </div>
+
+      {
+        footerCols.map((col) => (
+          <div class="flex flex-col gap-3">
+            <p class="t-label" style="color: #7c8ba5;">{col.title}</p>
+            <ul class="list-none m-0 p-0 flex flex-col gap-2">
+              {col.links.map((l) => (
+                <li>
+                  {/* Planned-route text was #5f7089 — 3.71:1 on the ink footer, below AA. */}
+                  {isPlanned(l.href) ? (
+                    <span class="t-sm" style="color: #7280a0;">{l.label}</span>
+                  ) : (
+                    <a href={l.href} class="t-sm no-underline tx-fast hover:text-white" style="color: #a8b4c8;">
+                      {l.label}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div
+      class="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 mt-14 pt-10"
+      style="border-top: 1px solid rgb(255 255 255 / 0.12);"
+    >
+      <div class="flex flex-col gap-2">
+        <p class="t-label" style="color: #7c8ba5;">Office</p>
+        <p class="t-sm" style="color: #fff;">{contact.office}</p>
+        <p class="t-sm">India</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <p class="t-label" style="color: #7c8ba5;">Contact</p>
+        <p class="t-sm mono" style="color: #fff;">
+          <a href={`mailto:${contact.email}`} class="no-underline hover:underline" style="color: #fff;">{contact.email}</a>
+          <span aria-hidden="true"> · </span>
+          <a href={contact.phoneHref} class="no-underline hover:underline" style="color: #fff;">{contact.phone}</a>
+        </p>
+        <p class="t-sm mono">{contact.hours}</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <p class="t-label" style="color: #7c8ba5;">Elsewhere</p>
+        <ul class="list-none m-0 p-0 flex flex-col gap-2">
+          <li>
+            <a href={contact.linkedin} target="_blank" rel="noopener" class="t-sm no-underline hover:text-white inline-flex items-center gap-1.5" style="color: #a8b4c8;">
+              LinkedIn <Icon name="arrow-up-right" size={13} />
+            </a>
+          </li>
+          {productSites.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" rel="noopener" class="t-sm no-underline hover:text-white inline-flex items-center gap-1.5" style="color: #a8b4c8;">
+                {s.label} <Icon name="arrow-up-right" size={13} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-8 flex flex-col gap-3" style="border-top: 1px solid rgb(255 255 255 / 0.12);">
+      <p class="t-cap mono" style="color: #7c8ba5;">
+        {entities.map((e, i) => (
+          <>
+            {i > 0 && <span aria-hidden="true"> · </span>}
+            {e.name}, {e.place.split(',')[0]} — {e.id}
+          </>
+        ))}
+      </p>
+      <p class="t-cap" style="color: #7c8ba5;">Product examples on this site are illustrative.</p>
+      <p class="t-cap" style="color: #7c8ba5;">
+        © 2026 AI Nexus Innovations Hub. Connecting Intelligence. Transforming Lives.
+      </p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,226 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import EvidenceCard from '../../components/EvidenceCard.astro';
+import AgentCard from '../../components/AgentCard.astro';
+import Faq from '../../components/Faq.astro';
+import { platforms } from '../../content/platforms';
+import { detail } from '../../content/platform-detail';
+
+export function getStaticPaths() {
+  return platforms.map((p) => ({ params: { slug: p.slug }, props: { platform: p } }));
+}
+
+const { platform: p } = Astro.props;
+const d = detail[p.slug];
+const siblings = platforms.filter((s) => s.slug !== p.slug);
+const hueVar = p.hue;
+---
+
+<Base title={p.pageTitle} description={p.pageLede.slice(0, 300)}>
+  {/* ── Hero ── */}
+  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
+    <div class="shell">
+      <Breadcrumbs
+        trail={[{ href: '/', label: 'Home' }, { href: '/platforms/', label: 'Platforms' }, { label: p.name }]}
+      />
+
+      <p class="t-label" style={`color: ${hueVar};`}>{p.name} · {p.sector}</p>
+      <h1 class="t-h1 mt-3" style="max-width: 20ch;">{p.pageH1}</h1>
+
+      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style={`background: ${hueVar};`}></div>
+
+      <p class="t-lede mt-7">{p.pageLede}</p>
+
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href="/contact/" class="btn btn-primary tx-fast">
+          Book a demo <Icon name="arrow-right" class="arrow" />
+        </a>
+        <a href={p.site} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
+          Visit {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={14} />
+        </a>
+      </div>
+
+      {/* Stat strip — server-rendered at final value, never animated. */}
+      <dl class="mt-10 grid grid-cols-2 md:grid-cols-4 m-0 card overflow-hidden">
+        {
+          p.stats.map((s, i) => (
+            <div
+              class="flex flex-col gap-1.5 p-6"
+              style={`border-right: ${i < 3 ? '1px' : '0'} solid var(--color-hairline); border-top: ${i > 1 ? '1px' : '0'} solid var(--color-hairline);`}
+            >
+              <dd
+                class="m-0 mono"
+                style={`color: var(--color-ink); font-weight: 500; overflow-wrap: anywhere; ${
+                  s.figure.length > 4
+                    ? 'font-size: var(--text-h3); line-height: 1.2;'
+                    : 'font-size: var(--text-mono-lg); line-height: 1.1; letter-spacing: -0.02em;'
+                }`}
+              >
+                {s.figure}
+              </dd>
+              <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  {/* ── What it does + the panel ── */}
+  <section class="section band">
+    <div class="shell">
+      <div class="grid gap-12 lg:grid-cols-[1.15fr_1fr] lg:items-start">
+        <div>
+          <h2 class="t-h2" style="max-width: 20ch;">What {p.name} does</h2>
+          <div class="mt-9 grid gap-x-9 gap-y-7 sm:grid-cols-2">
+            {
+              d.modules.map((m) => (
+                <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
+                  <h3 class="t-h4">{m.title}</h3>
+                  <p class="t-sm">{m.body}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-6">
+          <div class="rounded-[16px] p-6" style="background: var(--color-ink);">
+            <p class="t-cap m-0 mb-4" style="color: #a8b4c8;">{p.panel.title}</p>
+            {
+              p.panel.rows.map((r, i) => (
+                <div
+                  class="flex gap-4 items-baseline py-3"
+                  style={`border-top: ${i > 0 ? '1px' : '0'} solid rgb(255 255 255 / 0.10);`}
+                >
+                  <span class="mono t-cap shrink-0" style="color: #a8b4c8; width: 62px;">{r.when}</span>
+                  <span class="t-sm flex-1" style="color: #fff;">{r.what}</span>
+                  <span class="t-cap text-right" style="color: #a8b4c8;">{r.outcome}</span>
+                </div>
+              ))
+            }
+            <p class="t-cap italic mt-4 m-0" style="color: #7c8ba5;">{p.panel.note}</p>
+          </div>
+
+          <EvidenceCard evidence={p.evidence} class="max-w-none" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── The agents. The authored moment lives here: selecting a seat brings
+        its agents to the front. Nothing is hidden — emphasis and order only,
+        and the controls are injected by script so they are never dead. ── */}
+  <section class="section">
+    <div class="shell" id="agents" data-hue={p.slug}>
+      <h2 class="t-h2" style="max-width: 22ch;">The {p.agentCount} {p.name} AI agents</h2>
+      <p class="t-lede mt-5 mb-9">
+        Each agent does one job, and each carries its own guardrail. Product examples on this site are
+        illustrative.
+      </p>
+
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-agent-grid>
+        {d.agents.map((a) => <AgentCard agent={a} hue={hueVar} />)}
+      </div>
+    </div>
+  </section>
+
+  {/* ── Roles ── */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">Who {p.name} is for</h2>
+      <p class="t-lede mt-5">
+        {d.roles.length} roles, each with its own view — and an audit log that records who saw what.
+      </p>
+
+      <div class="mt-11 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+        {
+          d.roles.map((r) => (
+            <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
+              <h3 class="t-h4">{r.title}</h3>
+              <p class="t-sm">{r.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ── Compliance. Statements, not logos — the header line is mandatory. ── */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">Standards and compliance</h2>
+      <p class="t-lede mt-5 mb-8">
+        These are capability statements, not certification logos. Certificates are published only when they
+        exist.
+      </p>
+
+      <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
+        {
+          d.compliance.map((c) => (
+            <li
+              class="pill"
+              style="background: var(--color-mist); border: 1px solid var(--color-hairline); color: var(--color-body);"
+            >
+              {c}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* ── FAQ ── */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">{p.name} — questions</h2>
+      <div class="mt-10">
+        <Faq items={d.faqs} openFirst />
+      </div>
+    </div>
+  </section>
+
+  {/* ── Siblings ── */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h3">More from AI Nexus</h2>
+      <div class="mt-7 grid gap-6 sm:grid-cols-3">
+        {
+          siblings.map((s) => (
+            <a
+              href={`/platforms/${s.slug}/`}
+              class="card card-hover tx-fast p-5 flex flex-col gap-2 no-underline group/link"
+              style={`border-top: 3px solid ${s.hue};`}
+            >
+              <span class="t-label" style={`color: ${s.hue};`}>{s.sector}</span>
+              <span class="t-h4">{s.name}</span>
+              <span class="t-sm flex-1" style="color: var(--color-muted);">{s.subtitle}</span>
+              <span class="link-accent mt-1">
+                Explore <Icon name="arrow-right" class="arrow" size={14} />
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<script>
+  import { initSeatFilter } from '../../scripts/reorder.js';
+  const root = document.getElementById('agents');
+  if (root) {
+    const hues = {
+      medorbit: 'var(--color-medorbit)',
+      edvation: 'var(--color-edvation)',
+      advohub: 'var(--color-advohub)',
+      trustproperty: 'var(--color-trustproperty)',
+    };
+    initSeatFilter(root, hues[root.dataset.hue] ?? 'var(--color-accent)');
+  }
+</script>

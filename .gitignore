@@ -1,0 +1,28 @@
+# Build output
+dist/
+.astro/
+node_modules/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Third-party reference material — full-page screencaptures and screen
+# recordings of other companies' websites (arcade.software, amplemarket.com),
+# ~43 MB of binaries. Kept local: not ours to republish, and not needed to
+# build the site.
+refencer image for ui/
+
+# Reverse-engineered design specs of seven third-party products, used as
+# input when writing DESIGN.md. The conclusions live in DESIGN.md; the
+# source analyses stay local.
+refrence design md files/
+
+# Impeccable local state
+.impeccable/config.local.json
+.impeccable/critique/

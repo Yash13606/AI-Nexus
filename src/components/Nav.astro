@@ -1,0 +1,97 @@
+---
+import Icon from './Icon.astro';
+import { nav, isPlanned } from '../content/site';
+---
+
+<header
+  id="site-nav"
+  class="sticky top-0 z-50 tx-fast"
+  style="background: var(--color-paper); border-bottom: 1px solid var(--color-hairline);"
+>
+  <div class="shell flex items-center justify-between gap-6" style="height: 68px;">
+    <a href="/" class="t-h4 no-underline tracking-[-0.02em]" style="color: var(--color-ink);">
+      AI Nexus<span style="color: var(--color-muted); font-weight: 400;"> Innovations Hub</span>
+    </a>
+
+    <nav aria-label="Primary" class="hidden lg:flex items-center gap-7">
+      {
+        nav.map((item) =>
+          isPlanned(item.href) ? (
+            <span class="t-sm" style="color: var(--color-muted);" title="Coming soon">
+              {item.label}
+            </span>
+          ) : (
+            <a href={item.href} class="t-sm no-underline tx-fast hover:text-[--color-ink]" style="color: var(--color-body);">
+              {item.label}
+            </a>
+          )
+        )
+      }
+    </nav>
+
+    <div class="hidden lg:flex items-center gap-4">
+      <a href="/login/" class="t-sm no-underline tx-fast" style="color: var(--color-body);">Log in</a>
+      <a href="/contact/" class="btn btn-primary tx-fast">Book a demo</a>
+    </div>
+
+    <button
+      type="button"
+      id="menu-btn"
+      class="lg:hidden btn btn-secondary tx-fast"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <Icon name="menu" />
+      <span class="sr-only">Menu</span>
+    </button>
+  </div>
+
+  <div
+    id="mobile-menu"
+    hidden
+    class="lg:hidden shell pb-6"
+    style="border-top: 1px solid var(--color-hairline);"
+  >
+    <nav aria-label="Primary, mobile" class="flex flex-col pt-2">
+      {
+        nav.map((item) =>
+          isPlanned(item.href) ? (
+            <span class="t-h4 py-3" style="color: var(--color-muted); border-bottom: 1px solid var(--color-hairline);">
+              {item.label}
+            </span>
+          ) : (
+            <a
+              href={item.href}
+              class="t-h4 py-3 no-underline"
+              style="color: var(--color-ink); border-bottom: 1px solid var(--color-hairline);"
+            >
+              {item.label}
+            </a>
+          )
+        )
+      }
+      <a href="/login/" class="t-h4 py-3 no-underline" style="color: var(--color-ink); border-bottom: 1px solid var(--color-hairline);">Log in</a>
+      <a href="/contact/" class="btn btn-primary mt-5 justify-center">Book a demo</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // The only JavaScript on this page. Everything else is HTML and CSS.
+  const btn = document.getElementById('menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    if (menu) menu.hidden = open;
+  });
+
+  // Nav gets its shadow only once it has left the top — a real state change.
+  const navEl = document.getElementById('site-nav');
+  const onScroll = () => {
+    if (!navEl) return;
+    navEl.style.boxShadow = window.scrollY > 8 ? 'var(--shadow-sticky)' : '';
+  };
+  onScroll();
+  addEventListener('scroll', onScroll, { passive: true });
+</script>

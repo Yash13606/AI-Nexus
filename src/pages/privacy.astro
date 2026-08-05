@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import LegalPage from '../components/LegalPage.astro';
+import { privacy } from '../content/pages';
+---
+
+<Base
+  title="Privacy | AI Nexus Innovations Hub"
+  description="What this website collects, where data is held, and your rights under the DPDP Act 2023. Each platform processes its own customer data under its own policy."
+>
+  <LegalPage
+    heading="Privacy"
+    crumb="Privacy"
+    intro="This page covers this website only — www.ainexushub.ai. Each of our four platforms processes its own customer data under its own policy, linked below."
+    sections={privacy}
+    kind="privacy"
+    linksHeading="Product privacy policies"
+  />
+</Base>

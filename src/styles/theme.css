@@ -1,0 +1,495 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════════════════════════
+   TOKENS — DESIGN.md §14
+   ═══════════════════════════════════════════════════════════════ */
+@theme {
+  /* Neutrals */
+  --color-paper: #ffffff;
+  --color-wash: #f4f7fc;
+  --color-mist: #eef2f9;
+  --color-hairline: #dde5f0;
+  --color-control: #7589a6; /* 3.57:1 — non-text AA */
+  --color-ink: #0b1220; /* 18.72:1 AAA */
+  --color-body: #3d4a61; /*  8.93:1 AAA */
+  --color-muted: #5f6c85; /*  5.29:1 AA — do not lighten */
+
+  /* Accent — one hue, under 5% of any viewport */
+  --color-accent: #2b46d4; /*  7.17:1 AAA both ways */
+  --color-accent-deep: #1d31a8;
+  --color-accent-wash: #eaeeff;
+
+  /* Semantic — state only */
+  --color-verified: #0e7c7b;
+  --color-withheld: #8e1f3f;
+
+  /* Platform identity — tags only, DESIGN.md §6 */
+  --color-medorbit: #0e7c7b;
+  --color-edvation: #b45309;
+  --color-advohub: #8e1f3f;
+  --color-trustproperty: #6d28d9;
+
+  /* Type */
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-deva: 'IBM Plex Sans Devanagari', 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --text-display: 4.25rem;
+  --text-h1: 3.25rem;
+  --text-h2: 2.375rem;
+  --text-h3: 1.625rem;
+  --text-h4: 1.25rem;
+  --text-lede: 1.25rem;
+  --text-body: 1.0625rem;
+  --text-body-sm: 0.9375rem;
+  --text-caption: 0.8125rem;
+  --text-eyebrow: 0.75rem;
+  --text-mono: 0.875rem;
+  --text-mono-lg: 2.125rem;
+
+  /* Layout */
+  --page-max-width: 1200px;
+  --prose-max-width: 68ch;
+
+  /* Radius — closed ladder of four */
+  --radius-button: 8px;
+  --radius-card: 12px;
+  --radius-panel: 16px;
+  --radius-pill: 999px;
+
+  /* Elevation — exactly two */
+  --shadow-sticky: 0 1px 0 0 #dde5f0, 0 4px 16px -8px rgb(11 18 32 / 0.1);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-feedback: 120ms;
+  --dur-state: 220ms;
+  --dur-focal: 700ms;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FONTS — self-hosted. DESIGN.md §4.
+   Drop the woff2 files into /public/fonts/. Until they land the
+   stack falls back; the craft floor calls that a failure, not a
+   fallback, so this is a launch blocker not a nice-to-have.
+   ═══════════════════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/fonts/IBMPlexSans-Variable.woff2') format('woff2-variations');
+  font-weight: 400 600;
+  font-display: swap;
+  unicode-range: U+0000-024F, U+2000-206F, U+20B9, U+2190-21FF, U+2212;
+}
+@font-face {
+  font-family: 'IBM Plex Sans Devanagari';
+  src: url('/fonts/IBMPlexSansDevanagari-Regular.woff2') format('woff2');
+  font-weight: 400 600;
+  font-display: swap;
+  unicode-range: U+0900-097F, U+A8E0-A8FF;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2');
+  font-weight: 400 500;
+  font-display: swap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════════ */
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-body);
+  font-family: var(--font-sans), var(--font-deva);
+  font-size: var(--text-body);
+  line-height: 1.62;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+:lang(hi),
+:lang(mr),
+:lang(kn) {
+  font-family: var(--font-deva);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  color: var(--color-ink);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+/* Focus — DESIGN.md §5. Never removed without replacement. */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-accent);
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--color-ink);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 0 0 var(--radius-button) 0;
+  font-size: var(--text-body-sm);
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TYPE ROLES
+   ═══════════════════════════════════════════════════════════════ */
+.t-display {
+  font-size: clamp(2.5rem, 6vw, var(--text-display));
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+.t-h1 {
+  font-size: clamp(2.125rem, 4.6vw, var(--text-h1));
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+.t-h2 {
+  font-size: clamp(1.75rem, 3.6vw, var(--text-h2));
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+.t-h3 {
+  font-size: var(--text-h3);
+  line-height: 1.2;
+  letter-spacing: -0.018em;
+}
+.t-h4 {
+  font-size: var(--text-h4);
+  line-height: 1.3;
+  letter-spacing: -0.012em;
+}
+.t-lede {
+  font-size: clamp(1.0625rem, 2vw, var(--text-lede));
+  line-height: 1.55;
+  letter-spacing: -0.008em;
+  max-width: var(--prose-max-width);
+}
+.t-sm {
+  font-size: var(--text-body-sm);
+  line-height: 1.55;
+  letter-spacing: 0;
+}
+.t-cap {
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+.t-label {
+  font-size: var(--text-eyebrow);
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* The mono rule — DESIGN.md §4. Data and measurement only, never costume. */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.prose {
+  max-width: var(--prose-max-width);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════════════════════════ */
+.shell {
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 4vw, 3rem);
+}
+
+.band {
+  background: var(--color-wash);
+}
+
+.section {
+  padding-block: clamp(3rem, 7vw, 6rem);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOTION SYSTEM
+   ───────────────────────────────────────────────────────────────
+   Thesis: this product's claim is that a value gets VERIFIED or
+   WITHHELD. So motion animates verification, not arrival.
+
+   Every animated element is at its final opacity in the HTML.
+   Nothing fades in. Nothing counts up. If every animation below
+   failed to run, the page would be complete and correct.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Focal moment: the verification sweep ──────────────────────
+   Runs once on load, in the hero only. A rule travels beneath the
+   headline; behind it, each standards chip's border ticks from
+   Control gray to Verified teal and stays. The check HAPPENED —
+   it did not reveal the content, which was there all along.      */
+
+@keyframes sweep-rule {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes tick-verified {
+  from {
+    border-color: var(--color-hairline);
+    color: var(--color-body);
+  }
+  to {
+    border-color: color-mix(in oklab, var(--color-verified) 45%, transparent);
+    color: var(--color-ink);
+  }
+}
+
+.sweep-rule {
+  transform-origin: left center;
+  animation: sweep-rule 900ms var(--ease-out) 150ms both;
+}
+
+.chip-verify {
+  /* Final state is the resting state — the animation only delays arrival. */
+  border-color: color-mix(in oklab, var(--color-verified) 45%, transparent);
+  color: var(--color-ink);
+  animation: tick-verified 1ms linear both;
+  animation-delay: calc(320ms + var(--i, 0) * 55ms);
+  animation-direction: reverse;
+  animation-fill-mode: backwards;
+}
+
+/* ── Scroll-driven: the Control seals ──────────────────────────
+   The one place scroll position carries meaning. As an Evidence
+   Card enters the viewport, the rule above its Control well draws
+   across — the constraint closing over the output.
+
+   CSS scroll-driven animations. No JS, no library, no observer.
+   Unsupported browsers get the finished state, which is correct. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .seal-rule {
+      transform-origin: left center;
+      animation: sweep-rule linear both;
+      animation-timeline: view();
+      animation-range: entry 15% cover 32%;
+    }
+  }
+}
+
+/* ── Micro-interactions ────────────────────────────────────────
+   Feedback only. 120–220ms. No hover lift, no scale, no shadow. */
+
+.tx-fast {
+  transition:
+    color var(--dur-feedback) var(--ease-out),
+    background-color var(--dur-feedback) var(--ease-out),
+    border-color var(--dur-feedback) var(--ease-out);
+}
+
+.tx-state {
+  transition:
+    transform var(--dur-state) var(--ease-out),
+    border-color var(--dur-state) var(--ease-out);
+}
+
+/* Arrow travels on its parent's hover — signals direction, not decoration. */
+.arrow {
+  transition: transform var(--dur-state) var(--ease-out);
+}
+.group\/link:hover .arrow,
+a:hover > .arrow {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENTS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Buttons — 8px. Never a pill. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: inherit;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-button);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--color-accent-deep);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+.btn-secondary {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border-color: var(--color-control);
+}
+.btn-secondary:hover {
+  background: var(--color-mist);
+}
+.btn-secondary:active {
+  transform: translateY(1px);
+}
+
+.link-accent {
+  color: var(--color-accent);
+  font-weight: 500;
+  font-size: var(--text-body-sm);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.link-accent:hover {
+  text-decoration: underline;
+}
+
+/* Card — hairline + surface step. No shadow, ever. */
+.card {
+  background: var(--color-paper);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-card);
+}
+.card-hover:hover {
+  border-color: var(--color-control);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.75rem;
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+
+/* Reorder controls — injected by script, so they never render as dead
+   controls when JavaScript is unavailable. See src/scripts/reorder.js. */
+.reorder-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.reorder-btn {
+  font: inherit;
+  font-size: var(--text-caption);
+  font-weight: 500;
+  padding: 0.375rem 0.875rem;
+  border-radius: var(--radius-button);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-paper);
+  color: var(--color-body);
+  cursor: pointer;
+}
+.reorder-btn:hover {
+  border-color: var(--color-control);
+  color: var(--color-ink);
+}
+.reorder-btn[aria-pressed='true'] {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-paper);
+}
+
+/* Native details — zero JS, crawlable, keyboard-correct */
+.faq details {
+  border-bottom: 1px solid var(--color-hairline);
+}
+.faq details:first-child {
+  border-top: 1px solid var(--color-hairline);
+}
+.faq summary {
+  list-style: none;
+  cursor: pointer;
+  padding-block: 1.125rem;
+  font-size: var(--text-h4);
+  line-height: 1.3;
+  letter-spacing: -0.012em;
+  font-weight: 500;
+  color: var(--color-ink);
+  display: flex;
+  justify-content: space-between;
+  gap: 1.25rem;
+  align-items: center;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary .chev {
+  flex: none;
+  transition: transform var(--dur-state) var(--ease-out);
+  color: var(--color-control);
+}
+.faq details[open] summary .chev {
+  transform: rotate(180deg);
+}
+.faq .answer {
+  padding-bottom: 1.125rem;
+  max-width: var(--prose-max-width);
+}

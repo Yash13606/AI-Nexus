@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Faq from '../components/Faq.astro';
+import { platforms } from '../content/platforms';
+import { detail } from '../content/platform-detail';
+import { governance } from '../content/home';
+import { securityFaqs } from '../content/pages';
+import { contact } from '../content/site';
+---
+
+<Base
+  title="AI Governance, DPDP Compliance & Data Residency | AI Nexus"
+  description="The controls implemented in all four AI Nexus platforms: PHI redaction, citation verification, fail-closed consent, human approval, cost ceilings, per-agent kill switches and append-only audit trails. Data in AWS Mumbai."
+>
+  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
+    <div class="shell">
+      <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Security' }]} />
+      <h1 class="t-h1" style="max-width: 16ch;">How the AI is governed</h1>
+      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
+      <p class="t-lede mt-7">
+        The same discipline runs through all four platforms. Everything on this page is a control
+        implemented in the software, not a commitment in a policy document.
+      </p>
+    </div>
+  </section>
+
+  {/* ── The controls ── */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2">The controls</h2>
+      <div class="mt-11 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
+        {
+          governance.map((g) => (
+            <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
+              <h3 class="t-h4">{g.title}</h3>
+              <p class="t-sm">{g.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ── Data residency. The second and last Ink block on this page. ── */}
+  <section class="section">
+    <div class="shell">
+      <div class="rounded-[16px] p-8 sm:p-10" style="background: var(--color-ink);">
+        <h2 class="t-h2" style="color: #fff;">Data residency</h2>
+        <p class="t-lede mt-5" style="color: #a8b4c8;">
+          All four platforms run in AWS Mumbai <span class="mono" style="color: #fff;">(ap-south-1)</span>.
+          Data does not leave India in normal operation.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Per-platform standards ── */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 22ch;">Standards each platform implements</h2>
+      <p class="t-lede mt-5">
+        These are capability statements, not certification logos. We publish certificates only when they
+        exist.
+      </p>
+
+      <div class="mt-11 grid gap-8 sm:grid-cols-2">
+        {
+          platforms.map((p) => (
+            <div class="card p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
+              <div class="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
+                <h3 class="t-h3">{p.name}</h3>
+                <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
+                  Platform details <Icon name="arrow-right" class="arrow" size={14} />
+                </a>
+              </div>
+              <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
+                {detail[p.slug].compliance.map((c) => (
+                  <li
+                    class="pill"
+                    style="background: var(--color-mist); border: 1px solid var(--color-hairline); color: var(--color-body);"
+                  >
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ── FAQ ── */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">Questions we get asked</h2>
+      <div class="mt-10">
+        <Faq items={securityFaqs} openFirst />
+      </div>
+
+      <p class="t-sm mt-9">
+        Security questions:
+        <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
+      </p>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>

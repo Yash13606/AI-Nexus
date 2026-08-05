@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import LegalPage from '../components/LegalPage.astro';
+import { terms } from '../content/pages';
+---
+
+<Base
+  title="Terms | AI Nexus Innovations Hub"
+  description="Terms covering this website only. Product capabilities are described as capability statements, worked examples are illustrative, and nothing here is professional advice."
+>
+  <LegalPage
+    heading="Terms"
+    crumb="Terms"
+    intro="These terms cover this website only — www.ainexushub.ai. Use of any AI Nexus platform is governed by that platform's own terms of service and the agreement signed with your institution."
+    sections={terms}
+    kind="terms"
+    linksHeading="Platform terms"
+  />
+</Base>

@@ -1,0 +1,89 @@
+---
+/** /privacy/ and /terms/ share a shape: an intro, a set of prose sections,
+ *  per-product links, and the entity block. One component, two pages. */
+import Icon from './Icon.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import type { Section } from '../content/pages';
+import { productLegal } from '../content/pages';
+import { entities, contact } from '../content/site';
+
+interface Props {
+  heading: string;
+  crumb: string;
+  intro: string;
+  sections: Section[];
+  kind: 'privacy' | 'terms';
+  linksHeading: string;
+}
+const { heading, crumb, intro, sections, kind, linksHeading } = Astro.props;
+const links = productLegal(kind);
+
+/** Renders **bold** spans without dangerously injecting arbitrary HTML. */
+const parts = (s: string) => s.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+---
+
+<section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
+  <div class="shell" style="max-width: 820px;">
+    <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: crumb }]} />
+    <h1 class="t-h1">{heading}</h1>
+    <div class="sweep-rule mt-7 h-px w-full max-w-[420px]" style="background: var(--color-accent);"></div>
+    <p class="t-lede mt-7">{intro}</p>
+
+    <div class="mt-12 flex flex-col gap-11">
+      {
+        sections.map((sec) => (
+          <section class="flex flex-col gap-4">
+            <h2 class="t-h3">{sec.h}</h2>
+            {sec.body.map((p) => (
+              <p class="t-body prose">
+                {parts(p).map((x) =>
+                  x.startsWith('**') ? (
+                    <strong style="color: var(--color-ink); font-weight: 600;">{x.slice(2, -2)}</strong>
+                  ) : (
+                    x
+                  )
+                )}
+              </p>
+            ))}
+          </section>
+        ))
+      }
+
+      <section class="flex flex-col gap-4">
+        <h2 class="t-h3">{linksHeading}</h2>
+        <ul class="list-none m-0 p-0 flex flex-col gap-3">
+          {
+            links.map((l) => (
+              <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <a
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener"
+                  class="t-sm no-underline inline-flex items-center gap-1.5 hover:underline"
+                  style="color: var(--color-accent);"
+                >
+                  {l.name} {kind} <Icon name="arrow-up-right" size={13} />
+                </a>
+                <span class="t-cap" style="color: var(--color-muted);">{l.sub}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+
+    <div class="mt-14 pt-8 flex flex-col gap-2" style="border-top: 1px solid var(--color-hairline);">
+      {
+        entities.map((e) => (
+          <p class="t-cap mono" style="color: var(--color-muted);">
+            {e.name}, {e.place.split(',')[0]} — {e.id}
+          </p>
+        ))
+      }
+      <p class="t-cap mono mt-2" style="color: var(--color-muted);">
+        <a href={`mailto:${contact.email}`} style="color: var(--color-accent);">{contact.email}</a>
+        <span aria-hidden="true"> · </span>{contact.phone}<span aria-hidden="true"> · </span>{contact.hours}
+      </p>
+    </div>
+  </div>
+</section>

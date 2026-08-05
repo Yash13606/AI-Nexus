@@ -1,0 +1,49 @@
+---
+/** One agent, with its full Evidence triad inline. 48 instances across the
+ *  four platform pages. Anchor target — scroll-margin clears the 68px nav.
+ *
+ *  `data-audience` drives the seat reorder on the platform page. The card is
+ *  never hidden by it; it recedes at most. */
+import type { AgentDetail } from '../content/platform-detail';
+interface Props {
+  agent: AgentDetail;
+  hue: string;
+}
+const { agent, hue } = Astro.props;
+---
+
+<article
+  class="agent-card card p-6 flex flex-col gap-3.5"
+  id={agent.slug}
+  data-audience={agent.audience}
+  style="scroll-margin-top: 88px;"
+>
+  <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1.5">
+    <h3 class="t-h4">{agent.name}</h3>
+    <span
+      class="pill mono shrink-0"
+      style={`background: var(--color-paper); color: ${hue}; border: 1px solid ${hue}33;`}
+    >
+      {agent.audience}
+    </span>
+  </div>
+
+  <p class="t-sm" style="color: var(--color-muted);">{agent.summary}</p>
+
+  <div class="pt-3.5" style="border-top: 1px solid var(--color-hairline);">
+    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Input</p>
+    <p class="t-sm">{agent.input}</p>
+  </div>
+
+  <div>
+    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Output</p>
+    <p class="t-sm">{agent.output}</p>
+  </div>
+
+  <div class="seal-rule h-px w-full" style="background: var(--color-control);"></div>
+
+  <div class="rounded-[8px] p-4 mt-auto" style="background: var(--color-mist);">
+    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-withheld);">Control</p>
+    <p class="t-sm">{agent.control}</p>
+  </div>
+</article>

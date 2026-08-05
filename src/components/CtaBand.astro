@@ -1,0 +1,22 @@
+---
+import Icon from './Icon.astro';
+import { contact } from '../content/site';
+---
+
+<section class="section" style="background: var(--color-wash);">
+  <div class="shell text-center flex flex-col items-center gap-5">
+    <h2 class="t-h2">See a platform in action.</h2>
+    <p class="t-lede" style="margin-inline: auto;">
+      A 30-minute demo of any platform, run on your own facility type, board, practice area or city — or a
+      conversation about partnership. We reply within one business day.
+    </p>
+    <div class="mt-3 flex flex-wrap gap-3 justify-center">
+      <a href="/contact/" class="btn btn-primary tx-fast">
+        Book a demo <Icon name="arrow-right" class="arrow" />
+      </a>
+      <a href={contact.linkedin} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
+        Connect on LinkedIn <Icon name="arrow-up-right" size={14} />
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,395 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import EvidenceCard from '../components/EvidenceCard.astro';
+import { platforms } from '../content/platforms';
+import { agents, agentsFor } from '../content/agents';
+import { isPlanned } from '../content/site';
+import {
+  hero, heroStats, standards, disciplineBody, governance,
+  deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs, aboutBlock,
+} from '../content/home';
+import { entities, contact } from '../content/site';
+
+const agentsPlanned = isPlanned('/ai-agents/');
+---
+
+<Base
+  title="AI Nexus Innovations Hub — AI Platforms for Health, Education, Law, Property"
+  description={hero.lede}
+  jsonldFaq
+>
+  {/* ══════════════ HERO ══════════════
+      The focal moment. Content is at final opacity in the HTML; a rule sweeps
+      beneath the headline and the standards below it tick from unverified gray
+      to verified teal. The check happens — it never reveals the content. */}
+  <section class="section" style="padding-block: clamp(3.5rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem);">
+    <div class="shell">
+      <h1 class="t-display" style="max-width: 18ch;">{hero.headline}</h1>
+
+      <div class="sweep-rule mt-8 h-px w-full max-w-[560px]" style="background: var(--color-accent);"></div>
+
+      <p class="t-lede mt-8">{hero.lede}</p>
+      <p class="t-sm mt-5 mono" style="color: var(--color-muted);">{hero.byline}</p>
+
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href="/contact/" class="btn btn-primary tx-fast">
+          Book a demo <Icon name="arrow-right" class="arrow" />
+        </a>
+        <a href="/platforms/" class="btn btn-secondary tx-fast">Explore the four platforms</a>
+      </div>
+
+      <p class="t-cap mt-10 mono" style="color: var(--color-muted);">{hero.summary}</p>
+
+      {/* Stat strip. Server-rendered at final value — DESIGN.md §1.1. */}
+      <dl class="mt-5 grid grid-cols-2 md:grid-cols-4 m-0 card overflow-hidden">
+        {heroStats.map((s, i) => (
+          <div
+            class="flex flex-col gap-1.5 p-6"
+            style={`border-right: ${i < 3 ? '1px' : '0'} solid var(--color-hairline); border-top: ${i > 1 ? '1px' : '0'} solid var(--color-hairline);`}
+          >
+            <dd class="m-0 mono" style="font-size: var(--text-mono-lg); line-height: 1.1; letter-spacing: -0.02em; font-weight: 500; color: var(--color-ink);">
+              {s.figure}
+            </dd>
+            <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
+          </div>
+        ))}
+      </dl>
+
+      <ul class="mt-6 flex flex-wrap gap-2 list-none m-0 p-0">
+        {standards.map((s, i) => (
+          <li
+            class="chip-verify pill mono tx-fast"
+            style={`--i:${i}; border: 1px solid var(--color-hairline); background: var(--color-paper);`}
+          >
+            {s}
+          </li>
+        ))}
+      </ul>
+      <p class="t-cap mt-3" style="color: var(--color-muted);">
+        Capability statements, not certification logos. Certificates are published only when they exist.
+      </p>
+    </div>
+  </section>
+
+  {/* ══════════════ FOUR PLATFORMS ══════════════ */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">Four platforms, one engineering discipline</h2>
+      <p class="t-lede mt-5">{disciplineBody}</p>
+
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {platforms.map((p) => (
+          <article class="card card-hover tx-fast p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
+            <div>
+              <p class="t-h3" style="color: var(--color-ink);">{p.name}</p>
+              <p class="t-sm mt-1" style="color: var(--color-muted);">{p.subtitle}</p>
+            </div>
+
+            <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
+              {p.bullets.map((b) => (
+                <li class="t-sm flex gap-2.5">
+                  <Icon name="check" class="mt-1 shrink-0" size={14} />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Hue sits on paper, not accent-wash: on the tinted fill MedOrbit
+                teal and Edvation ochre measured 4.34/4.35:1 — below AA. */}
+            <p
+              class="pill mono self-start"
+              style={`background: var(--color-paper); color: ${p.hue}; border: 1px solid ${p.hue}33;`}
+            >
+              {p.agentCount} AI agents
+            </p>
+
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
+                Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
+              </a>
+              <a href={p.site} target="_blank" rel="noopener" class="t-sm no-underline inline-flex items-center gap-1 tx-fast" style="color: var(--color-muted);">
+                {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <a href="/platforms/" class="link-accent mt-10 group/link">
+        Compare all four platforms <Icon name="arrow-right" class="arrow" size={14} />
+      </a>
+    </div>
+  </section>
+
+  {/* ══════════════ WHAT EACH PLATFORM DOES ══════════════ */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">What each platform actually does</h2>
+      <p class="t-lede mt-5">
+        Every platform below ships with a worked example: the input a real user gives, the output the
+        agent produces, and the guardrail that constrains it.
+      </p>
+    </div>
+
+    {platforms.map((p, idx) => (
+      <div class={idx % 2 === 1 ? 'band' : ''} style="margin-top: clamp(3rem, 6vw, 5rem);">
+        <div class="shell section">
+          <div class="grid gap-12 lg:grid-cols-2 lg:items-start">
+            <div class={idx % 2 === 1 ? 'lg:order-2' : ''}>
+              <p class="t-label" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
+              <h3 class="t-h2 mt-3">{p.headline}</h3>
+              <p class="t-lede mt-5">{p.body}</p>
+
+              <div class="mt-9 flex flex-col gap-7">
+                {p.features.map((f) => (
+                  <div class="flex flex-col gap-2">
+                    <h4 class="t-h4">{f.title}</h4>
+                    <p class="t-sm prose">{f.body}</p>
+                  </div>
+                ))}
+              </div>
+
+              <dl class="mt-9 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5 m-0">
+                {p.stats.map((s) => (
+                  <div class="flex flex-col gap-1" style="border-top: 1px solid var(--color-hairline); padding-top: 0.75rem;">
+                    {/* A count and a region string are not the same kind of value.
+                        'ap-south-1' at h3 overflows a 2-col grid at 320px. */}
+                    <dd
+                      class="m-0 mono"
+                      style={`color: var(--color-ink); font-weight: 500; overflow-wrap: anywhere; ${
+                        s.figure.length > 4
+                          ? 'font-size: var(--text-h4); line-height: 1.3;'
+                          : 'font-size: var(--text-h3); line-height: 1.2; letter-spacing: -0.018em;'
+                      }`}
+                    >
+                      {s.figure}
+                    </dd>
+                    <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
+                  </div>
+                ))}
+              </dl>
+
+              <div class="mt-9 flex flex-wrap gap-3">
+                <a href={`/platforms/${p.slug}/`} class="btn btn-primary tx-fast">
+                  Explore {p.name} <Icon name="arrow-right" class="arrow" />
+                </a>
+                <a href={p.site} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
+                  Visit {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={14} />
+                </a>
+              </div>
+            </div>
+
+            <div class={`flex flex-col gap-6 ${idx % 2 === 1 ? 'lg:order-1' : ''}`}>
+              {/* Dark panel. One of at most two per page — DESIGN.md §5. */}
+              <div class="rounded-[16px] p-6" style="background: var(--color-ink);">
+                <p class="t-cap m-0 mb-4" style="color: #a8b4c8;">{p.panel.title}</p>
+                {p.panel.rows.map((r, i) => (
+                  <div
+                    class="flex gap-4 items-baseline py-3"
+                    style={`border-top: ${i > 0 ? '1px' : '0'} solid rgb(255 255 255 / 0.10);`}
+                  >
+                    <span class="mono t-cap shrink-0" style="color: #a8b4c8; width: 62px;">{r.when}</span>
+                    <span class="t-sm flex-1" style="color: #fff;">{r.what}</span>
+                    <span class="t-cap text-right" style="color: #a8b4c8;">{r.outcome}</span>
+                  </div>
+                ))}
+                <p class="t-cap italic mt-4 m-0" style="color: #7c8ba5;">{p.panel.note}</p>
+              </div>
+
+              <EvidenceCard evidence={p.evidence} />
+            </div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </section>
+
+  {/* ══════════════ 48 AGENTS ══════════════
+      /ai-agents/ is not built yet, so names render as text rather than dead
+      anchors. All 48 stay in the HTML — only the links are withheld. */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">48 AI agents, each with one job</h2>
+      <p class="t-lede mt-5">
+        Not one assistant with many prompts. Each agent does a single task someone would otherwise do by
+        hand, and each carries its own guardrails, its own audit trail and its own cost ceiling.
+      </p>
+
+      <div class="mt-12 grid gap-10 md:grid-cols-2 xl:grid-cols-4">
+        {platforms.map((p) => (
+          <div>
+            <div class="flex items-baseline justify-between gap-3 pb-2.5" style={`border-bottom: 2px solid ${p.hue};`}>
+              <p class="t-label" style={`color: ${p.hue};`}>{p.name}</p>
+              <p class="t-cap mono" style="color: var(--color-muted);">{p.agentCount} agents</p>
+            </div>
+            <ul class="list-none m-0 p-0">
+              {agentsFor(p.slug).map((a) => (
+                <li class="py-3" style="border-bottom: 1px solid var(--color-hairline);">
+                  {agentsPlanned ? (
+                    <span class="t-sm font-medium block" style="color: var(--color-ink);">{a.name}</span>
+                  ) : (
+                    <a href={`/ai-agents/#${a.slug}`} class="t-sm font-medium block no-underline" style="color: var(--color-ink);">
+                      {a.name}
+                    </a>
+                  )}
+                  <span class="t-cap block mt-0.5" style="color: var(--color-muted);">{a.summary}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════════ GOVERNANCE ══════════════ */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">How the AI is governed</h2>
+      <p class="t-lede mt-5">
+        The same discipline runs through all four platforms. These are controls implemented in the
+        software, not commitments in a policy document.
+      </p>
+
+      <div class="mt-12 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
+        {governance.map((g) => (
+          <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
+            <h3 class="t-h4">{g.title}</h3>
+            <p class="t-sm">{g.body}</p>
+          </div>
+        ))}
+      </div>
+
+      <p class="t-sm mt-10" style="color: var(--color-muted);">
+        Security, data residency and compliance — page in progress.
+      </p>
+    </div>
+  </section>
+
+  {/* ══════════════ DEPLOYMENT ══════════════
+      Numbered because this genuinely is a sequence. */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">How a deployment works</h2>
+      <p class="t-lede mt-5">The same four steps for every platform.</p>
+
+      <ol class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4 list-none m-0 p-0">
+        {deployment.map((d) => (
+          <li class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
+            <span class="mono t-h3" style="color: var(--color-control); font-weight: 500;">{d.n}</span>
+            <h3 class="t-h4">{d.title}</h3>
+            <p class="t-sm">{d.body}</p>
+          </li>
+        ))}
+      </ol>
+
+      <p class="t-sm mt-9 prose" style="color: var(--color-muted);">{deploymentCaveat}</p>
+    </div>
+  </section>
+
+  {/* ══════════════ WHY ══════════════ */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">Why institutions choose AI Nexus</h2>
+      <p class="t-lede mt-5">{whyLede}</p>
+
+      <div class="mt-12 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
+        {why.map((w) => (
+          <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
+            <h3 class="t-h4">{w.title}</h3>
+            <p class="t-sm">{w.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════════ ROLE FAMILIES ══════════════ */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">Built for every seat</h2>
+      <p class="t-lede mt-5">
+        A doctor, a teacher, an intern and a property owner need different things from the same platform.
+        Each product ships role-specific views, and the audit log records who saw what.
+      </p>
+
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {roleFamilies.map((r) => (
+          <a
+            href={r.href}
+            class="card card-hover tx-fast p-6 flex flex-col gap-3 no-underline group/link"
+            style={`border-top: 3px solid ${r.hue};`}
+          >
+            <h3 class="t-h4">{r.title}</h3>
+            <p class="t-sm flex-1">{r.body}</p>
+            <p class="t-cap mono" style="color: var(--color-muted);">{r.meta}</p>
+            <span class="link-accent">
+              Explore <Icon name="arrow-right" class="arrow" size={14} />
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════════ FAQ — native <details>, zero JS ══════════════ */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">Frequently asked questions</h2>
+      <div class="faq mt-10">
+        {faqs.map((f, i) => (
+          <details open={i === 0}>
+            <summary>
+              {f.q}
+              <Icon name="chevron-down" class="chev" size={18} />
+            </summary>
+            <p class="answer t-body">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════════ ABOUT ══════════════ */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 22ch;">A product company for the institutions that matter most</h2>
+      <div class="mt-8 flex flex-col gap-5 prose">
+        {aboutBlock.map((para) => <p class="t-body">{para}</p>)}
+      </div>
+      <p class="t-sm mt-8" style="color: var(--color-muted);">
+        Founded and led by Geetha R, Founder &amp; Director.
+      </p>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 max-w-[720px]">
+        {entities.map((e) => (
+          <div class="card p-5 flex flex-col gap-1.5">
+            <p class="t-label" style="color: var(--color-muted);">{e.region}</p>
+            <p class="t-sm font-medium" style="color: var(--color-ink);">{e.name}</p>
+            <p class="t-cap mono" style="color: var(--color-muted);">{e.id} · {e.place}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════════ CTA — the one centred block ══════════════ */}
+  <section class="section" style="background: var(--color-wash);">
+    <div class="shell text-center flex flex-col items-center gap-5">
+      <h2 class="t-h2">See a platform in action.</h2>
+      <p class="t-lede" style="margin-inline: auto;">
+        A 30-minute demo of any platform, run on your own facility type, board, practice area or city —
+        or a conversation about partnership. We reply within one business day.
+      </p>
+      <div class="mt-3 flex flex-wrap gap-3 justify-center">
+        <a href="/contact/" class="btn btn-primary tx-fast">
+          Book a demo <Icon name="arrow-right" class="arrow" />
+        </a>
+        <a href={contact.linkedin} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
+          Connect on LinkedIn <Icon name="arrow-up-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

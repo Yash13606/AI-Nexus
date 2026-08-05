@@ -1,0 +1,74 @@
+---
+import '../styles/theme.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { orgDescription, contact, entities } from '../content/site';
+import { platforms } from '../content/platforms';
+import { faqs } from '../content/home';
+
+interface Props {
+  title: string;
+  description: string;
+  jsonldFaq?: boolean;
+}
+const { title, description, jsonldFaq = false } = Astro.props;
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'AI Nexus Innovations Hub',
+  url: 'https://www.ainexushub.ai/',
+  description: orgDescription,
+  foundingDate: '2025',
+  email: contact.email,
+  telephone: contact.phone,
+  sameAs: [contact.linkedin, ...platforms.map((p) => p.site)],
+  address: { '@type': 'PostalAddress', addressLocality: 'Bengaluru', addressRegion: 'Karnataka', addressCountry: 'IN' },
+  subOrganization: entities.map((e) => ({ '@type': 'Organization', name: e.name, identifier: e.id })),
+};
+
+const apps = platforms.map((p) => ({
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: p.name,
+  applicationCategory: 'BusinessApplication',
+  description: `${p.subtitle} — ${p.headline}`,
+  url: p.site,
+  publisher: { '@type': 'Organization', name: 'AI Nexus Innovations Hub' },
+}));
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <script type="application/ld+json" set:html={JSON.stringify(org)} />
+    {apps.map((a) => <script type="application/ld+json" set:html={JSON.stringify(a)} />)}
+    {jsonldFaq && <script type="application/ld+json" set:html={JSON.stringify(faqLd)} />}
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

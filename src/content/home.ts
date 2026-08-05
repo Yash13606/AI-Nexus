@@ -1,0 +1,87 @@
+export const hero = {
+  headline: 'Four AI platforms for the institutions India runs on.',
+  lede: 'AI Nexus Innovations Hub builds MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices and TrustProperty for property — 48 AI agents that cite their sources, on operating systems that run the whole institution.',
+  byline: 'AI product company · Bengaluru + Singapore',
+  summary: '4 platforms · 48 AI agents · 22 Indian languages · Data in AWS Mumbai',
+};
+
+export const heroStats = [
+  { figure: '4', label: 'AI platforms' },
+  { figure: '48', label: 'named AI agents' },
+  { figure: '22', label: 'Indian languages' },
+  { figure: '2', label: 'countries, India + Singapore' },
+];
+
+/** Standards strip. Capability statements — never rendered as logos. */
+export const standards = [
+  'ABDM',
+  'FHIR R4',
+  'HL7 v2',
+  'NHCX',
+  'eCourts v3.0',
+  'BSA §63',
+  'DPDP Act 2023',
+  'GST e-invoicing',
+  'RERA',
+  'WCAG 2.1 AA',
+];
+
+export const disciplineBody =
+  'Four industries, one engineering discipline: AI that shows its work, inside software that runs the whole institution. Every agent cites its source, every model call is redacted and logged, every output a human can override — and all of it sits on a complete operating system for the institution, not a chatbot beside one.';
+
+export const governance = [
+  { title: 'Redacted before the model sees it', body: 'PHI and personal information are stripped before any model call — nine categories of Indian personal identifier, including Aadhaar, PAN, GSTIN, bank account and passport number.' },
+  { title: 'Citations verified, or removed', body: 'Legal citations are checked against Indian Kanoon and school answers against the page they came from. What cannot be verified is removed and the answer says so — never rendered with a caveat.' },
+  { title: 'Consent gated, fail-closed', body: 'DPDP consent is checked before client data reaches a model, and the check fails closed: no consent, no call.' },
+  { title: 'Agents propose, humans approve', body: 'No agent files, prescribes, sends or bills on its own. A clinician signs the note, a pharmacist signs the reconciliation, a biller approves the appeal, an advocate approves the filing.' },
+  { title: 'Cost ceilings in rupees', body: 'Every tenant sets a ceiling. At the cap the model downshifts automatically rather than failing, and every invocation is counted against it.' },
+  { title: 'A kill switch per agent', body: 'One flag turns any single agent off instantly, per institution — no deployment, no support ticket.' },
+  { title: 'Everything logged', body: 'Every AI invocation is written to an append-only audit trail with the request that produced it.' },
+  { title: 'Deterministic fallback', body: 'Each agent ships a deterministic engine returning the same schema as the model path, so the anti-hallucination gates apply identically whether or not a model is called.' },
+];
+
+/** A real sequence — which is why these carry numbers. */
+export const deployment = [
+  { n: '01', title: 'Scope', body: 'A 30-minute demo on your own facility type, board, practice area or city — not a generic tour. You tell us what you run today.' },
+  { n: '02', title: 'Configure', body: 'Modules, the role catalogue and the compliance surfaces are preset for your institution type, so nobody starts at a blank screen.' },
+  { n: '03', title: 'Migrate', body: 'Your existing records are imported and reconciled. We do the mapping; you verify the result before anything goes live.' },
+  { n: '04', title: 'Go live', body: 'Staff are trained, and the AI agents start in dry-run so your team watches them work before they act. Then they are switched on one at a time.' },
+];
+
+export const deploymentCaveat =
+  'We do not publish a go-live duration, because we have not measured one across enough institutions to quote honestly.';
+
+export const whyLede =
+  'Hospitals, schools, law practices and property businesses run on tangles of disconnected software — a dozen logins, manual re-entry, and hours lost to administration. We build one deeply integrated, AI-native platform per industry, so the people inside these institutions can spend their time on patients, students, clients and homes.';
+
+export const why = [
+  { title: 'One platform per institution', body: 'Each product replaces a stack of point tools with a single system and a single source of truth — 100+ modules in a hospital, a complete school OS under the teaching agents, twelve modules from intake to invoice in a law firm.' },
+  { title: 'AI that shows its work', body: 'Page citations in education. Indian Kanoon verification in law. Chart-grounded outputs in health. Explainable scores in property. Every one is checkable by the person relying on it.' },
+  { title: 'Built for India first', body: 'ABDM, NHCX and PM-JAY in healthcare. Any board in education. eCourts, GST, BSA §63 and 22 languages in law. RERA and registration workflows in property. Compliance and language are foundations here, not afterthoughts.' },
+  { title: 'Your data stays in India', body: 'Every platform runs in AWS Mumbai (ap-south-1) under the DPDP Act 2023, with consent flows, erasure workflows and audit trails built into the software.' },
+];
+
+export const roleFamilies = [
+  { href: '/solutions/hospitals/', title: 'For hospitals', body: 'Doctors, nurses, lab, pharmacy, front office, billing and administrators — plus a separate patient portal.', meta: '8 roles · MedOrbit', hue: 'var(--color-medorbit)' },
+  { href: '/solutions/schools/', title: 'For schools', body: 'Students, teachers, parents, principals and administrators, on one platform with six role views.', meta: '6 roles · Edvation', hue: 'var(--color-edvation)' },
+  { href: '/solutions/law-firms/', title: 'For law firms', body: 'Nine seats from intern to managing partner, plus a client portal with its own authentication.', meta: '9 roles · AdvoHub', hue: 'var(--color-advohub)' },
+  { href: '/solutions/property/', title: 'For property', body: 'Buyers and tenants, owners, agents and agencies, builders, service professionals and societies.', meta: '6 roles · TrustProperty', hue: 'var(--color-trustproperty)' },
+];
+
+export const faqs = [
+  { q: 'What is AI Nexus Innovations Hub?', a: 'AI Nexus Innovations Hub is an AI product company incorporated in Bengaluru, India and Singapore that builds four AI-native platforms for regulated Indian industries: MedOrbit for hospitals, Edvation for K-12 schools, AdvoHub for legal practice, and TrustProperty for property. The company was founded in 2025 and operates from Bengaluru and Singapore.' },
+  { q: 'What products does AI Nexus build?', a: 'Four AI platforms: MedOrbit, an AI-native hospital operating system for 23 types of Indian healthcare facility; Edvation, a K-12 school platform whose AI teaches from the school’s own textbooks; AdvoHub, an AI practice platform for Indian advocates; and TrustProperty, an AI-native property platform for India.' },
+  { q: 'How many AI agents does AI Nexus build?', a: '48 named AI agents across four platforms: 11 in MedOrbit, 20 in Edvation, 10 in AdvoHub and 7 in TrustProperty. Each has a specific job, its own guardrails and its own audit trail.' },
+  { q: 'Where is AI Nexus Innovations Hub based?', a: 'In Bengaluru, India (AI Nexus Innovations Hub Pvt. Ltd., CIN U47413KA2025PTC210603) and Singapore (AI Nexus Innovations Hub Pte. Ltd., UEN 202550378W). The office is in Bengaluru, Karnataka.' },
+  { q: 'Where is customer data stored?', a: 'In India. Every platform runs in AWS Mumbai (ap-south-1) under the Digital Personal Data Protection Act 2023, with consent flows, erasure workflows and append-only audit trails built into the software.' },
+  { q: 'How does AI Nexus stop the AI from making things up?', a: 'Differently in each industry, and always as a technical control rather than a disclaimer. In law, every citation is verified against Indian Kanoon and unverifiable authorities are removed from the answer. In education, every grounded answer carries the page number from the school’s own textbook. In healthcare, outputs are grounded in the chart and a clinician signs before anything enters the record. In property, the concierge answers only from the listing’s verified facts.' },
+  { q: 'Which Indian languages are supported?', a: 'Up to 22 Indian languages in AdvoHub, 13 in Edvation, Hindi, Marathi and Kannada among others in MedOrbit, and English, हिंदी and Hinglish in TrustProperty.' },
+  { q: 'Is pricing published?', a: 'For AdvoHub, yes: Solo Advocate ₹999 per month and Firm ₹3,999 per seat per month, GST-inclusive, with a 14-day trial. TrustProperty publishes its service prices, from ₹1,499 for an encumbrance check. MedOrbit and Edvation are quoted per institution, because pricing depends on facility type or school size.' },
+  { q: 'How do I get a demo?', a: 'Email raju@ainexushub.ai or call +91 95385 22221. A demo of any platform takes about 30 minutes, runs on your own institution type rather than a generic tour, and there is no charge. We reply within one business day.' },
+];
+
+export const aboutBlock = [
+  'AI Nexus Innovations Hub was founded in 2025 to bring AI-native software to four industries that touch the most lives — healthcare, education, law and property — starting with India, where the gap between how these institutions work and what their software supports is widest.',
+  'We are a product company, not a consultancy. We build, operate and support all four platforms end to end, from Bengaluru and Singapore.',
+  'We also try to be careful about what we claim. Our platforms publish capability statements rather than certification logos, label illustrative examples as illustrative, and decline to quote figures we have not measured. That is a deliberate choice in a market where badge walls are the norm.',
+];

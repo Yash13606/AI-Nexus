@@ -1,0 +1,93 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { platforms } from '../content/platforms';
+import { contact, isPlanned } from '../content/site';
+
+/** Escape hatches. The original build notes flag these as something no
+ *  competitor ships, so they get real presence, not fine print. */
+const hatches = [
+  {
+    q: 'A client of a law firm using AdvoHub?',
+    label: 'Client portal',
+    href: 'https://www.advohub.ai/portal/login',
+    external: true,
+  },
+  {
+    q: 'Looking for your hospital reports?',
+    label: 'Patient portal',
+    href: 'https://www.medorbit.ai/patient-portal/login',
+    external: true,
+  },
+  { q: 'Not sure which platform?', label: 'Compare all four', href: '/platforms/', external: false },
+  { q: 'No account yet?', label: 'Book a demo', href: '/contact/', external: false },
+];
+---
+
+<Base
+  title="Sign in | AI Nexus Innovations Hub"
+  description="Sign in to MedOrbit, Edvation, AdvoHub or TrustProperty. Client and patient portals have their own entrances."
+>
+  <section class="section" style="padding-block: clamp(3rem, 7vw, 5.5rem);">
+    <div class="shell" style="max-width: 860px;">
+      <h1 class="t-h1">Sign in</h1>
+      <p class="t-lede mt-5">Choose your platform.</p>
+
+      <div class="mt-11 grid gap-5 sm:grid-cols-2">
+        {
+          platforms.map((p) => (
+            <a
+              href={`${p.site}/login`}
+              target="_blank"
+              rel="noopener"
+              class="card card-hover tx-fast p-6 flex flex-col gap-2 no-underline group/link"
+              style={`border-top: 3px solid ${p.hue};`}
+            >
+              <span class="t-h3" style="color: var(--color-ink);">{p.name}</span>
+              <span class="t-sm" style="color: var(--color-muted);">{p.subtitle}</span>
+              <span class="link-accent mt-3">
+                Sign in <Icon name="arrow-up-right" size={14} />
+              </span>
+            </a>
+          ))
+        }
+      </div>
+
+      {/* Escape hatches */}
+      <div class="mt-10 card overflow-hidden" style="background: var(--color-wash);">
+        {
+          hatches.map((h, i) => (
+            <div
+              class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-6 py-4"
+              style={`border-top: ${i > 0 ? '1px' : '0'} solid var(--color-hairline);`}
+            >
+              <span class="t-sm">{h.q}</span>
+              {isPlanned(h.href) ? (
+                <span class="t-sm" style="color: var(--color-muted);">{h.label}</span>
+              ) : (
+                <a
+                  href={h.href}
+                  {...(h.external ? { target: '_blank', rel: 'noopener' } : {})}
+                  class="link-accent group/link"
+                >
+                  {h.label}
+                  <Icon name={h.external ? 'arrow-up-right' : 'arrow-right'} class="arrow" size={14} />
+                </a>
+              )}
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="mt-10 flex flex-col gap-2">
+        <h2 class="t-h4">Need help signing in?</h2>
+        <p class="t-sm mono">
+          <a href={`mailto:${contact.email}`} style="color: var(--color-accent);">{contact.email}</a>
+          <span aria-hidden="true" style="color: var(--color-control);"> · </span>
+          <a href={contact.phoneHref} style="color: var(--color-accent);">{contact.phone}</a>
+        </p>
+        <p class="t-cap mono" style="color: var(--color-muted);">{contact.hours}</p>
+      </div>
+    </div>
+  </section>
+</Base>

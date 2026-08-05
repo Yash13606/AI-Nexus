@@ -1,0 +1,23 @@
+---
+import Icon from './Icon.astro';
+import type { Faq } from '../content/platform-detail';
+interface Props {
+  items: Faq[];
+  openFirst?: boolean;
+}
+const { items, openFirst = false } = Astro.props;
+---
+
+<div class="faq">
+  {
+    items.map((f, i) => (
+      <details open={openFirst && i === 0}>
+        <summary>
+          {f.q}
+          <Icon name="chevron-down" class="chev" size={18} />
+        </summary>
+        <p class="answer">{f.a}</p>
+      </details>
+    ))
+  }
+</div>

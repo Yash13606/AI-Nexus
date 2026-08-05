@@ -1,0 +1,44 @@
+---
+/** The system's core component — ~60 instances across the site. DESIGN.md §8.1.
+ *
+ *  Three labelled rows in fixed order. The Control row sits in a Mist well so it
+ *  reads as a constraint ENCLOSING the output above it, not a third bullet. That
+ *  well is the only nested surface in the system.
+ *
+ *  Motion: the rule above the Control well draws across as the card enters view —
+ *  the gate closing over the output. Scroll position is the meaning. Pure CSS
+ *  scroll-driven animation; unsupported browsers get the finished state. */
+import type { Evidence } from '../content/platforms';
+interface Props {
+  evidence: Evidence;
+  class?: string;
+}
+const { evidence, class: cls = '' } = Astro.props;
+---
+
+<figure class={`card p-6 m-0 ${cls}`}>
+  <figcaption
+    class="t-label inline-flex self-start rounded-[999px] px-3 py-1 mb-[18px]"
+    style="background: var(--color-mist); color: var(--color-muted);"
+  >
+    {evidence.tag}
+  </figcaption>
+
+  <div class="pb-3.5">
+    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Input</p>
+    <p class="t-sm">{evidence.input}</p>
+  </div>
+
+  <div class="pt-3.5 pb-3.5" style="border-top: 1px solid var(--color-hairline);">
+    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Output</p>
+    <p class="t-sm">{evidence.output}</p>
+  </div>
+
+  <!-- The constraint closes over the output. -->
+  <div class="seal-rule h-px w-full" style="background: var(--color-control);"></div>
+
+  <div class="mt-3.5 rounded-[8px] p-4" style="background: var(--color-mist);">
+    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-withheld);">Control</p>
+    <p class="t-sm">{evidence.control}</p>
+  </div>
+</figure>

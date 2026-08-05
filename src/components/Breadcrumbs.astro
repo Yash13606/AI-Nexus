@@ -1,0 +1,25 @@
+---
+interface Props {
+  trail: { href?: string; label: string }[];
+}
+const { trail } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="mb-7">
+  <ol class="list-none m-0 p-0 flex flex-wrap items-center gap-2 t-cap" style="color: var(--color-muted);">
+    {
+      trail.map((c, i) => (
+        <li class="flex items-center gap-2">
+          {i > 0 && <span aria-hidden="true" style="color: var(--color-control);">/</span>}
+          {c.href ? (
+            <a href={c.href} class="no-underline hover:underline" style="color: var(--color-muted);">
+              {c.label}
+            </a>
+          ) : (
+            <span aria-current="page" style="color: var(--color-ink);">{c.label}</span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

@@ -1,0 +1,268 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { platforms } from '../content/platforms';
+import { contact, entities } from '../content/site';
+---
+
+<Base
+  title="Contact AI Nexus Innovations Hub — Bengaluru"
+  description="Book a 30-minute demo of any AI Nexus platform, run on your own facility type, board, practice area or city. We reply within one business day."
+>
+  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
+    <div class="shell">
+      <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Contact' }]} />
+      <h1 class="t-h1" style="max-width: 18ch;">Book a demo, or just ask us something</h1>
+      <div class="sweep-rule mt-7 h-px w-full max-w-[460px]" style="background: var(--color-accent);"></div>
+      <p class="t-lede mt-7">
+        A demo of any platform takes about 30 minutes and runs on your own facility type, board, practice
+        area or city rather than a generic tour. There is no charge, and we reply within one business day.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 0;">
+    <div class="shell grid gap-12 lg:grid-cols-[7fr_5fr] lg:items-start">
+      {/* ── Form. No backend: submitting swaps in a success state that names
+            the real route. Labels are always visible — never placeholder-as-
+            label. Errors are announced, not just coloured. ── */}
+      <div>
+        <h2 class="t-h2">Send us a message</h2>
+
+        <form id="demo-form" novalidate class="mt-8 flex flex-col gap-5" aria-describedby="form-note">
+          <div class="grid gap-5 sm:grid-cols-2">
+            <p class="field">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" autocomplete="name" required />
+              <span class="err" id="name-err" hidden></span>
+            </p>
+            <p class="field">
+              <label for="org">Organisation</label>
+              <input id="org" name="org" type="text" autocomplete="organization" />
+              <span class="err" id="org-err" hidden></span>
+            </p>
+            <p class="field">
+              <label for="email">Work email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+              <span class="err" id="email-err" hidden></span>
+            </p>
+            <p class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" />
+              <span class="err" id="phone-err" hidden></span>
+            </p>
+          </div>
+
+          <p class="field">
+            <label for="platform">Which platform?</label>
+            <select id="platform" name="platform">
+              <option value="">Not sure yet</option>
+              {
+                platforms.map((p) => (
+                  <option value={p.slug}>
+                    {p.name} — {p.subtitle}
+                  </option>
+                ))
+              }
+              <option value="partnership">Partnership or something else</option>
+            </select>
+          </p>
+
+          <p class="field">
+            <label for="message">What would you like to see?</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+            <span class="err" id="message-err" hidden></span>
+          </p>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <button type="submit" class="btn btn-primary tx-fast">
+              Send message <Icon name="arrow-right" class="arrow" />
+            </button>
+            <span id="form-status" role="status" aria-live="polite" class="t-cap" style="color: var(--color-muted);"></span>
+          </div>
+
+          <p id="form-note" class="t-cap" style="color: var(--color-muted);">
+            Your details are used only to reply to this enquiry. Prefer email? Write to
+            <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
+            directly.
+          </p>
+        </form>
+
+        <div id="demo-sent" hidden class="card p-6 flex flex-col gap-3 mt-8">
+          <div class="flex items-center gap-2.5">
+            <Icon name="check" size={18} />
+            <h3 class="t-h4">Message ready to send</h3>
+          </div>
+          <p class="t-sm">
+            This site has no message backend yet, so nothing was transmitted. Send the same message to
+            <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
+            and it reaches the same person — we reply within one business day.
+          </p>
+          <p class="t-cap" style="color: var(--color-muted);">
+            We would rather say this plainly than show a confirmation for something that did not happen.
+          </p>
+          <button type="button" id="form-again" class="btn btn-secondary tx-fast self-start mt-1">
+            Edit the message
+          </button>
+        </div>
+      </div>
+
+      {/* ── Details ── */}
+      <aside class="flex flex-col gap-9">
+        <div class="card p-6 flex flex-col gap-3">
+          <h2 class="t-h4">Direct</h2>
+          <ul class="list-none m-0 p-0 flex flex-col gap-2">
+            <li>
+              <a href={`mailto:${contact.email}`} class="t-sm mono no-underline hover:underline" style="color: var(--color-accent);">
+                {contact.email}
+              </a>
+            </li>
+            <li>
+              <a href={contact.phoneHref} class="t-sm mono no-underline hover:underline" style="color: var(--color-accent);">
+                {contact.phone}
+              </a>
+            </li>
+            <li class="t-sm mono" style="color: var(--color-muted);">{contact.hours}</li>
+          </ul>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h2 class="t-h4">Office</h2>
+          <p class="t-sm">{contact.office}<br />India</p>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <h2 class="t-h4">Legal entities</h2>
+          {
+            entities.map((e) => (
+              <div class="flex flex-col gap-1">
+                <p class="t-sm" style="color: var(--color-ink); font-weight: 500;">{e.name}</p>
+                <p class="t-cap mono" style="color: var(--color-muted);">{e.id} · {e.place}</p>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h2 class="t-h4">Product sites</h2>
+          <ul class="list-none m-0 p-0 flex flex-col gap-2.5">
+            {
+              platforms.map((p) => (
+                <li class="flex flex-col">
+                  <a
+                    href={p.site}
+                    target="_blank"
+                    rel="noopener"
+                    class="t-sm no-underline inline-flex items-center gap-1.5 hover:underline"
+                    style="color: var(--color-accent);"
+                  >
+                    {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+                  </a>
+                  <span class="t-cap" style="color: var(--color-muted);">{p.subtitle}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const form = document.getElementById('demo-form') as HTMLFormElement | null;
+  const sent = document.getElementById('demo-sent');
+  const status = document.getElementById('form-status');
+  const again = document.getElementById('form-again');
+  if (!form || !sent || !status) throw new Error('contact form markup missing');
+
+  const rules: Record<string, (v: string) => string | null> = {
+    name: (v) => (v.trim() ? null : 'Add your name so we know who to reply to.'),
+    email: (v) =>
+      !v.trim()
+        ? 'Add a work email so we can reply.'
+        : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+          ? null
+          : 'That email is missing an @ or a domain.',
+    message: (v) => (v.trim() ? null : 'Tell us what you would like to see in the demo.'),
+  };
+
+  const check = (id: string) => {
+    const field = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+    const err = document.getElementById(`${id}-err`);
+    if (!field || !err) return true;
+    const msg = rules[id]?.(field.value) ?? null;
+    err.textContent = msg ?? '';
+    err.hidden = !msg;
+    field.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (msg) field.setAttribute('aria-describedby', `${id}-err`);
+    else field.removeAttribute('aria-describedby');
+    return !msg;
+  };
+
+  for (const id of Object.keys(rules)) {
+    document.getElementById(id)?.addEventListener('blur', () => check(id));
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const results = Object.keys(rules).map(check);
+    if (results.includes(false)) {
+      const bad = Object.keys(rules).find((id) => !check(id));
+      status.textContent = 'Check the highlighted fields.';
+      if (bad) document.getElementById(bad)?.focus();
+      return;
+    }
+    status.textContent = '';
+    form.hidden = true;
+    sent.hidden = false;
+    sent.querySelector('h3')?.setAttribute('tabindex', '-1');
+    (sent.querySelector('h3') as HTMLElement | null)?.focus();
+  });
+
+  again?.addEventListener('click', () => {
+    sent.hidden = true;
+    form.hidden = false;
+    (document.getElementById('name') as HTMLElement | null)?.focus();
+  });
+</script>
+
+<style>
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin: 0;
+  }
+  .field label {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    font: inherit;
+    font-size: var(--text-body-sm);
+    color: var(--color-ink);
+    background: var(--color-paper);
+    border: 1px solid var(--color-control);
+    border-radius: var(--radius-button);
+    padding: 0.75rem 0.875rem;
+    width: 100%;
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 7rem;
+  }
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    border-color: var(--color-accent);
+  }
+  .err {
+    font-size: var(--text-caption);
+    color: var(--color-withheld);
+  }
+</style>

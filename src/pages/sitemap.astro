@@ -1,0 +1,156 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { platforms } from '../content/platforms';
+import { detail } from '../content/platform-detail';
+import { solutions } from '../content/solutions';
+import { contact } from '../content/site';
+
+const company = [
+  { href: '/', label: 'Home' },
+  { href: '/about/', label: 'About' },
+  { href: '/security/', label: 'Security' },
+  { href: '/contact/', label: 'Contact' },
+  { href: '/login/', label: 'Sign in' },
+  { href: '/privacy/', label: 'Privacy' },
+  { href: '/terms/', label: 'Terms' },
+];
+---
+
+<Base
+  title="Sitemap | AI Nexus Innovations Hub"
+  description="Every page on ainexushub.ai, including all 48 AI agents linked individually."
+>
+  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
+    <div class="shell">
+      <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Sitemap' }]} />
+      <h1 class="t-h1">Sitemap</h1>
+      <div class="sweep-rule mt-7 h-px w-full max-w-[380px]" style="background: var(--color-accent);"></div>
+      <p class="t-lede mt-7">
+        Every page on this site. The machine-readable version is at
+        <a href="/sitemap-index.xml" class="mono" style="color: var(--color-accent);">/sitemap-index.xml</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 0;">
+    <div class="shell grid gap-10 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="flex flex-col gap-3">
+        <h2 class="t-h4">Company</h2>
+        <ul class="list-none m-0 p-0 flex flex-col">
+          {
+            company.map((l) => (
+              <li class="py-2" style="border-top: 1px solid var(--color-hairline);">
+                <a href={l.href} class="t-sm no-underline hover:underline" style="color: var(--color-body);">
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <h2 class="t-h4">Platforms</h2>
+        <ul class="list-none m-0 p-0 flex flex-col">
+          <li class="py-2" style="border-top: 1px solid var(--color-hairline);">
+            <a href="/platforms/" class="t-sm no-underline hover:underline" style="color: var(--color-body);">
+              All platforms
+            </a>
+          </li>
+          {
+            platforms.map((p) => (
+              <li class="py-2" style="border-top: 1px solid var(--color-hairline);">
+                <a href={`/platforms/${p.slug}/`} class="t-sm no-underline hover:underline" style="color: var(--color-body);">
+                  {p.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <h2 class="t-h4">Solutions</h2>
+        <ul class="list-none m-0 p-0 flex flex-col">
+          {
+            solutions.map((s) => (
+              <li class="py-2" style="border-top: 1px solid var(--color-hairline);">
+                <a href={`/solutions/${s.slug}/`} class="t-sm no-underline hover:underline" style="color: var(--color-body);">
+                  For {s.slug.replace('-', ' ')}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <h2 class="t-h4">Product sites</h2>
+        <ul class="list-none m-0 p-0 flex flex-col">
+          {
+            platforms.map((p) => (
+              <li class="py-2" style="border-top: 1px solid var(--color-hairline);">
+                <a
+                  href={p.site}
+                  target="_blank"
+                  rel="noopener"
+                  class="t-sm no-underline hover:underline inline-flex items-center gap-1.5"
+                  style="color: var(--color-body);"
+                >
+                  {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+                </a>
+              </li>
+            ))
+          }
+          <li class="py-2" style="border-top: 1px solid var(--color-hairline);">
+            <a
+              href={contact.linkedin}
+              target="_blank"
+              rel="noopener"
+              class="t-sm no-underline hover:underline inline-flex items-center gap-1.5"
+              style="color: var(--color-body);"
+            >
+              LinkedIn <Icon name="arrow-up-right" size={13} />
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {/* All 48 agents, linked individually — this page and the homepage are the
+      two sources of those deep links. */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2">AI agents — 48 across four platforms</h2>
+      <div class="mt-10 grid gap-10 md:grid-cols-2 xl:grid-cols-4">
+        {
+          platforms.map((p) => (
+            <div class="flex flex-col gap-3">
+              <h3 class="t-label" style={`color: ${p.hue};`}>{p.name}</h3>
+              <ul class="list-none m-0 p-0 flex flex-col">
+                {detail[p.slug].agents.map((a) => (
+                  <li class="py-2" style="border-top: 1px solid var(--color-hairline);">
+                    <a
+                      href={`/ai-agents/#${a.slug}`}
+                      class="t-sm no-underline hover:underline"
+                      style="color: var(--color-body);"
+                    >
+                      {a.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+
+      <a href="/ai-agents/" class="link-accent mt-10 group/link">
+        Every agent, with a worked example <Icon name="arrow-right" class="arrow" size={14} />
+      </a>
+    </div>
+  </section>
+</Base>

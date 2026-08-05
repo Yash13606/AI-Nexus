@@ -1,0 +1,137 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { solutions } from '../../content/solutions';
+import { platforms } from '../../content/platforms';
+import { detail } from '../../content/platform-detail';
+
+export function getStaticPaths() {
+  return solutions.map((s) => ({ params: { slug: s.slug }, props: { solution: s } }));
+}
+
+const { solution: s } = Astro.props;
+const p = platforms.find((x) => x.slug === s.platform)!;
+const d = detail[p.slug];
+const others = solutions.filter((x) => x.slug !== s.slug);
+
+/** Roles, paired with the worked example that role actually sees. */
+const rows = d.roles.map((r) => ({
+  ...r,
+  agent: s.evidence[r.title] ? d.agents.find((a) => a.name === s.evidence[r.title]) : undefined,
+}));
+---
+
+<Base title={s.title} description={`${s.seats} ${p.body}`.slice(0, 300)}>
+  {/* ── Hero ── */}
+  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
+    <div class="shell">
+      <Breadcrumbs
+        trail={[{ href: '/', label: 'Home' }, { label: 'Solutions' }, { label: s.h1.split(' run')[0] }]}
+      />
+
+      <p class="t-label" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
+      <h1 class="t-h1 mt-3" style="max-width: 18ch;">{s.h1}</h1>
+
+      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style={`background: ${p.hue};`}></div>
+
+      <p class="t-lede mt-7" style="color: var(--color-ink);">{s.seats}</p>
+      <p class="t-body mt-5 prose">{p.body}</p>
+
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href="/contact/" class="btn btn-primary tx-fast">
+          Book a demo <Icon name="arrow-right" class="arrow" />
+        </a>
+        <a href={`/platforms/${p.slug}/`} class="btn btn-secondary tx-fast">The {p.name} platform</a>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Every seat. Roles that carry a worked example get one inline; the
+        Control row sits in its Mist well exactly as everywhere else. ── */}
+  <section class="section band">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">What each seat gets</h2>
+      <p class="t-lede mt-5">
+        {d.roles.length} roles, each with its own view of the same platform, and an audit log that records
+        who saw what.
+      </p>
+
+      <div class="mt-11 grid gap-6 md:grid-cols-2 xl:grid-cols-3 items-start">
+        {
+          rows.map((r) => (
+            <article class="card p-6 flex flex-col gap-3">
+              <h3 class="t-h4">{r.title}</h3>
+              <p class="t-sm">{r.body}</p>
+
+              {r.agent && (
+                <div class="mt-2 flex flex-col gap-3">
+                  <p
+                    class="t-label self-start pill"
+                    style="background: var(--color-mist); color: var(--color-muted);"
+                  >
+                    In practice · {r.agent.name}
+                  </p>
+
+                  <div>
+                    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Input</p>
+                    <p class="t-sm">{r.agent.input}</p>
+                  </div>
+
+                  <div>
+                    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Output</p>
+                    <p class="t-sm">{r.agent.output}</p>
+                  </div>
+
+                  <div class="seal-rule h-px w-full" style="background: var(--color-control);" />
+
+                  <div class="rounded-[8px] p-4" style="background: var(--color-mist);">
+                    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-withheld);">Control</p>
+                    <p class="t-sm">{r.agent.control}</p>
+                  </div>
+                </div>
+              )}
+            </article>
+          ))
+        }
+      </div>
+
+      <p class="t-sm mt-9" style="color: var(--color-muted);">
+        Product examples on this site are illustrative.
+      </p>
+    </div>
+  </section>
+
+  {/* ── Other verticals ── */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h3">Other industries</h2>
+      <div class="mt-7 grid gap-6 sm:grid-cols-3">
+        {
+          others.map((o) => {
+            const op = platforms.find((x) => x.slug === o.platform)!;
+            return (
+              <a
+                href={`/solutions/${o.slug}/`}
+                class="card card-hover tx-fast p-5 flex flex-col gap-2 no-underline group/link"
+                style={`border-top: 3px solid ${op.hue};`}
+              >
+                <span class="t-label" style={`color: ${op.hue};`}>{op.sector}</span>
+                <span class="t-h4">For {o.slug.replace('-', ' ')}</span>
+                <span class="t-sm flex-1" style="color: var(--color-muted);">
+                  {detail[op.slug].roles.length} roles · {op.name}
+                </span>
+                <span class="link-accent mt-1">
+                  Explore <Icon name="arrow-right" class="arrow" size={14} />
+                </span>
+              </a>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>

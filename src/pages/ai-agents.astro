@@ -1,0 +1,137 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import CtaBand from '../components/CtaBand.astro';
+import AgentCard from '../components/AgentCard.astro';
+import { platforms } from '../content/platforms';
+import { detail } from '../content/platform-detail';
+import { governance } from '../content/home';
+
+/** TrustProperty publishes six agents that are not live. They are listed as
+ *  not-live rather than omitted — the same discipline as the rest of the site. */
+const inDevelopment = [
+  { name: 'GharGPT', body: 'Conversational property discovery across the whole marketplace.' },
+  { name: 'Negotiation', body: 'Assists both sides through offer and counter-offer.' },
+  { name: 'Visit Concierge', body: 'Plans and coordinates multi-property site visits.' },
+  { name: 'Agreement Explainer', body: 'Explains a rental or sale agreement clause by clause.' },
+  { name: 'Society Copilot', body: "Answers resident questions from the society's own records." },
+  { name: 'NRI Advisor', body: 'Guides non-resident buyers through remote purchase and compliance.' },
+];
+---
+
+<Base
+  title="All 48 AI Agents Across Four Platforms | AI Nexus"
+  description="48 named AI agents across MedOrbit, Edvation, AdvoHub and TrustProperty. Each is listed with the input a user gives, the output it produces, and the constraint that governs it."
+>
+  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
+    <div class="shell">
+      <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'AI agents' }]} />
+      <h1 class="t-h1" style="max-width: 20ch;">48 AI agents, each with one job and one guardrail</h1>
+      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
+      <p class="t-lede mt-7">
+        AI Nexus builds 48 named AI agents across four platforms. Each does a single task someone would
+        otherwise do by hand. Every agent below is listed with the input a user gives, the output it
+        produces, and the constraint that governs it.
+      </p>
+      <p class="t-sm mt-5" style="color: var(--color-muted);">
+        Product examples on this site are illustrative.
+      </p>
+    </div>
+  </section>
+
+  {/* Jump nav — 48 cards on one page earns it. Real anchors, work with JS off. */}
+  <nav
+    aria-label="Jump to platform"
+    class="jump band"
+    style="border-block: 1px solid var(--color-hairline);"
+  >
+    <div class="shell flex flex-wrap gap-x-7 gap-y-2 py-3.5">
+      {
+        platforms.map((p) => (
+          <a href={`#${p.slug}`} class="t-sm no-underline inline-flex items-baseline gap-2 tx-fast" style="color: var(--color-body);">
+            <span class="mono t-cap" style={`color: ${p.hue};`}>{p.agentCount}</span>
+            {p.name}
+          </a>
+        ))
+      }
+    </div>
+  </nav>
+
+  {
+    platforms.map((p, i) => (
+      <section class={`section ${i % 2 === 1 ? 'band' : ''}`} id={p.slug} style="scroll-margin-top: 124px;">
+        <div class="shell">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3">
+            <h2 class="t-h2">
+              {p.name} — {p.agentCount} agents
+            </h2>
+            <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
+              The {p.name} platform <Icon name="arrow-right" class="arrow" size={14} />
+            </a>
+          </div>
+          <p class="t-lede mt-4">
+            {p.subtitle}. {p.headline}
+          </p>
+
+          <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {detail[p.slug].agents.map((a) => <AgentCard agent={a} hue={p.hue} />)}
+          </div>
+
+          {p.slug === 'trustproperty' && (
+            <div class="mt-10">
+              <h3 class="t-h4">In development — not live today</h3>
+              <div class="mt-5 grid gap-x-9 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
+                {inDevelopment.map((x) => (
+                  <div class="flex flex-col gap-1 pt-3" style="border-top: 1px solid var(--color-hairline);">
+                    <p class="t-sm" style="color: var(--color-ink); font-weight: 500;">{x.name}</p>
+                    <p class="t-cap" style="color: var(--color-muted);">{x.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    ))
+  }
+
+  {/* Governance recap — identical to the homepage and /security/. */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">How the AI is governed</h2>
+      <p class="t-lede mt-5">
+        The same discipline runs through all four platforms. These are controls implemented in the
+        software, not commitments in a policy document.
+      </p>
+
+      <div class="mt-12 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
+        {
+          governance.map((g) => (
+            <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
+              <h3 class="t-h4">{g.title}</h3>
+              <p class="t-sm">{g.body}</p>
+            </div>
+          ))
+        }
+      </div>
+
+      <a href="/security/" class="link-accent mt-10 group/link">
+        Security, data residency and compliance <Icon name="arrow-right" class="arrow" size={14} />
+      </a>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<style>
+  .jump {
+    position: sticky;
+    top: 68px;
+    z-index: 40;
+  }
+  .jump a:hover {
+    color: var(--color-ink);
+  }
+</style>

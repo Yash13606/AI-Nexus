@@ -1,0 +1,223 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { platforms } from '../../content/platforms';
+import { detail } from '../../content/platform-detail';
+
+const languages: Record<string, string> = {
+  medorbit: '—',
+  edvation: '13',
+  advohub: '22',
+  trustproperty: '3',
+};
+---
+
+<Base
+  title="Four AI Platforms for Indian Institutions | AI Nexus"
+  description="MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices and TrustProperty for property — four AI platforms, 48 agents, one engineering discipline."
+>
+  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
+    <div class="shell">
+      <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Platforms' }]} />
+      <h1 class="t-h1" style="max-width: 20ch;">Four platforms, four industries, one engineering discipline</h1>
+      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
+      <p class="t-lede mt-7">
+        Four industries, one engineering discipline: AI that shows its work, inside software that runs the
+        whole institution. Every agent cites its source, every model call is redacted and logged, every
+        output a human can override — and all of it sits on a complete operating system for the
+        institution, not a chatbot beside one.
+      </p>
+    </div>
+  </section>
+
+  {/* ── The four ── */}
+  <section class="section band">
+    <div class="shell">
+      <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {
+          platforms.map((p) => (
+            <article class="card card-hover tx-fast p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
+              <div>
+                <p class="t-h3" style="color: var(--color-ink);">{p.name}</p>
+                <p class="t-sm mt-1" style="color: var(--color-muted);">{p.subtitle}</p>
+              </div>
+
+              <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
+                {p.bullets.map((b) => (
+                  <li class="t-sm flex gap-2.5">
+                    <Icon name="check" class="mt-1 shrink-0" size={14} />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <p
+                class="pill mono self-start"
+                style={`background: var(--color-paper); color: ${p.hue}; border: 1px solid ${p.hue}33;`}
+              >
+                {p.agentCount} AI agents
+              </p>
+
+              <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
+                  Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
+                </a>
+                <a
+                  href={p.site}
+                  target="_blank"
+                  rel="noopener"
+                  class="t-sm no-underline inline-flex items-center gap-1 tx-fast"
+                  style="color: var(--color-muted);"
+                >
+                  {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+                </a>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ── Comparison. The page's job is to compare, so the authored moment is
+        the comparison re-ranking itself. Real <table> with <th scope>. ── */}
+  <section class="section">
+    <div class="shell" id="compare">
+      <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
+      <p class="t-lede mt-5 mb-10">
+        48 named AI agents across the four. Every figure below is the count the platform actually ships.
+      </p>
+
+      <div class="tbl-wrap">
+        <table data-sortable>
+          <caption class="sr-only">
+            The four AI Nexus platforms compared by industry, AI agent count, role count and languages
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Platform</th>
+              <th scope="col">Industry</th>
+              <th scope="col" class="num">AI agents</th>
+              <th scope="col" class="num">Roles</th>
+              <th scope="col" class="num">Languages</th>
+              <th scope="col">Site</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              platforms.map((p) => (
+                <tr
+                  data-name={p.name}
+                  data-agents={String(p.agentCount)}
+                  data-roles={String(detail[p.slug].roles.length)}
+                  data-languages={languages[p.slug] === '—' ? '0' : languages[p.slug]}
+                >
+                  <th scope="row" class="plat-cell">
+                    <span class="swatch" style={`background: ${p.hue};`} aria-hidden="true"></span>
+                    <a href={`/platforms/${p.slug}/`} class="no-underline hover:underline" style="color: var(--color-ink);">
+                      {p.name}
+                    </a>
+                  </th>
+                  <td>{p.sector}</td>
+                  <td class="num">{p.agentCount}</td>
+                  <td class="num">{detail[p.slug].roles.length}</td>
+                  <td class="num">{languages[p.slug]}</td>
+                  <td>
+                    <a
+                      href={p.site}
+                      target="_blank"
+                      rel="noopener"
+                      class="t-sm no-underline inline-flex items-center gap-1"
+                      style="color: var(--color-accent);"
+                    >
+                      {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+                    </a>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="t-sm mt-6" style="color: var(--color-muted);">
+        Every agent is listed with a worked example on its platform page.
+      </p>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<script>
+  import { initTableSort } from '../../scripts/reorder.js';
+  const root = document.getElementById('compare');
+  if (root) initTableSort(root);
+</script>
+
+<style>
+  .tbl-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 680px;
+  }
+  th,
+  td {
+    padding: 0.9375rem 1.25rem;
+    text-align: left;
+    font-size: var(--text-body-sm);
+    border-bottom: 1px solid var(--color-hairline);
+    font-weight: 400;
+  }
+  thead th {
+    background: var(--color-wash);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  tbody tr:nth-child(even) {
+    background: var(--color-mist);
+  }
+  tbody tr:last-child td,
+  tbody tr:last-child th {
+    border-bottom: 0;
+  }
+  .num {
+    font-family: var(--font-mono);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  /* A 3px colored side rail is the single most recognizable AI-UI tell, and
+     the detector flags it. A legend swatch identifies the series the way a
+     chart does — a convention, not decoration. */
+  th.plat-cell {
+    font-weight: 500;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .swatch {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    margin-right: 0.625rem;
+    vertical-align: baseline;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>

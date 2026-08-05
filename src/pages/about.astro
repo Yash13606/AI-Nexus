@@ -1,0 +1,97 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { platforms } from '../content/platforms';
+import { aboutIntro, aboutBody } from '../content/pages';
+import { entities, contact } from '../content/site';
+---
+
+<Base
+  title="About AI Nexus Innovations Hub — Bengaluru & Singapore"
+  description={aboutIntro}
+>
+  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
+    <div class="shell">
+      <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'About' }]} />
+      <h1 class="t-h1" style="max-width: 20ch;">A product company for the institutions that matter most</h1>
+      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
+      <p class="t-lede mt-7">{aboutIntro}</p>
+
+      <div class="mt-9 flex flex-col gap-5 prose">
+        {aboutBody.map((para) => <p class="t-body">{para}</p>)}
+      </div>
+    </div>
+  </section>
+
+  {/* ── Leadership + entities ── */}
+  <section class="section band">
+    <div class="shell grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+      <div class="flex flex-col gap-2">
+        <h2 class="t-h4">Leadership</h2>
+        <p class="t-h3" style="color: var(--color-ink);">Geetha R</p>
+        <p class="t-sm" style="color: var(--color-muted);">Founder &amp; Director</p>
+        <a
+          href={contact.linkedin}
+          target="_blank"
+          rel="noopener"
+          class="link-accent mt-2 group/link"
+        >
+          LinkedIn <Icon name="arrow-up-right" size={14} />
+        </a>
+      </div>
+
+      <div class="grid gap-5 sm:grid-cols-2">
+        {
+          entities.map((e) => (
+            <div class="card p-5 flex flex-col gap-1.5">
+              <p class="t-label" style="color: var(--color-muted);">{e.region}</p>
+              <p class="t-sm" style="color: var(--color-ink); font-weight: 500;">{e.name}</p>
+              <p class="t-cap mono" style="color: var(--color-muted);">{e.id} · {e.place}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ── What we build ── */}
+  <section class="section">
+    <div class="shell">
+      <h2 class="t-h2" style="max-width: 20ch;">What we build</h2>
+      <p class="t-lede mt-5">
+        Four platforms and 48 named AI agents, all operated and supported by us.
+      </p>
+
+      <div class="mt-11 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {
+          platforms.map((p) => (
+            <article class="card card-hover tx-fast p-6 flex flex-col gap-3" style={`border-top: 3px solid ${p.hue};`}>
+              <h3 class="t-h3">{p.name}</h3>
+              <p class="t-sm flex-1">
+                {p.subtitle} — {p.headline}
+              </p>
+              <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
+                  Explore <Icon name="arrow-right" class="arrow" size={14} />
+                </a>
+                <a
+                  href={p.site}
+                  target="_blank"
+                  rel="noopener"
+                  class="t-sm no-underline inline-flex items-center gap-1"
+                  style="color: var(--color-muted);"
+                >
+                  {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+                </a>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
