@@ -61,7 +61,6 @@ npm run check:content
 
 Asserts 48 agents (11 / 20 / 10 / 7), every agent carrying all three Evidence rows, unique kebab-case slugs matching the live sitemap's anchors, 1:1 platform↔solution pairing, and 24 modules / 29 roles / 21 FAQs. It runs on every build, because a renamed agent slug silently breaks 96 in-content deep links.
 
-Design quality is checked by the [Impeccable](https://github.com/pbakaus/impeccable) detector (58 rules), which runs as a hook on every UI edit. Current state: **0 findings**, **868 internal links, 0 broken**.
 
 ## Docs
 

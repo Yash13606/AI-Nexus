@@ -1,6 +1,6 @@
 # PRODUCT.md — AI Nexus Innovations Hub
 
-> Durable product context. Every Impeccable command reads this before designing.
+> Durable product context. Every design command reads this before designing.
 > Written from the scraped live site (`ainexushub/`), not inferred. Assumptions are labelled.
 
 ## What this is
