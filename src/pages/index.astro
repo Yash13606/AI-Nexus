@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
 import { platforms } from '../content/platforms';
+import { markIndic } from '../content/indic';
 import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
 import {
@@ -90,7 +91,7 @@ const agentsPlanned = isPlanned('/ai-agents/');
               {p.bullets.map((b) => (
                 <li class="t-sm flex gap-2.5">
                   <Icon name="check" class="mt-1 shrink-0" size={14} />
-                  <span>{b}</span>
+                  <span set:html={markIndic(b)} />
                 </li>
               ))}
             </ul>
@@ -139,7 +140,7 @@ const agentsPlanned = isPlanned('/ai-agents/');
             <div class={idx % 2 === 1 ? 'lg:order-2' : ''}>
               <p class="t-label" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
               <h3 class="t-h2 mt-3">{p.headline}</h3>
-              <p class="t-lede mt-5">{p.body}</p>
+              <p class="t-lede mt-5" set:html={markIndic(p.body)} />
 
               <div class="mt-9 flex flex-col gap-7">
                 {p.features.map((f) => (
@@ -165,7 +166,7 @@ const agentsPlanned = isPlanned('/ai-agents/');
                     >
                       {s.figure}
                     </dd>
-                    <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
+                    <dt class="t-cap" style="color: var(--color-muted);" set:html={markIndic(s.label)} />
                   </div>
                 ))}
               </dl>
@@ -344,7 +345,7 @@ const agentsPlanned = isPlanned('/ai-agents/');
               {f.q}
               <Icon name="chevron-down" class="chev" size={18} />
             </summary>
-            <p class="answer t-body">{f.a}</p>
+            <p class="answer t-body" set:html={markIndic(f.a)} />
           </details>
         ))}
       </div>
