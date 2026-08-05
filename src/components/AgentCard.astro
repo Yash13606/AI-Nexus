@@ -4,6 +4,7 @@
  *
  *  `data-audience` drives the seat reorder on the platform page. The card is
  *  never hidden by it; it recedes at most. */
+import { markIndic } from '../content/indic';
 import type { AgentDetail } from '../content/platform-detail';
 interface Props {
   agent: AgentDetail;
@@ -37,7 +38,7 @@ const { agent, hue } = Astro.props;
 
   <div>
     <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Output</p>
-    <p class="t-sm">{agent.output}</p>
+    <p class="t-sm" set:html={markIndic(agent.output)} />
   </div>
 
   <div class="seal-rule h-px w-full" style="background: var(--color-control);"></div>

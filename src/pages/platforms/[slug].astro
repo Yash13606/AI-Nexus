@@ -7,7 +7,8 @@ import EvidenceCard from '../../components/EvidenceCard.astro';
 import AgentCard from '../../components/AgentCard.astro';
 import Faq from '../../components/Faq.astro';
 import { platforms } from '../../content/platforms';
-import { detail } from '../../content/platform-detail';
+import { detail } from '../../content/platform-detail-fixed';
+import { markIndic } from '../../content/indic';
 
 export function getStaticPaths() {
   return platforms.map((p) => ({ params: { slug: p.slug }, props: { platform: p } }));
@@ -17,22 +18,32 @@ const { platform: p } = Astro.props;
 const d = detail[p.slug];
 const siblings = platforms.filter((s) => s.slug !== p.slug);
 const hueVar = p.hue;
+
+const trail = [
+  { href: '/', label: 'Home' },
+  { href: '/platforms/', label: 'Platforms' },
+  { label: p.name },
+];
 ---
 
-<Base title={p.pageTitle} description={p.pageLede.slice(0, 300)}>
+<Base
+  title={p.pageTitle}
+  description={p.pageLede.slice(0, 300)}
+  trail={trail}
+  faqItems={d.faqs}
+  jsonldFaq
+>
   {/* ── Hero ── */}
   <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
     <div class="shell">
-      <Breadcrumbs
-        trail={[{ href: '/', label: 'Home' }, { href: '/platforms/', label: 'Platforms' }, { label: p.name }]}
-      />
+      <Breadcrumbs trail={trail} />
 
       <p class="t-label" style={`color: ${hueVar};`}>{p.name} · {p.sector}</p>
       <h1 class="t-h1 mt-3" style="max-width: 20ch;">{p.pageH1}</h1>
 
       <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style={`background: ${hueVar};`}></div>
 
-      <p class="t-lede mt-7">{p.pageLede}</p>
+      <p class="t-lede mt-7" set:html={markIndic(p.pageLede)} />
 
       <div class="mt-9 flex flex-wrap gap-3">
         <a href="/contact/" class="btn btn-primary tx-fast">
@@ -61,7 +72,7 @@ const hueVar = p.hue;
               >
                 {s.figure}
               </dd>
-              <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
+              <dt class="t-cap" style="color: var(--color-muted);" set:html={markIndic(s.label)} />
             </div>
           ))
         }
