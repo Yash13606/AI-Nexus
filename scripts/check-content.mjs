@@ -97,6 +97,108 @@ assert.deepEqual(
   'agents.ts and platform-detail.ts slugs diverged — deep links would break'
 );
 
+// ══ The corrections overlay cuts, and only cuts. ═════════════════════════════
+// platform-detail.ts is generated, and its generator let the following "## Roles"
+// section run into the last agent's `control` on each platform. The overlay in
+// platform-detail-fixed.ts truncates at a sentinel. These assertions prove the
+// correction is a pure truncation that lands exactly on the scraped text, so a
+// regenerated file cannot drift and the overlay cannot rot unnoticed.
+const CUTS = {
+  medorbit: ['sahayak', ' Roles '],
+  edvation: ['science-lab', ' Roles '],
+  advohub: ['firm-knowledge-agent', ' Roles '],
+  trustproperty: ['ad-factory', ' In development'],
+};
+
+const scrapeControl = (p) => {
+  const md = readFileSync(
+    new URL(`../ainexushub/platforms/${p}/index.md`, import.meta.url),
+    'utf8'
+  ).replace(/\r\n/g, '\n');
+  const lines = [...md.matchAll(/^Control (.+)$/gm)];
+  assert.ok(lines.length > 0, `${p}: no Control lines found in the scrape`);
+  return lines[lines.length - 1][1].trim();
+};
+
+const detailSlugsWithControls = () =>
+  [...detailSrc.matchAll(/\{ slug: "([a-z0-9-]+)"/g)].map((m) => ({ slug: m[1] }));
+
+const controlOf = (slug) => {
+  const at = detailSrc.indexOf(`slug: "${slug}"`);
+  assert.notEqual(at, -1, `agent ${slug} not found in platform-detail.ts`);
+  const seg = detailSrc.slice(at, detailSrc.indexOf('},', at));
+  const m = seg.match(/control: "((?:[^"\\]|\\.)*)"/);
+  assert.ok(m, `${slug}: no control field`);
+  return JSON.parse(`"${m[1]}"`);
+};
+
+for (const [platform, [slug, cut]] of Object.entries(CUTS)) {
+  const raw = controlOf(slug);
+  assert.ok(
+    raw.includes(cut),
+    `${slug}: cut sentinel ${JSON.stringify(cut)} is gone — platform-detail.ts was ` +
+      `regenerated or fixed. Delete the entry from platform-detail-fixed.ts.`
+  );
+  const fixed = raw.slice(0, raw.indexOf(cut));
+  assert.ok(raw.startsWith(fixed), `${slug}: correction is not a pure truncation`);
+  assert.equal(
+    fixed,
+    scrapeControl(platform),
+    `${slug}: corrected control does not match ainexushub/platforms/${platform}/`
+  );
+}
+
+// After the overlay, no control may carry generator spill — checked across all
+// 48, so a regeneration that corrupts a different agent is caught too.
+const cutFor = Object.fromEntries(Object.values(CUTS));
+for (const { slug } of detailSlugsWithControls()) {
+  const raw = controlOf(slug);
+  const cut = cutFor[slug];
+  const corrected = cut && raw.includes(cut) ? raw.slice(0, raw.indexOf(cut)) : raw;
+  for (const spill of ['## ', ' Roles ', ' In development']) {
+    assert.ok(
+      !corrected.includes(spill),
+      `${slug}: control carries generator spill ${JSON.stringify(spill)} that the ` +
+        `overlay does not cut — ${JSON.stringify(corrected.slice(0, 80))}`
+    );
+  }
+}
+
+// ══ Every Devanagari run that reaches a page is declared. ════════════════════
+// Devanagari is shared by hi/mr/sa/ne/kok, so script cannot imply language.
+// src/content/indic.ts declares each run; an undeclared one fails the build
+// rather than silently shipping the wrong lang attribute.
+const indicSrc = read('indic.ts');
+const declared = new Set(
+  [...indicSrc.matchAll(/^\s{2}([ऀ-ॿ꣠-ꣿ]+):\s*'([a-z-]+)'/gm)].map((m) => m[1])
+);
+assert.ok(declared.size > 0, 'indic.ts declares no runs — the parser broke');
+
+for (const file of ['platforms.ts', 'platform-detail.ts', 'home.ts', 'solutions.ts', 'pages.ts']) {
+  for (const m of read(file).matchAll(/[ऀ-ॿ꣠-ꣿ]+/g)) {
+    assert.ok(
+      declared.has(m[0]),
+      `${file}: undeclared Devanagari run ${JSON.stringify(m[0])} — add it to ` +
+        `src/content/indic.ts with its actual language, not a blanket 'hi'`
+    );
+  }
+}
+
+// ══ Progressive enhancement: reorder controls stay JS-injected. ═════════════
+// They are built by src/scripts/reorder.js at runtime, so with JS off there is
+// no dead button. Authoring one into markup would break that.
+for (const page of ['index.astro', '[slug].astro']) {
+  const src = readFileSync(
+    new URL(`../src/pages/platforms/${page}`, import.meta.url),
+    'utf8'
+  );
+  assert.ok(
+    !src.includes('reorder-btn') && !src.includes('reorder-bar'),
+    `platforms/${page}: reorder controls must stay JS-injected, never authored into markup`
+  );
+}
+
 console.log(
-  'check:content — 48 agents (×3 evidence rows), 4 platforms, 24 modules, 29 roles, 21 FAQs, slugs aligned. OK'
+  'check:content — 48 agents (×3 evidence rows), 4 platforms, 24 modules, 29 roles, 21 FAQs, ' +
+    'slugs aligned, 4 control corrections match the scrape, Devanagari runs declared. OK'
 );

@@ -5,7 +5,7 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import { solutions } from '../../content/solutions';
 import { platforms } from '../../content/platforms';
-import { detail } from '../../content/platform-detail';
+import { detail } from '../../content/platform-detail-fixed';
 
 export function getStaticPaths() {
   return solutions.map((s) => ({ params: { slug: s.slug }, props: { solution: s } }));
