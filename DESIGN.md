@@ -188,7 +188,7 @@ Negative tracking, opening toward zero as size drops. Plex Sans runs slightly wi
 | Page max-width | `1200px` |
 | Prose max-width | `68ch` (~720px) |
 | Gutter | 24px mobile / 32px tablet / 48px desktop |
-| Section gap | 96px desktop · 64px tablet · 48px mobile |
+| Section gap | `clamp(3.5rem, 7.5vw, 7.5rem)` — 120px desktop · 56px mobile floor |
 | Card padding | 24px (32px on large panels) |
 | Grid gap | 24px |
 
@@ -277,9 +277,28 @@ Four well-separated hues, each deep enough to hold white text *and* to sit on wh
 | Nav shadow on scroll | `160ms` opacity |
 | Mobile menu | `200ms` slide |
 
+### Enter-once reveals — permitted, and the line they must not cross
+
+**Amended.** §1.2 exists to stop content being unreachable, not to stop a page
+acknowledging that you arrived. Those are different things, and the original
+wording collapsed them. The distinction that matters is **arrival vs. driving**:
+
+| Permitted | Forbidden |
+|---|---|
+| Enter-once reveal: `opacity 0→1` + `translateY 12px→0`, `400ms`, 60ms stagger | Anything where scroll **position** sets progress |
+| Fired by `IntersectionObserver`, element unobserved once revealed | Re-triggering on scroll back up |
+| Hidden state scoped to a root attribute an inline script sets | Hidden state in the stylesheet unconditionally |
+
+The scoping is the load-bearing part. `html[data-reveal-ready] [data-reveal]`
+carries the hidden state, and only an inline script sets that attribute — so
+with JavaScript off, or for a crawler, the attribute never appears, nothing is
+ever hidden, and §1.2 holds exactly as written. Under
+`prefers-reduced-motion: reduce` every element is marked revealed immediately.
+
 ### Forbidden
 
-- Scroll-triggered fade/slide reveals of any content
+- Scroll-**scrubbed** reveals — any effect where scroll position drives progress
+- Sticky product showcases that swap visuals as you scroll
 - Count-up / odometer / `NumberFlow` on any figure
 - Parallax, pinned sections, scroll-scrubbed anything
 - Marquees, auto-carousels, typewriter effects
@@ -582,7 +601,17 @@ Never centered except inside §8.18.
 | **/privacy/, /terms/** | Prose block + entity block |
 | **/sitemap/** | Grouped link lists, 3-up; the 48 agents in 4 columns |
 
-**Sticky jump-nav** on `/ai-agents/` is the one exception to the no-extra-chrome rule — 48 cards on one page needs it. Wash bar under the nav, `top: 68px`, four anchors with mono counts, active state via `IntersectionObserver`. Links work with JS off.
+**Sticky jump-nav** on `/ai-agents/` is an exception to the no-extra-chrome rule — 48 cards on one page needs it. Wash bar under the nav, `top: 68px`, four anchors with mono counts, active state via `IntersectionObserver`. Links work with JS off.
+
+**Amended — the exception now also covers `/platforms/`.** A five-page section
+whose only lateral navigation is a cross-link strip at the foot of each page
+makes the reader scroll a full page to discover the other four exist. That is a
+real usability gap, not a decoration. The platform sub-nav pins below the main
+nav after the hero, uses `--shadow-sticky` — the one elevation token already
+sanctioned for pinned chrome — and collapses to a horizontal scroll-snap chip
+row below 900px. Active state is computed at build time from
+`Astro.url.pathname`, so it costs no JavaScript. It is not sticky-on-scroll-up
+and it does not hide and reappear.
 
 ---
 

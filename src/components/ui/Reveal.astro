@@ -1,0 +1,15 @@
+---
+/** Enter-once reveal wrapper. Zero markup cost beyond one attribute pair.
+ *
+ *  The children are server-rendered and fully visible in the HTML; the hidden
+ *  state only exists once RevealRoot has armed the system. See theme.css. */
+interface Props {
+  /** Stagger index. 60ms per step, via --reveal-stagger. */
+  i?: number;
+  as?: 'div' | 'li' | 'article' | 'header';
+  class?: string;
+}
+const { i = 0, as: Tag = 'div', class: cls = '' } = Astro.props;
+---
+
+<Tag data-reveal class={cls} style={i ? `--i: ${i};` : undefined}><slot /></Tag>

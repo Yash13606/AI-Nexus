@@ -1,0 +1,16 @@
+---
+/** Arms the reveal system. Must render once, as early in <body> as possible.
+ *
+ *  The inline script is deliberately NOT a module: module scripts are deferred
+ *  until after parsing, which would show the content, then hide it, then
+ *  reveal it. This runs synchronously before first paint, so the hidden state
+ *  is never visibly applied to something that was already on screen.
+ *
+ *  It is also the whole JS-off story: with scripting disabled this attribute
+ *  never appears, `html[data-reveal-ready]` never matches, and every
+ *  [data-reveal] element renders at full opacity. Nothing is stranded. */
+---
+
+<script is:inline>
+  document.documentElement.setAttribute('data-reveal-ready', '');
+</script>

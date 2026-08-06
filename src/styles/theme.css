@@ -60,11 +60,30 @@
   /* Elevation — exactly two */
   --shadow-sticky: 0 1px 0 0 #dde5f0, 0 4px 16px -8px rgb(11 18 32 / 0.1);
 
-  /* Motion */
+  /* Section rhythm — DESIGN.md §5.
+     96px desktop read tight against the reference set; 160px would desync from
+     the other 13 routes. 120px ceiling / 56px floor, applied through one token
+     so every route moves together. */
+  --section-y: clamp(3.5rem, 7.5vw, 7.5rem);
+
+  /* Motion — one entrance curve, three durations. DESIGN.md §7. */
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --dur-micro: 200ms; /* hover, focus, colour */
+  --dur-element: 400ms; /* one element arriving */
+  --dur-section: 600ms; /* a group arriving */
+  --reveal-stagger: 60ms;
+
+  /* Legacy names, kept so existing components keep resolving. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-feedback: 120ms;
   --dur-state: 220ms;
   --dur-focal: 700ms;
+
+  /* Page accent — DESIGN.md §6 as amended: each platform page sets this to its
+     own hue, everything else stays neutral. Defaults to Nexus Indigo, which is
+     what /platforms/ itself uses. Never a button fill (§6 forbids it). */
+  --page-accent: #2b46d4;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -251,7 +270,13 @@ a {
 }
 
 .section {
-  padding-block: clamp(3rem, 7vw, 6rem);
+  padding-block: var(--section-y);
+}
+/* A section that carries a whole chapter, not just a block. Used sparingly —
+   the reference sites earn their calm by making the big moments bigger, not
+   by inflating everything. */
+.section-lg {
+  padding-block: calc(var(--section-y) * 1.25);
 }
 }
 
@@ -353,6 +378,63 @@ a:hover > .arrow {
 }
 }
 
+@layer components {
+  /* ── Reveal ─────────────────────────────────────────────────────────────
+     Enter-once, never scrubbed. DESIGN.md §7 as amended: the page may
+     acknowledge that you arrived; it may not drive.
+
+     The hidden state is scoped to `html[data-reveal-ready]`, which ONLY an
+     inline script sets. Consequences, all deliberate:
+       · JS off  → the attribute never appears → every [data-reveal] element
+                   renders at full opacity. Nothing is ever stranded invisible.
+       · Crawler → same. No content is behind a reveal.
+       · The attribute is set by an inline head script, before first paint, so
+         there is no flash of content being hidden after it was shown.
+     `--i` carries the stagger index; 60ms per step. */
+  html[data-reveal-ready] [data-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity var(--dur-element) var(--ease-entrance),
+      transform var(--dur-element) var(--ease-entrance);
+    transition-delay: calc(var(--i, 0) * var(--reveal-stagger));
+  }
+  html[data-reveal-ready] [data-reveal][data-revealed] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── Hover vocabulary ───────────────────────────────────────────────────
+     DESIGN.md §11 keeps its ban on resting shadows and on hover lift. The
+     replacement is a surface step plus the page accent on the border, plus one
+     decorative affordance arriving.
+
+     The affordance is `aria-hidden` decoration only — an arrow. A count or a
+     sublabel would be content, and content may not start at opacity 0. */
+  .hov {
+    transition:
+      background-color var(--dur-micro) var(--ease-entrance),
+      border-color var(--dur-micro) var(--ease-entrance);
+  }
+  .hov:hover {
+    background: var(--color-mist);
+    border-color: var(--page-accent);
+  }
+  /* On a Wash band the card is Paper, so the step runs the other way. */
+  .band .hov:hover {
+    background: var(--color-paper);
+    border-color: var(--page-accent);
+  }
+  .hov-affordance {
+    opacity: 0;
+    transition: opacity var(--dur-micro) var(--ease-entrance);
+  }
+  .hov:hover .hov-affordance,
+  .hov:focus-within .hov-affordance {
+    opacity: 1;
+  }
+}
+
 /* Unlayered on purpose: !important in an unlayered rule outranks
    !important in any layer, so the reduced-motion kill switch stays the
    strongest thing in the stylesheet. */
@@ -367,6 +449,14 @@ a:hover > .arrow {
     animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  /* Reveals resolve to their finished state rather than animating faster. */
+  html[data-reveal-ready] [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .hov-affordance {
+    opacity: 1 !important;
   }
 }
 

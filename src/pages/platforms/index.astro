@@ -3,6 +3,8 @@ import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import CtaBand from '../../components/CtaBand.astro';
+import RevealRoot from '../../components/ui/RevealRoot.astro';
+import Reveal from '../../components/ui/Reveal.astro';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
 import { markIndic } from '../../content/indic';
@@ -24,17 +26,23 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
   description="MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices and TrustProperty for property — four AI platforms, 48 agents, one engineering discipline."
   trail={trail}
 >
+  <RevealRoot />
+
   <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
     <div class="shell">
       <Breadcrumbs trail={trail} />
-      <h1 class="t-h1" style="max-width: 20ch;">Four platforms, four industries, one engineering discipline</h1>
+      <Reveal>
+        <h1 class="t-h1" style="max-width: 20ch;">Four platforms, four industries, one engineering discipline</h1>
+      </Reveal>
       <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
+      <Reveal i={1}>
       <p class="t-lede mt-7">
         Four industries, one engineering discipline: AI that shows its work, inside software that runs the
         whole institution. Every agent cites its source, every model call is redacted and logged, every
         output a human can override — and all of it sits on a complete operating system for the
         institution, not a chatbot beside one.
       </p>
+      </Reveal>
     </div>
   </section>
 
@@ -162,8 +170,10 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 
 <script>
   import { initTableSort } from '../../scripts/reorder.js';
+  import { initReveal } from '../../scripts/reveal.js';
   const root = document.getElementById('compare');
   if (root) initTableSort(root);
+  initReveal();
 </script>
 
 <style>
