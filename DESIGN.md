@@ -861,13 +861,30 @@ without knowing why:
    and two `display: flex` rules resolved to `block`. Put the behaviour
    attribute on the styled element instead of wrapping it.
 
-### A verification method that produces false passes
+### Verification methods that produce false passes
 
 Checking which layout variant rendered by grepping the page for its class name
 matches the **inlined stylesheet**, which contains every variant's rules. It
 reported all four platform pages as `left-mock-right`. Verify variants from the
 rendered element (`<section class="hero section hero-…">`), never from a
 substring search over the whole document.
+
+**2. Focusing elements to test tab order.** Calling `.focus()` scrolls the
+element into view, which moves every subsequent measurement. Comparing
+viewport-relative positions across a focus walk reports breaks that are not
+there. Measure absolute document position (`rect.top + scrollY`) captured
+without focusing.
+
+**3. Instant-jump scrolling defeats `IntersectionObserver`.**
+`scrollTo(0, document.body.scrollHeight)` moves elements from below the
+viewport to above it in a single frame. The observer sees `isIntersecting:
+false` at both ends and never fires, so a working reveal reports `0/8` and
+looks like content stranded at `opacity: 0`. **Step-scroll** — increments of
+roughly a third of the viewport with a frame between — or the test lies.
+
+All three of these produced a confident, wrong result during the platform
+section work. Each was caught only because a second measurement disagreed with
+the first.
 
 ---
 
