@@ -104,24 +104,21 @@ const groups = grouped
           mid-page band instead; neither the figures nor the labels change.
           Rendered conditionally rather than hidden, so the page never ships two
           copies of the same four numbers for a crawler to weigh. */}
-      {p.statsPlacement === 'hero' && (
-      <dl class="statstrip m-0">
-        {
-          p.stats.map((s) => (
-            <div class="statcell">
-              <dd class={`statfig mono m-0${s.figure.length > 4 ? ' statfig-long' : ''}`}>{s.figure}</dd>
-              <dt class="statlab t-sm" set:html={markIndic(s.label)} />
-            </div>
-          ))
-        }
-      </dl>
-      )}
       </div>
 
     </div>
   </section>
 
   <PlatformSubnav />
+
+  {/* The four figures as their own section, matching /platforms/ — they were a
+      bordered strip inside the hero, which made the hero carry two jobs and
+      boxed four numbers that read better unboxed. Same four figures, same four
+      labels, moved rather than changed.
+
+      markIndic exactly as the hero strip did it, so a declared Devanagari run
+      keeps its lang attribute — TrustProperty's language figure carries one. */}
+  <StatsBand items={p.stats.map((s) => ({ figure: s.figure, label: markIndic(s.label) }))} html />
 
   {/* ══════════════ WHAT IT DOES ══════════════
         Six modules, presented per `capabilityLayout`. The Ink timeline that
@@ -191,14 +188,6 @@ const groups = grouped
       }
     </div>
   </section>
-
-  {/* Labels go through markIndic exactly as the hero strip does, so a
-      declared Devanagari run keeps its lang attribute in either placement. */}
-  {
-    p.statsPlacement === 'band' && (
-      <StatsBand items={p.stats.map((s) => ({ figure: s.figure, label: markIndic(s.label) }))} html />
-    )
-  }
 
   {/* ── Roles ── */}
   <section class="section band" style={`--page-accent: ${hueVar};`}>
@@ -409,49 +398,6 @@ const groups = grouped
       max-width: 900px;
       margin-inline: auto;
     }
-  }
-
-  /* ── Hero stat strip ───────────────────────────────────────────────────
-     Was a bordered card with a rule between every cell — four boxes in a box,
-     which is the register of a spec sheet from 2012. Now the same four figures
-     as a ledger strip: hairlines top and bottom only, air between the columns,
-     and nothing drawn around them. Matches StatsBand, so the two places a
-     figure appears in this section look like one system. */
-  .statstrip {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.75rem 1.5rem;
-    margin-top: 2.75rem;
-    padding-block: clamp(1.5rem, 3vw, 2rem);
-    border-block: 1px solid var(--color-hairline);
-  }
-  @media (min-width: 800px) {
-    .statstrip {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .statcell {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-    min-width: 0;
-  }
-  .statfig {
-    font-size: var(--text-mono-lg);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    font-weight: 500;
-    color: var(--color-ink);
-    overflow-wrap: anywhere;
-  }
-  /* `ap-south-1` is a figure too. Long ones step down rather than overflow. */
-  .statfig-long {
-    font-size: var(--text-h3);
-    line-height: 1.2;
-    letter-spacing: normal;
-  }
-  .statlab {
-    color: var(--color-muted);
   }
 
   /* ── Agent groups ──────────────────────────────────────────────────────── */

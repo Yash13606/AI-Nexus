@@ -20,12 +20,6 @@ export type CapabilityLayout = 'bento' | 'tabs' | 'alternating' | 'showcase';
  *  share a capability layout without reading as the same page. */
 export type RolesLayout = 'grid' | 'bento' | 'spotlight' | 'alternating';
 
-/** Where `stats` renders. Same four figures and the same four labels either
- *  way — this moves them, it does not add any. In the hero they are a strip
- *  under the CTA; as a band they are a mid-page object with count-up on the
- *  figures that are plain integers. */
-export type StatsPlacement = 'hero' | 'band';
-
 /** Page-level patterns that are not layouts. §16 allows three motion patterns
  *  per page and these are counted toward that budget, which is why they are
  *  declared in content rather than switched on wherever they would look nice. */
@@ -44,7 +38,6 @@ export type Platform = {
   heroLayout: HeroLayout;
   capabilityLayout: CapabilityLayout;
   rolesLayout: RolesLayout;
-  statsPlacement: StatsPlacement;
   motion: PageMotion;
   name: string;
   sector: string;
@@ -74,7 +67,6 @@ export const platforms: Platform[] = [
     heroLayout: 'mock-below',
     capabilityLayout: 'showcase',
     rolesLayout: 'spotlight',
-    statsPlacement: 'hero',
     motion: { magneticCta: true },
     name: 'MedOrbit',
     sector: 'Healthcare',
@@ -135,7 +127,6 @@ export const platforms: Platform[] = [
     heroLayout: 'left-mock-right',
     capabilityLayout: 'tabs',
     rolesLayout: 'bento',
-    statsPlacement: 'band',
     motion: {},
     name: 'Edvation',
     sector: 'Education',
@@ -196,7 +187,6 @@ export const platforms: Platform[] = [
     heroLayout: 'left-narrow-refs-right',
     capabilityLayout: 'showcase',
     rolesLayout: 'alternating',
-    statsPlacement: 'hero',
     motion: { parallax: true },
     name: 'AdvoHub',
     sector: 'Legal',
@@ -259,7 +249,6 @@ export const platforms: Platform[] = [
     heroLayout: 'split',
     capabilityLayout: 'bento',
     rolesLayout: 'alternating',
-    statsPlacement: 'hero',
     motion: { marquee: true, magneticCta: true },
     name: 'TrustProperty',
     sector: 'Property',
