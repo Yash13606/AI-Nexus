@@ -24,26 +24,53 @@ const heroChips = platforms.map((p) => detail[p.slug].compliance[0]);
 >
   <RevealRoot />
 
-  {/* ── Hero ── */}
-  <section class="section hero-sec">
+  {/* ── Hero ──
+      Contained card on the branded surface, same construction as /about/ and
+      /platforms/ so the three read as one system. The right column is a
+      ledger of figures that already appear on this page — 8 controls below,
+      48 agents across the four platforms, the AWS Mumbai region — so the
+      hero summarises the page rather than making a new claim. */}
+  <section class="section sec-hero-section">
     <div class="shell">
       <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Security' }]} />
-      <h1 class="t-h1 mt-4" style="max-width: 16ch;">How the AI is governed</h1>
-      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
-      <p class="t-lede mt-7">
-        The same discipline runs through all four platforms. Everything on this page is a control
-        implemented in the software, not a commitment in a policy document.
-      </p>
 
-      <ul class="hero-chips mt-8 flex flex-wrap gap-2.5 list-none m-0 p-0">
-        {
-          heroChips.map((c, i) => (
-            <li class="pill chip-verify" style={`--i: ${i}; border: 1px solid var(--color-hairline); background: var(--color-mist);`}>
-              {c}
-            </li>
-          ))
-        }
-      </ul>
+      <div class="sec-hero mt-5">
+        <div class="sec-hero__copy">
+          <p class="t-label rise sec-hero__eyebrow" style="--i: 0;">Governance &amp; data residency</p>
+          <h1 class="t-h1 rise mt-4" style="--i: 1; max-width: 16ch;">How the AI is governed</h1>
+          <p class="t-lede rise mt-6" style="--i: 2;">
+            The same discipline runs through all four platforms. Everything on this page is a control
+            implemented in the software, not a commitment in a policy document.
+          </p>
+
+          <ul class="sec-hero__chips rise mt-8 list-none m-0 p-0" style="--i: 3;">
+            {
+              heroChips.map((c, i) => (
+                <li class="pill chip-verify sec-chip" style={`--i: ${i};`}>
+                  <Icon name="check" size={13} class="sec-chip__tick" />
+                  <span>{c}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <dl class="sec-hero__ledger rise" style="--i: 4;">
+          {
+            [
+              { figure: '8', label: 'controls implemented in software' },
+              { figure: '48', label: 'AI agents, all governed the same way' },
+              { figure: '4', label: 'platforms, one discipline' },
+              { figure: 'ap-south-1', label: 'AWS Mumbai — data stays in India' },
+            ].map((row) => (
+              <div class="sec-ledger-row">
+                <dt class="sec-ledger-figure mono">{row.figure}</dt>
+                <dd class="sec-ledger-label t-cap m-0">{row.label}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
     </div>
   </section>
 
@@ -164,13 +191,127 @@ const heroChips = platforms.map((p) => detail[p.slug].compliance[0]);
 </script>
 
 <style>
-  /* ── Hero ─────────────────────────────────────────────────────────────── */
-  .hero-sec {
-    padding-block: clamp(3rem, 7vw, 5.5rem);
+  /* ── Hero ───────────────────────────────────────────────────────────────
+     Load entrance, 60ms per step. Self-completing: if it never runs the page
+     is already correct (matches /about/ and /platforms/ .rise). */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .rise {
+    animation: rise var(--dur-element) var(--ease-entrance) both;
+    animation-delay: calc(var(--i, 0) * var(--reveal-stagger));
   }
 
-  .hero-chips .pill {
+  .sec-hero-section {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) 0;
+  }
+
+  /* Branded surface, same construction as .about-hero — accent-wash pooling
+     from the lower-left over the Wash neutral. Existing tokens only. */
+  .sec-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: clamp(16px, 2.2vw, 28px);
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.75rem, 5vw, 4rem);
+    background:
+      radial-gradient(120% 130% at 0% 100%, var(--color-accent-wash) 0%, transparent 58%),
+      var(--color-wash);
+    border: 1px solid var(--color-hairline);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    align-items: start;
+  }
+  /* Fine vertical streak texture, masked so it never reads as a grid. */
+  .sec-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      90deg,
+      rgb(43 70 212 / 0.05) 0 1px,
+      transparent 1px clamp(52px, 6vw, 82px)
+    );
+    mask-image: linear-gradient(180deg, transparent 0%, #000 45%, #000 100%);
+  }
+
+  .sec-hero__eyebrow {
+    color: var(--color-muted);
+  }
+
+  .sec-hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+  /* The chips are verified controls, not tags — the tick says so at rest,
+     and `.chip-verify` only delays its arrival. */
+  .sec-chip {
+    gap: 0.4rem;
     font-family: var(--font-mono);
+    background: var(--color-paper);
+  }
+  .sec-chip__tick {
+    color: var(--color-verified);
+    flex: none;
+  }
+
+  /* Right column: figures that already appear further down the page. */
+  .sec-hero__ledger {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .sec-ledger-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.875rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .sec-ledger-row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .sec-ledger-figure {
+    flex: none;
+    min-width: 4.5ch;
+    font-size: var(--text-h3);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    color: var(--color-ink);
+  }
+  /* 'ap-south-1' is a region string, not a count — it must not render at the
+     same display size or it overflows the column. */
+  .sec-ledger-row:last-child .sec-ledger-figure {
+    font-size: var(--text-body-sm);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .sec-ledger-label {
+    color: var(--color-muted);
+  }
+
+  @media (min-width: 900px) {
+    .sec-hero {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      align-items: center;
+    }
+    .sec-hero__ledger {
+      border-left: 1px solid var(--color-hairline);
+      padding-left: clamp(2rem, 4vw, 3rem);
+    }
   }
 
   /* ── Controls grid ────────────────────────────────────────────────────── */

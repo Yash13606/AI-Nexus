@@ -14,7 +14,12 @@ import { nav, footerCols, isPlanned } from '../content/site';
 import { platforms } from '../content/platforms';
 
 const solutionLinks = footerCols.find((c) => c.title === 'Solutions')!.links;
-const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label !== 'Solutions');
+/* The remaining flat links. Platforms and Solutions are rendered explicitly
+   because they carry dropdowns, and AI agents because it is positioned
+   between the two — leaving it in here rendered it a second time. */
+const flatLinks = nav.filter(
+  (item) => !['Platforms', 'Solutions', 'AI agents'].includes(item.label)
+);
 ---
 
 <div class="nav-wrap" id="site-nav">
