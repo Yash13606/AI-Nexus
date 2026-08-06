@@ -66,6 +66,11 @@
      so every route moves together. */
   --section-y: clamp(3.5rem, 7.5vw, 7.5rem);
 
+  /* Platform sub-nav height. The sub-nav sets its row to exactly this, and the
+     comparison table's sticky <thead> offsets by it — one value, so the two
+     cannot drift apart and leave the header floating or clipped. */
+  --subnav-h: 56px;
+
   /* Motion — one entrance curve, three durations. DESIGN.md §7. */
   --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);

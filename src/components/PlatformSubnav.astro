@@ -67,6 +67,8 @@ const items = [
   .subnav-row {
     display: flex;
     align-items: stretch;
+    /* Fixed, so the table's sticky thead can offset by the same token. */
+    height: var(--subnav-h);
     gap: 0.25rem;
     overflow-x: auto;
     scrollbar-width: none;
@@ -137,3 +139,19 @@ const items = [
     }
   }
 </style>
+
+{/* Initial scroll offset for the chip row. CSS cannot set one, so without this
+    the active chip sits off-screen below 900px — measured at 390px, the
+    TrustProperty chip lands at left: 402px in a 390px viewport, i.e. the active
+    indicator is invisible on the page it identifies.
+
+    Deliberately NOT in the shared boot script: that runs at the top of <body>,
+    before this markup exists, and deferring it to DOMContentLoaded would set
+    the offset after first paint — a visible jump. It has to be here, inline,
+    immediately after the row. That is one more <script> tag than instructed;
+    flagged rather than traded for a jump.
+
+    scrollLeft is set directly, never scrollIntoView — that walks ancestors and
+    can move the page. Instant, with no behaviour: 'smooth', so it is identical
+    under prefers-reduced-motion. This is initial state, not motion. */}
+<script is:inline>var r=document.querySelector('.subnav-row'),a=r&&r.querySelector('[aria-current]');if(a&&r.scrollWidth>r.clientWidth)r.scrollLeft=a.offsetLeft-20;</script>

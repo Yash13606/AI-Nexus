@@ -5,6 +5,7 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import RevealRoot from '../../components/ui/RevealRoot.astro';
 import PlatformSubnav from '../../components/PlatformSubnav.astro';
+import PlatformLockup from '../../components/PlatformLockup.astro';
 import Reveal from '../../components/ui/Reveal.astro';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
@@ -29,88 +30,124 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 >
   <RevealRoot />
 
-  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
+  {/* ══════════════ HERO ══════════════
+      eyebrow → h1 → lede → primary + secondary. Breadcrumbs sit above the
+      eyebrow, per §8.5 — every page but home. The rule that used to sit between
+      h1 and lede is gone; it was separating two things that belong together.
+
+      Entrance is CSS @keyframes staggered from --i. Nothing imperative, and it
+      self-completes: CSS runs without JavaScript, so a JS-off reader still sees
+      it finish, and a crawler reads finished text out of the HTML either way. */}
+  <section class="hero section">
     <div class="shell">
       <Breadcrumbs trail={trail} />
-      <Reveal>
-        <h1 class="t-h1" style="max-width: 20ch;">Four platforms, four industries, one engineering discipline</h1>
-      </Reveal>
-      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
-      <Reveal i={1}>
-      <p class="t-lede mt-7">
-        Four industries, one engineering discipline: AI that shows its work, inside software that runs the
-        whole institution. Every agent cites its source, every model call is redacted and logged, every
-        output a human can override — and all of it sits on a complete operating system for the
-        institution, not a chatbot beside one.
+
+      <p class="t-label rise" style="--i: 0; color: var(--color-muted);">
+        Platforms · four products, one system
       </p>
-      </Reveal>
+
+      <h1 class="t-h1 rise mt-4" style="--i: 1; max-width: 22ch;">
+        Four platforms, four industries, one engineering discipline
+      </h1>
+
+      <p class="t-lede rise mt-6" style="--i: 2;">
+        AI that shows its work, inside software that runs the whole institution. Every agent cites its
+        source, every model call is redacted and logged, every output a human can override — and all of
+        it sits on a complete operating system, not a chatbot beside one.
+      </p>
+
+      <div class="rise mt-9 flex flex-wrap gap-3" style="--i: 3;">
+        <a href="/contact/" class="btn btn-primary tx-fast">
+          Book a demo <Icon name="arrow-right" class="arrow" />
+        </a>
+        <a href="#compare" class="btn btn-secondary tx-fast">Compare the four</a>
+      </div>
     </div>
   </section>
 
   <PlatformSubnav />
 
-  {/* ── The four ── */}
+  {/* ══════════════ THE FOUR ══════════════ */}
   <section class="section band">
     <div class="shell">
-      <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      <Reveal>
+        <h2 class="t-h2" style="max-width: 20ch;">The four platforms</h2>
+      </Reveal>
+      <Reveal i={1}>
+        <p class="t-lede mt-5">
+          One company, one engineering discipline. Each product runs its industry end to end, and each
+          carries its own agents, role catalogue and compliance surface.
+        </p>
+      </Reveal>
+
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {
-          platforms.map((p) => (
-            <article class="card card-hover tx-fast p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
-              <div>
-                <p class="t-h3" style="color: var(--color-ink);">{p.name}</p>
-                <p class="t-sm mt-1" style="color: var(--color-muted);">{p.subtitle}</p>
-              </div>
+          platforms.map((p, i) => (
+            <Reveal i={i} class="pcard-wrap">
+              <article class="pcard card hov p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
+                <div>
+                  <PlatformLockup name={p.name} as="h3" />
+                  <p class="t-sm mt-1.5" style="color: var(--color-muted);">{p.subtitle}</p>
+                </div>
 
-              <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
-                {p.bullets.map((b) => (
-                  <li class="t-sm flex gap-2.5">
-                    <Icon name="check" class="mt-1 shrink-0" size={14} />
-                    <span set:html={markIndic(b)} />
-                  </li>
-                ))}
-              </ul>
+                <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
+                  {p.bullets.map((b) => (
+                    <li class="t-sm flex gap-2.5">
+                      <Icon name="check" class="mt-1 shrink-0" size={14} />
+                      <span set:html={markIndic(b)} />
+                    </li>
+                  ))}
+                </ul>
 
-              <p
-                class="pill mono self-start"
-                style={`background: var(--color-paper); color: ${p.hue}; border: 1px solid ${p.hue}33;`}
-              >
-                {p.agentCount} AI agents
-              </p>
+                {/* §11 as amended: a count is content, so it exists at rest —
+                    muted mono stepping to ink. Never opacity 0. */}
+                <p class="count mono t-cap m-0">{p.agentCount} AI agents</p>
 
-              <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-                <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
-                  Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
-                </a>
-                <a
-                  href={p.site}
-                  target="_blank"
-                  rel="noopener"
-                  class="t-sm no-underline inline-flex items-center gap-1 tx-fast"
-                  style="color: var(--color-muted);"
-                >
-                  {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-                </a>
-              </div>
-            </article>
+                <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+                  {/* The card is the link; this is its visible label, so the
+                      anchor text is the product name, never "read more". */}
+                  <a href={`/platforms/${p.slug}/`} class="explore link-accent stretch">
+                    Explore {p.name}
+                    <Icon name="arrow-right" class="hov-affordance" size={14} />
+                  </a>
+                  <a
+                    href={p.site}
+                    target="_blank"
+                    rel="noopener"
+                    class="site t-sm no-underline inline-flex items-center gap-1 tx-fast"
+                    style="color: var(--color-muted);"
+                  >
+                    {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+                  </a>
+                </div>
+              </article>
+            </Reveal>
           ))
         }
       </div>
     </div>
   </section>
 
-  {/* ── Comparison. The page's job is to compare, so the authored moment is
-        the comparison re-ranking itself. Real <table> with <th scope>. ── */}
+  {/* ══════════════ COMPARISON ══════════════
+        The page's job is to compare, so this is the object that gets the room.
+        Real <table>, real <caption>, scope on every header cell, no role
+        overrides. The FLIP re-rank stays; its controls stay JS-injected. */}
   <section class="section">
-    <div class="shell" id="compare">
-      <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
-      <p class="t-lede mt-5 mb-10">
-        48 named AI agents across the four. Every figure below is the count the platform actually ships.
-      </p>
+    <div class="shell" id="compare" style="scroll-margin-top: 128px;">
+      <Reveal>
+        <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
+      </Reveal>
+      <Reveal i={1}>
+        <p class="t-lede mt-5 mb-11">
+          48 named AI agents across the four. Every figure below is the count the platform actually
+          ships.
+        </p>
+      </Reveal>
 
       <div class="tbl-wrap">
         <table data-sortable>
-          <caption class="sr-only">
-            The four AI Nexus platforms compared by industry, AI agent count, role count and languages
+          <caption>
+            The four AI Nexus platforms compared by industry, AI agent count, role count and languages.
           </caption>
           <thead>
             <tr>
@@ -119,7 +156,7 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
               <th scope="col" class="num">AI agents</th>
               <th scope="col" class="num">Roles</th>
               <th scope="col" class="num">Languages</th>
-              <th scope="col">Site</th>
+              <th scope="col">Product site</th>
             </tr>
           </thead>
           <tbody>
@@ -133,22 +170,14 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
                 >
                   <th scope="row" class="plat-cell">
                     <span class="swatch" style={`background: ${p.hue};`} aria-hidden="true"></span>
-                    <a href={`/platforms/${p.slug}/`} class="no-underline hover:underline" style="color: var(--color-ink);">
-                      {p.name}
-                    </a>
+                    <a href={`/platforms/${p.slug}/`}>{p.name}</a>
                   </th>
                   <td>{p.sector}</td>
                   <td class="num">{p.agentCount}</td>
                   <td class="num">{detail[p.slug].roles.length}</td>
                   <td class="num">{languages[p.slug]}</td>
-                  <td>
-                    <a
-                      href={p.site}
-                      target="_blank"
-                      rel="noopener"
-                      class="t-sm no-underline inline-flex items-center gap-1"
-                      style="color: var(--color-accent);"
-                    >
+                  <td class="site-cell mono">
+                    <a href={p.site} target="_blank" rel="noopener">
                       {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
                     </a>
                   </td>
@@ -180,52 +209,225 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 </script>
 
 <style>
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .hero {
+    padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
+  }
+
+  /* Load entrance, 60ms per step. Self-completing: if it never runs, the page
+     is already correct. */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .rise {
+    animation: rise var(--dur-element) var(--ease-entrance) both;
+    animation-delay: calc(var(--i, 0) * var(--reveal-stagger));
+  }
+
+  /* ── Platform cards ───────────────────────────────────────────────────── */
+  .pcard-wrap {
+    display: flex;
+  }
+  .pcard {
+    position: relative;
+    width: 100%;
+  }
+  /* The visible Explore label is the link, stretched over the whole card. No
+     duplicate anchor, so the card contributes one link, not two, and the
+     anchor text is the product name. */
+  .stretch::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .explore {
+    font-weight: 500;
+  }
+  .explore:hover {
+    text-decoration: none;
+  }
+  /* The external product site keeps its own hit area above the stretched link. */
+  .site {
+    position: relative;
+    z-index: 1;
+  }
+  /* Content, so it exists at rest — muted mono stepping to ink. §11. */
+  .count {
+    color: var(--color-muted);
+    transition: color var(--dur-micro) var(--ease-entrance);
+  }
+  .pcard:hover .count {
+    color: var(--color-ink);
+  }
+
+  /* ── Comparison table ─────────────────────────────────────────────────── */
+  /* `overflow-x: auto` forces computed `overflow-y: auto`, which makes this a
+     scroll container — and a sticky <thead> inside it pins to the WRAPPER, not
+     the viewport, so it scrolls away with the table. Measured: thead top -56px
+     where it should have pinned at 124px.
+
+     So the two sticky behaviours are split by viewport, because they are
+     wanted at different widths:
+       ≥1024px  the table fits (min-width 720px inside a 942px+ content box),
+                so the wrapper needs no scrolling — overflow goes visible and
+                the sticky <thead> works against the viewport.
+       <1024px  the wrapper scrolls horizontally, so the first column pins
+                instead. That is the one that matters when the table is wider
+                than the screen. */
   .tbl-wrap {
     overflow-x: auto;
     border: 1px solid var(--color-hairline);
     border-radius: var(--radius-panel);
+    background: var(--color-paper);
+  }
+
+  @media (min-width: 1024px) {
+    .tbl-wrap {
+      overflow: visible;
+    }
+    /* With overflow visible the corner cells would paint over the wrapper's
+       rounded border, so they take the radius themselves. */
+    thead th:first-child {
+      border-top-left-radius: var(--radius-panel);
+    }
+    thead th:last-child {
+      border-top-right-radius: var(--radius-panel);
+    }
+    tbody tr:last-child th:first-child {
+      border-bottom-left-radius: var(--radius-panel);
+    }
+    tbody tr:last-child td:last-child {
+      border-bottom-right-radius: var(--radius-panel);
+    }
   }
   table {
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
-    min-width: 680px;
+    min-width: 720px;
   }
+  /* Real <caption>, visually hidden — §8.14. It lives inside the scroll
+     container, so a visible one scrolls sideways with the table and clips at
+     390px. The visible lede two lines above already says this for sighted
+     readers; this is the version screen readers announce on entering. */
+  caption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   th,
   td {
-    padding: 0.9375rem 1.25rem;
     text-align: left;
+    /* 20px block padding + a 24px line box = 64px rows, on the 8-scale. */
+    padding: 1.25rem 1.5rem;
     font-size: var(--text-body-sm);
-    border-bottom: 1px solid var(--color-hairline);
     font-weight: 400;
+    border-bottom: 1px solid var(--color-hairline);
+    background: var(--color-paper);
   }
+
+  /* The header takes the eyebrow role — a column label is exactly what eyebrow
+     is for, and `caption` size read as shrunken body. Sticky with no JS: it
+     pins under the 68px main nav plus the platform sub-nav. */
+  /* Static by default. Sticky is switched ON only at >=1024px, where the
+     wrapper is `overflow: visible` and the viewport is the scroll container.
+     Below that the wrapper scrolls, and a sticky thead pins to the WRAPPER —
+     which parks it mid-table, on top of a data row. Seen at 390px. */
   thead th {
+    position: static;
+    z-index: 2;
     background: var(--color-wash);
-    font-size: var(--text-caption);
+    font-size: var(--text-eyebrow);
+    line-height: 1.3;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     font-weight: 600;
     color: var(--color-ink);
     white-space: nowrap;
+    padding-block: 0.875rem;
   }
-  tbody tr:nth-child(even) {
+
+  /* Sticky is switched on only where the wrapper is `overflow: visible`, so
+     the viewport is the scroll container. Declared AFTER the base rule above —
+     same specificity, so source order decides. */
+  @media (min-width: 1024px) {
+    thead th {
+      position: sticky;
+      top: calc(68px + var(--subnav-h));
+    }
+  }
+
+  /* Hover fills the whole row. No lift, no shadow. Zebra is dropped: with four
+     rows at 64px and a hairline between each it added nothing, and it would
+     have collided with this fill, which §8.14 does not anticipate. */
+  tbody th,
+  tbody td {
+    transition: background-color var(--dur-micro) var(--ease-entrance);
+  }
+  tbody tr:hover th,
+  tbody tr:hover td {
     background: var(--color-mist);
   }
-  tbody tr:last-child td,
-  tbody tr:last-child th {
+  tbody tr:last-child th,
+  tbody tr:last-child td {
     border-bottom: 0;
   }
+
+  /* The mono rule, loudest here — every numeral is a value to be checked. */
   .num {
     font-family: var(--font-mono);
-    text-align: right;
     font-variant-numeric: tabular-nums;
+    text-align: right;
     white-space: nowrap;
+    color: var(--color-ink);
   }
-  /* A 3px colored side rail is the single most recognizable AI-UI tell, and
-     the detector flags it. A legend swatch identifies the series the way a
-     chart does — a convention, not decoration. */
+  .site-cell a {
+    color: var(--color-accent);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .site-cell a:hover {
+    text-decoration: underline;
+  }
+
+  /* First column pinned so the comparison survives a horizontal scroll.
+     Collapsing to a card per row would destroy the thing the table is for. */
   th.plat-cell {
+    position: sticky;
+    left: 0;
+    z-index: 1;
     font-weight: 500;
     color: var(--color-ink);
     white-space: nowrap;
+    border-right: 1px solid var(--color-hairline);
   }
+  thead th:first-child {
+    z-index: 3;
+  }
+  .plat-cell a {
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .plat-cell a:hover {
+    text-decoration: underline;
+  }
+  /* A 3px coloured side rail is the most recognisable AI-UI tell and the
+     detector flags it. A 9px legend swatch identifies the series the way a
+     chart legend does. §6 slot 4. */
   .swatch {
     display: inline-block;
     width: 9px;
@@ -234,12 +436,21 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
     margin-right: 0.625rem;
     vertical-align: baseline;
   }
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
+
+  @media (max-width: 900px) {
+    th,
+    td {
+      padding: 1rem 1.125rem;
+      scroll-snap-align: start;
+    }
+    .tbl-wrap {
+      scroll-snap-type: x proximity;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      animation: none;
+    }
   }
 </style>

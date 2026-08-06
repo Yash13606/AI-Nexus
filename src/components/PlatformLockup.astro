@@ -1,0 +1,46 @@
+---
+/** The fixed 40px lockup slot — DESIGN.md §8.7.
+ *
+ *  "Logo lockup in a fixed 40px-height slot — the four lockups have four
+ *  different aspect ratios and the slot keeps grid rhythm. `alt` carries the
+ *  product name so the heading stays crawlable."
+ *
+ *  The lockups are a known gap (README, BUILD-PLAN §8). §13's interim policy is
+ *  a typographic wordmark in Plex Sans 600 at the slot height. That wordmark IS
+ *  the heading here, so the product name is a real heading either way, and
+ *  dropping a real file in later changes nothing else — the box is fixed, so
+ *  no reflow.
+ *
+ *  §13 also specifies a 3px platform-hue underline on the stand-in. Not
+ *  implemented: §6's list of permitted hue uses is labelled exhaustive and does
+ *  not include it. Raised for a ruling rather than resolved here. */
+interface Props {
+  name: string;
+  /** The slot is the heading, so the caller sets the level. */
+  as?: 'h2' | 'h3' | 'h4';
+  class?: string;
+}
+const { name, as: Tag = 'h3', class: cls = '' } = Astro.props;
+---
+
+<div class={`lockup ${cls}`}>
+  <Tag class="lockup-mark">{name}</Tag>
+</div>
+
+<style>
+  /* Fixed box. Real lockups drop in at any aspect ratio without reflow. */
+  .lockup {
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  .lockup-mark {
+    margin: 0;
+    font-size: var(--text-h3);
+    line-height: 1;
+    letter-spacing: -0.022em;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+</style>
