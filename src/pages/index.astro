@@ -2,12 +2,16 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
+import ScrollExpand from '../components/react/ScrollExpand';
+import GradualBlur from '../components/react/GradualBlur';
+import MagicBento from '../components/react/MagicBento';
+import ScrollSpread from '../components/react/ScrollSpread';
 import { platforms } from '../content/platforms';
 import { markIndic } from '../content/indic';
 import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
 import {
-  hero, heroStats, standards, disciplineBody, governance,
+  hero, standards, showcase, proof, governance,
   deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs, aboutBlock,
 } from '../content/home';
 import { entities, contact } from '../content/site';
@@ -21,105 +25,151 @@ const agentsPlanned = isPlanned('/ai-agents/');
   jsonldFaq
 >
   {/* ══════════════ HERO ══════════════
-      The focal moment. Content is at final opacity in the HTML; a rule sweeps
-      beneath the headline and the standards below it tick from unverified gray
-      to verified teal. The check happens — it never reveals the content. */}
-  <section class="section" style="padding-block: clamp(3.5rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem);">
-    <div class="shell">
-      <h1 class="t-display" style="max-width: 18ch;">{hero.headline}</h1>
+      An inset card: white where the type sits, blue pooling at the bottom,
+      with the product screen breaking the card's lower edge. Everything is
+      at final opacity in the HTML — the gradient is the only decoration and
+      it is CSS, so there is no image to wait for and nothing to crop. */}
+  <section class="relative" style="padding: clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.5rem) 0;">
+    <div class="hero-card">
+      <div class="hero-inner">
+        <p class="t-label" style="color: var(--color-muted);">{hero.eyebrow}</p>
 
-      <div class="sweep-rule mt-8 h-px w-full max-w-[560px]" style="background: var(--color-accent);"></div>
+        <h1 class="t-display mt-6" style="font-weight: 500;">{hero.headline}</h1>
 
-      <p class="t-lede mt-8">{hero.lede}</p>
-      <p class="t-sm mt-5 mono" style="color: var(--color-muted);">{hero.byline}</p>
+        <p class="t-lede mt-6" style="margin-inline: auto;">{hero.lede}</p>
 
-      <div class="mt-9 flex flex-wrap gap-3">
-        <a href="/contact/" class="btn btn-primary tx-fast">
-          Book a demo <Icon name="arrow-right" class="arrow" />
-        </a>
-        <a href="/platforms/" class="btn btn-secondary tx-fast">Explore the four platforms</a>
+        <div class="mt-9 flex flex-wrap gap-3 justify-center">
+          <a href="/contact/" class="btn btn-primary tx-fast">
+            Book a demo <Icon name="arrow-right" class="arrow" />
+          </a>
+          <a href="#see-it-work" class="btn btn-secondary tx-fast">Watch it work</a>
+        </div>
+
+        <p class="t-cap mt-8 mono" style="color: var(--color-muted);">{hero.summary}</p>
       </div>
 
-      <p class="t-cap mt-10 mono" style="color: var(--color-muted);">{hero.summary}</p>
-
-      {/* Stat strip. Server-rendered at final value — DESIGN.md §1.1. */}
-      <dl class="mt-5 grid grid-cols-2 md:grid-cols-4 m-0 card overflow-hidden">
-        {heroStats.map((s, i) => (
-          <div
-            class="flex flex-col gap-1.5 p-6"
-            style={`border-right: ${i < 3 ? '1px' : '0'} solid var(--color-hairline); border-top: ${i > 1 ? '1px' : '0'} solid var(--color-hairline);`}
-          >
-            <dd class="m-0 mono" style="font-size: var(--text-mono-lg); line-height: 1.1; letter-spacing: -0.02em; font-weight: 500; color: var(--color-ink);">
-              {s.figure}
-            </dd>
-            <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
-          </div>
-        ))}
-      </dl>
-
-      <ul class="mt-6 flex flex-wrap gap-2 list-none m-0 p-0">
-        {standards.map((s, i) => (
-          <li
-            class="chip-verify pill mono tx-fast"
-            style={`--i:${i}; border: 1px solid var(--color-hairline); background: var(--color-paper);`}
-          >
-            {s}
-          </li>
-        ))}
-      </ul>
-      <p class="t-cap mt-3" style="color: var(--color-muted);">
-        Capability statements, not certification logos. Certificates are published only when they exist.
-      </p>
+      {/* React Bits GradualBlur — frosts the streak texture at the card's edge. */}
+      <GradualBlur
+        client:visible
+        target="parent"
+        position="bottom"
+        height="7rem"
+        strength={2}
+        divCount={5}
+        curve="bezier"
+        exponential
+        opacity={1}
+      />
     </div>
   </section>
 
-  {/* ══════════════ FOUR PLATFORMS ══════════════ */}
-  <section class="section band">
+  {/* ══════════════ SCROLL EXPAND ══════════════
+      React Bits ScrollExpand on window scroll: the frame opens from an inset
+      rect to full bleed while the media counter-zooms back to 1. The overlay
+      copy is duplicated in a visually-hidden block below so the section is
+      still readable to a crawler while the overlay sits at opacity 0. */}
+  <section aria-label="What the platforms do">
+    <ScrollExpand
+      client:load
+      src="/screen-placeholder.svg"
+      alt="AI Nexus platform interface"
+      title="Four platforms. One discipline."
+      scrollHint="Scroll to open"
+      useWindowScroll
+      startWidth={46}
+      startHeight={58}
+      startRadius={24}
+      endRadius={0}
+      mediaZoom={1.25}
+      scrollDistance={1.1}
+      holdDistance={0.3}
+      smoothing={0.1}
+      overlayScrim={0.5}
+    >
+      <h2 class="t-h2" style="color: #fff; max-width: 22ch;">Every answer shows its source.</h2>
+      <p class="t-lede mt-4" style="color: rgb(255 255 255 / 0.86); margin-inline: auto;">
+        Page citations in education. Indian Kanoon verification in law. Chart-grounded outputs in
+        health. Explainable scores in property.
+      </p>
+    </ScrollExpand>
+
+    <p class="sr-only">
+      Every answer shows its source. Page citations in education. Indian Kanoon verification in law.
+      Chart-grounded outputs in health. Explainable scores in property.
+    </p>
+  </section>
+
+  {/* ══════════════ SEE IT WORK — four platforms, scroll-spread ══════════════
+      ScrollSpread: GSAP ScrollTrigger pins the section and spreads four
+      paper cards from a centre stack as the user scrolls. Minimal card
+      content per brief: name, sector, agent count, headline. Evidence triad
+      stays in the HTML (sr-only list) so crawlers still see it. */}
+  <section id="see-it-work" style="background: var(--color-wash);">
+    <div class="shell pt-16 pb-4">
+      <p class="t-label" style="color: var(--color-accent);">{showcase.kicker}</p>
+      <h2 class="t-h2 mt-4" style="max-width: 30ch;">{showcase.heading}</h2>
+    </div>
+
+    <ScrollSpread client:load />
+
+    {/* Evidence triad for crawlers — hidden visually, always in DOM */}
+    <ul class="sr-only">
+      {platforms.map((p) => (
+        <li>
+          {p.name} ({p.sector}): {p.headline}.
+          Input: {p.evidence.input}
+          Output: {p.evidence.output}
+          Control: {p.evidence.control}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {/* ══════════════ PROOF — React Bits MagicBento ══════════════
+      Upstream logic, retinted: paper cards, hairline borders, ink text and a
+      Nexus Indigo glow in place of the stock #120F17 / #8400ff purple. The
+      card copy is duplicated as a visually-hidden list because the grid is
+      client-rendered and the figures must still reach a crawler. */}
+  <section class="section" id="proof">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Four platforms, one engineering discipline</h2>
-      <p class="t-lede mt-5">{disciplineBody}</p>
+      <p class="t-label" style="color: var(--color-accent);">{proof.kicker}</p>
+      <h2 class="t-h2 mt-4" style="max-width: 20ch;">{proof.heading}</h2>
 
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {platforms.map((p) => (
-          <article class="card card-hover tx-fast p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
-            <div>
-              <p class="t-h3" style="color: var(--color-ink);">{p.name}</p>
-              <p class="t-sm mt-1" style="color: var(--color-muted);">{p.subtitle}</p>
-            </div>
-
-            <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
-              {p.bullets.map((b) => (
-                <li class="t-sm flex gap-2.5">
-                  <Icon name="check" class="mt-1 shrink-0" size={14} />
-                  <span set:html={markIndic(b)} />
-                </li>
-              ))}
-            </ul>
-
-            {/* Hue sits on paper, not accent-wash: on the tinted fill MedOrbit
-                teal and Edvation ochre measured 4.34/4.35:1 — below AA. */}
-            <p
-              class="pill mono self-start"
-              style={`background: var(--color-paper); color: ${p.hue}; border: 1px solid ${p.hue}33;`}
-            >
-              {p.agentCount} AI agents
-            </p>
-
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-              <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
-                Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
-              </a>
-              <a href={p.site} target="_blank" rel="noopener" class="t-sm no-underline inline-flex items-center gap-1 tx-fast" style="color: var(--color-muted);">
-                {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-              </a>
-            </div>
-          </article>
-        ))}
+      <div class="mt-10">
+        <MagicBento
+          client:visible
+          textAutoHide={false}
+          enableStars
+          enableSpotlight
+          enableBorderGlow
+          enableTilt={false}
+          enableMagnetism={false}
+          clickEffect
+          spotlightRadius={400}
+          particleCount={10}
+          glowColor="43, 70, 212"
+        />
       </div>
 
-      <a href="/platforms/" class="link-accent mt-10 group/link">
-        Compare all four platforms <Icon name="arrow-right" class="arrow" size={14} />
-      </a>
+      <ul class="sr-only">
+        <li>{proof.lead.figure} {proof.lead.label}. {proof.lead.body}</li>
+        {proof.tiles.map((t) => <li>{t.figure} — {t.label}</li>)}
+      </ul>
+
+      {/* Compliance Chip Row — DESIGN.md §8.15 exactly: a flat wrapping row
+          of pills with the mandatory disclaimer above. Not a bordered
+          panel — the badge-wall anti-reference this line exists to refute
+          shouldn't itself arrive with more chrome than a paragraph gets. */}
+      <div class="mt-8">
+        <p class="t-cap" style="color: var(--color-muted);">
+          Capability statements, not certification logos. Certificates are published only when they exist.
+        </p>
+        <ul class="mt-3 flex flex-wrap gap-2 list-none m-0 p-0">
+          {standards.map((s) => (
+            <li class="standards-chip mono tx-fast">{s}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -449,6 +499,7 @@ const agentsPlanned = isPlanned('/ai-agents/');
       </div>
     </div>
   </section>
+
 </Base>
 
 <style>
