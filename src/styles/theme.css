@@ -97,6 +97,7 @@
 /* ═══════════════════════════════════════════════════════════════
    BASE
    ═══════════════════════════════════════════════════════════════ */
+@layer base {
 *,
 ::before,
 ::after {
@@ -169,10 +170,12 @@ a {
 .skip-link:focus {
   left: 0;
 }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    TYPE ROLES
    ═══════════════════════════════════════════════════════════════ */
+@layer components {
 .t-display {
   font-size: clamp(2.5rem, 6vw, var(--text-display));
   line-height: 1.02;
@@ -231,10 +234,12 @@ a {
 .prose {
   max-width: var(--prose-max-width);
 }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    LAYOUT
    ═══════════════════════════════════════════════════════════════ */
+@layer components {
 .shell {
   max-width: var(--page-max-width);
   margin-inline: auto;
@@ -248,6 +253,7 @@ a {
 .section {
   padding-block: clamp(3rem, 7vw, 6rem);
 }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    MOTION SYSTEM
@@ -259,6 +265,7 @@ a {
    Nothing fades in. Nothing counts up. If every animation below
    failed to run, the page would be complete and correct.
    ═══════════════════════════════════════════════════════════════ */
+@layer components {
 
 /* ── Focal moment: the verification sweep ──────────────────────
    Runs once on load, in the hero only. A rule travels beneath the
@@ -344,7 +351,11 @@ a {
 a:hover > .arrow {
   transform: translateX(3px);
 }
+}
 
+/* Unlayered on purpose: !important in an unlayered rule outranks
+   !important in any layer, so the reduced-motion kill switch stays the
+   strongest thing in the stylesheet. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -362,6 +373,7 @@ a:hover > .arrow {
 /* ═══════════════════════════════════════════════════════════════
    COMPONENTS
    ═══════════════════════════════════════════════════════════════ */
+@layer components {
 
 /* Buttons — 8px. Never a pill. */
 .btn {
@@ -497,4 +509,5 @@ a:hover > .arrow {
 .faq .answer {
   padding-bottom: 1.125rem;
   max-width: var(--prose-max-width);
+}
 }
