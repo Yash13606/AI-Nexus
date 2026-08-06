@@ -4,13 +4,19 @@ import Icon from '../../components/Icon.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import PlatformSubnav from '../../components/PlatformSubnav.astro';
-import EvidenceCard from '../../components/EvidenceCard.astro';
+import EvidenceSection from '../../components/EvidenceSection.astro';
 import AgentCard from '../../components/AgentCard.astro';
 import Faq from '../../components/Faq.astro';
 import RevealRoot from '../../components/ui/RevealRoot.astro';
 import Reveal from '../../components/ui/Reveal.astro';
 import CapabilitySection from '../../components/CapabilitySection.astro';
-import HeroMock from '../../components/HeroMock.astro';
+import RolesSection from '../../components/RolesSection.astro';
+import StatsBand from '../../components/StatsBand.astro';
+import LockupMarquee from '../../components/LockupMarquee.astro';
+import HeroField from '../../components/HeroField.astro';
+/* §16's vocabulary. Imported by the platform pages only — see the note on
+   /platforms/index.astro. */
+import '../../styles/platform.css';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
 import { markIndic } from '../../content/indic';
@@ -58,98 +64,109 @@ const groups = grouped
 >
   <RevealRoot />
 
+  {/* Above the hero, not below it. It is sticky either way, but placed after
+      the hero a reader has to scroll a full viewport before the four platforms
+      are reachable — which is the one thing this strip exists to fix. At the
+      top it is on screen from the first frame and pins from the first pixel of
+      scroll. Everything that offsets by `var(--nav-h) + var(--subnav-h)` is unaffected;
+      the strip still pins in the same place. */}
+  <PlatformSubnav />
+
   {/* ══════════════ HERO ══════════════
       Same architecture on all four — eyebrow → h1 → lede → CTA → stat strip.
       Only the arrangement moves, from `heroLayout` in content. */}
   <section class={`hero section hero-${p.heroLayout}`} style={`--page-accent: ${hueVar};`}>
+    {/* Same object as /platforms/, in this platform's own colour: `single`
+        makes the four strands four TONES of --page-accent rather than the four
+        platform hues, so the structure reads the same while §6's "colour
+        identifies" still holds on a page about one product. */}
+    <HeroField hues="--page-accent" tone="single" />
     <div class="shell hero-grid">
       <div class="hero-text">
       <Breadcrumbs trail={trail} />
 
       <p class="t-label rise" style={`--i: 0; color: ${hueVar};`}>{p.name} · {p.sector}</p>
-      <h1 class="t-h1 rise mt-3" style="--i: 1; max-width: 20ch;">{p.pageH1}</h1>
+      <h1 class="t-h1 mt-3">
+        {
+          p.pageH1.split(' ').map((w, i) => (
+            <Fragment>
+              <span class="p-word" style={`--w: ${i};`}>{w}</span>{' '}
+            </Fragment>
+          ))
+        }
+      </h1>
 
-      <p class="t-lede rise mt-6" style="--i: 2;" set:html={markIndic(p.pageLede)} />
+      <p class="t-lede rise mt-5" style="--i: 2;" set:html={markIndic(p.pageLede)} />
 
-      <div class="rise mt-9 flex flex-wrap gap-3" style="--i: 3;">
-        <a href="/contact/" class="btn btn-primary tx-fast">
+      <div class="rise mt-7 flex flex-wrap gap-3" style="--i: 3;">
+        <a href="/contact/" class="btn btn-primary p-btn tx-fast" data-magnetic>
           Book a demo <Icon name="arrow-right" class="arrow" />
         </a>
-        <a href={p.site} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
+        <a href={p.site} target="_blank" rel="noopener" class="btn btn-secondary p-btn tx-fast">
           Visit {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={14} />
         </a>
       </div>
 
-      {/* Stat strip — server-rendered at final value, never animated. */}
-      <dl class="mt-10 grid grid-cols-2 md:grid-cols-4 m-0 card overflow-hidden">
-        {
-          p.stats.map((s, i) => (
-            <div
-              class="flex flex-col gap-1.5 p-6"
-              style={`border-right: ${i < 3 ? '1px' : '0'} solid var(--color-hairline); border-top: ${i > 1 ? '1px' : '0'} solid var(--color-hairline);`}
-            >
-              <dd
-                class="m-0 mono"
-                style={`color: var(--color-ink); font-weight: 500; overflow-wrap: anywhere; ${
-                  s.figure.length > 4
-                    ? 'font-size: var(--text-h3); line-height: 1.2;'
-                    : 'font-size: var(--text-mono-lg); line-height: 1.1; letter-spacing: -0.02em;'
-                }`}
-              >
-                {s.figure}
-              </dd>
-              <dt class="t-cap" style="color: var(--color-muted);" set:html={markIndic(s.label)} />
-            </div>
-          ))
-        }
-      </dl>
+      {/* Stat strip — server-rendered at final value, never animated. Pages
+          with `statsPlacement: 'band'` move the SAME four figures to a
+          mid-page band instead; neither the figures nor the labels change.
+          Rendered conditionally rather than hidden, so the page never ships two
+          copies of the same four numbers for a crawler to weigh. */}
       </div>
 
-      <div class="hero-mock rise" style="--i: 4;">
-        <HeroMock platform={p} shape={mockShape} />
-        <p class="t-cap mt-3 m-0" style="color: var(--color-muted);">
-          Illustrative — every step is a shipped capability.
-        </p>
-      </div>
     </div>
   </section>
 
-  <PlatformSubnav />
+
+  {/* The four figures as their own section, matching /platforms/ — they were a
+      bordered strip inside the hero, which made the hero carry two jobs and
+      boxed four numbers that read better unboxed. Same four figures, same four
+      labels, moved rather than changed.
+
+      markIndic exactly as the hero strip did it, so a declared Devanagari run
+      keeps its lang attribute — TrustProperty's language figure carries one. */}
+  <StatsBand items={p.stats.map((s) => ({ figure: s.figure, label: markIndic(s.label) }))} html />
 
   {/* ══════════════ WHAT IT DOES ══════════════
         Six modules, presented per `capabilityLayout`. The Ink timeline that
         used to sit here has moved into the hero, so it is not rendered twice —
         §11 caps a page at two Ink blocks and the footer is the other one. */}
-  <section class="section band" style={`--page-accent: ${hueVar};`}>
+  <section class="section band p-bloom p-grain" style={`--page-accent: ${hueVar};`}>
     <div class="shell">
-      <Reveal>
-        <h2 class="t-h2" style="max-width: 20ch;">What {p.name} does</h2>
-      </Reveal>
-      <Reveal i={1}>
-        <p class="t-lede mt-5 mb-11">
+      <div class="p-secthead mb-11">
+        <div data-reveal class="p-head">
+          <h2 class="t-h2" style="max-width: 20ch;">What {p.name} does</h2>
+        </div>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
           {d.modules.length} modules, one platform. Every one of them is where an AI agent gets its
           data — the agents sit inside the system of record, not beside it.
         </p>
-      </Reveal>
+      </div>
 
       <CapabilitySection layout={p.capabilityLayout} modules={d.modules} name={p.name} />
 
-      <div class="mt-12 max-w-[560px]">
-        <EvidenceCard evidence={p.evidence} class="max-w-none" />
-      </div>
     </div>
   </section>
+
+  {/* The worked example, its own section now with an illustration beside it.
+      The slug picks the scene — each page draws the person in ITS example —
+      and --page-accent is set here so that drawing takes this platform's hue. */}
+  <div style={`--page-accent: ${hueVar};`}>
+    <EvidenceSection evidence={p.evidence} name={p.name} slug={p.slug} />
+  </div>
 
   {/* ── The agents. The authored moment lives here: selecting a seat brings
         its agents to the front. Nothing is hidden — emphasis and order only,
         and the controls are injected by script so they are never dead. ── */}
   <section class="section">
     <div class="shell" id="agents" data-hue={p.slug} style={`--page-accent: ${hueVar};`}>
-      <h2 class="t-h2" style="max-width: 22ch;">The {p.agentCount} {p.name} AI agents</h2>
-      <p class="t-lede mt-5 mb-9">
-        Each agent does one job, and each carries its own guardrail. Product examples on this site are
-        illustrative.
-      </p>
+      <div class="p-secthead mb-9">
+        <h2 class="t-h2 p-head" data-reveal style="max-width: 22ch;">The {p.agentCount} {p.name} AI agents</h2>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
+          Each agent does one job, and each carries its own guardrail. Product examples on this site are
+          illustrative.
+        </p>
+      </div>
 
       {
         grouped ? (
@@ -159,12 +176,12 @@ const groups = grouped
              page loading rather than arriving. */
           <div class="agent-groups" data-agent-grid>
             {groups.map((g, gi) => (
-              <div class="agent-group" data-reveal style={`--i: ${Math.min(gi, 3)};`}>
+              <div class="agent-group" data-audience={g.audience} data-reveal style={`--i: ${Math.min(gi, 3)};`}>
                 <div class="group-head">
                   <h3 class="t-h3">{g.audience}</h3>
                   <span class="mono t-cap group-n">{g.agents.length}</span>
                 </div>
-                <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mt-6">
+                <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mt-6" data-tilt>
                   {g.agents.map((a) => (
                     <AgentCard agent={a} hue={hueVar} />
                   ))}
@@ -173,7 +190,7 @@ const groups = grouped
             ))}
           </div>
         ) : (
-          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-agent-grid>
+          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-agent-grid data-tilt>
             {d.agents.map((a) => (
               <AgentCard agent={a} hue={hueVar} />
             ))}
@@ -184,22 +201,17 @@ const groups = grouped
   </section>
 
   {/* ── Roles ── */}
-  <section class="section band">
+  <section class="section band" style={`--page-accent: ${hueVar};`}>
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Who {p.name} is for</h2>
-      <p class="t-lede mt-5">
-        {d.roles.length} roles, each with its own view — and an audit log that records who saw what.
-      </p>
+      <div class="p-secthead">
+        <h2 class="t-h2 p-head" data-reveal style="max-width: 20ch;">Who {p.name} is for</h2>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
+          {d.roles.length} roles, each with its own view — and an audit log that records who saw what.
+        </p>
+      </div>
 
-      <div class="mt-11 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
-        {
-          d.roles.map((r) => (
-            <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
-              <h3 class="t-h4">{r.title}</h3>
-              <p class="t-sm">{r.body}</p>
-            </div>
-          ))
-        }
+      <div class="mt-11">
+        <RolesSection layout={p.rolesLayout} roles={d.roles} parallax={p.motion.parallax} />
       </div>
     </div>
   </section>
@@ -207,16 +219,21 @@ const groups = grouped
   {/* ── Compliance. Statements, not logos — the header line is mandatory. ── */}
   <section class="section">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Standards and compliance</h2>
-      <p class="t-lede mt-5 mb-8">
-        These are capability statements, not certification logos. Certificates are published only when they
-        exist.
-      </p>
+      <div class="p-secthead mb-8">
+        <h2 class="t-h2 p-head" data-reveal style="max-width: 20ch;">Standards and compliance</h2>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
+          These are capability statements, not certification logos. Certificates are published only when they
+          exist.
+        </p>
+      </div>
 
       <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
         {
-          d.compliance.map((c) => (
+          d.compliance.map((c, i) => (
             <li
+              data-reveal
+              data-rv="scale"
+              style={`--i: ${Math.min(i, 6)};`}
               class="pill"
               style="background: var(--color-mist); border: 1px solid var(--color-hairline); color: var(--color-body);"
             >
@@ -231,7 +248,7 @@ const groups = grouped
   {/* ── FAQ ── */}
   <section class="section band">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">{p.name} — questions</h2>
+      <h2 class="t-h2 p-head" data-reveal style="max-width: 20ch;">{p.name} — questions</h2>
       <div class="mt-10">
         <Faq items={d.faqs} openFirst />
       </div>
@@ -241,14 +258,17 @@ const groups = grouped
   {/* ── Siblings ── */}
   <section class="section">
     <div class="shell">
-      <h2 class="t-h3">More from AI Nexus</h2>
-      <div class="mt-7 grid gap-6 sm:grid-cols-3">
+      {p.motion.marquee && <LockupMarquee />}
+      <h2 class={`t-h3${p.motion.marquee ? ' mt-8' : ''}`}>More from AI Nexus</h2>
+      <div class="mt-7 grid gap-6 sm:grid-cols-3" data-tilt>
         {
           siblings.map((s) => (
             <a
               href={`/platforms/${s.slug}/`}
-              class="card card-hover tx-fast p-5 flex flex-col gap-2 no-underline group/link"
-              style={`border-top: 3px solid ${s.hue};`}
+              data-reveal
+              data-rv="scale"
+              class="card card-hover p-fill tx-fast p-5 flex flex-col gap-2 no-underline group/link"
+              style={`border-top: 3px solid ${s.hue}; --card-hue: ${s.hue};`}
             >
               <span class="t-label" style={`color: ${s.hue};`}>{s.sector}</span>
               <span class="t-h4">{s.name}</span>
@@ -263,16 +283,32 @@ const groups = grouped
     </div>
   </section>
 
-  <CtaBand />
+  <CtaBand magnetic={p.motion.magneticCta} atmos />
 </Base>
 
 <script>
-  import { initSeatFilter } from '../../scripts/reorder.js';
+  import { initSeatFilter, initSeatSpy } from '../../scripts/reorder.js';
   import { initReveal } from '../../scripts/reveal.js';
   import { initTabs } from '../../scripts/tabs.js';
+  import { initShowcase } from '../../scripts/motion/showcase.js';
+  import { initIndicator } from '../../scripts/motion/indicator.js';
+  import { initSpotlight } from '../../scripts/motion/spotlight.js';
+  import { initCountUp } from '../../scripts/motion/countup.js';
+  import { initMagnetic } from '../../scripts/motion/magnetic.js';
+  import { initTilt } from '../../scripts/motion/tilt.js';
   initReveal();
   const tabRoot = document.querySelector('.tabs');
   if (tabRoot) initTabs(tabRoot);
+  /* After initTabs, so the indicator measures a tablist whose selected tab is
+     already settled. Each of these no-ops on a page that does not carry the
+     pattern — the markup it looks for is simply absent. */
+  const list = document.querySelector('.tablist');
+  if (list) initIndicator(list);
+  initShowcase();
+  initSpotlight();
+  initCountUp();
+  initMagnetic();
+  initTilt();
   const root = document.getElementById('agents');
   if (root) {
     const hues = {
@@ -282,25 +318,86 @@ const groups = grouped
       trustproperty: 'var(--color-trustproperty)',
     };
     initSeatFilter(root, hues[root.dataset.hue] ?? 'var(--color-accent)');
+    /* After the filter, which is what injects the bar this reads. */
+    initSeatSpy(root);
   }
 </script>
 
 <style>
-  /* ── Hero compositions ─────────────────────────────────────────────────
-     One architecture, four arrangements, chosen by `heroLayout` in content.
-     Every one of them keeps the text left-aligned: §8.5 says the hero is
-     "left-aligned, never centered" and §8.18 makes the CTA band the only
-     centred block in the system. `mock-below` centres the MOCK, not the copy. */
+  /* ── Hero ──────────────────────────────────────────────────────────────
+     The illustrative mock card that used to sit on the right is gone; the
+     hero now carries the same WebGL field /platforms/ does, tinted to this
+     page's own hue. `heroLayout` no longer positions a mock — it positions
+     the READING COLUMN against the field, so the four pages still differ and
+     the variation is still driven from content rather than from slug.
+
+     NOTE: p.panel — the four illustrative timeline rows — no longer renders
+     on these pages. It still renders on the home page, which is where that
+     data was first used. Raised rather than quietly dropped. */
   .hero {
-    padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    /* Tightened so the hero clears the viewport under the nav and the sub-nav.
+       The 3D field is unaffected: it is anchored to the hero's TOP at a fixed
+       box, and u_fit scales from a constant reference rather than from the
+       hero — so the form keeps the size and position it had. */
+    padding-block: clamp(2rem, 4vw, 3.25rem) clamp(1.75rem, 3.5vw, 2.75rem);
+    /* The hero fills the screen under the sticky chrome, so nothing of the
+       next section shows while a reader is still in it.
+
+       --chrome is composed from the tokens rather than typed as a number: the
+       nav is --nav-h (fluid — it is a floating pill with clamped padding) and
+       the sub-nav is --subnav-h plus its 1px hairline. Composed, it tracks
+       both if either moves instead of silently drifting. It already has: the
+       nav went from 68px to 89px in the merge with main, and every offset that
+       had been written as 68px was wrong the moment it landed.
+
+       svh, not vh: on mobile `vh` is the LARGEST viewport, so a 100vh hero sits
+       partly under the browser's own chrome until it retracts. */
+    --chrome: calc(var(--nav-h) + var(--subnav-h) + 1px);
+    min-height: calc(100svh - var(--chrome));
+    display: flex;
+    align-items: center;
+    /* A length, never 68ch — see the note in /platforms/index.astro. */
+    --hero-measure: 660px;
   }
+  @media (max-width: 1099px) {
+    .hero {
+      align-items: flex-start;
+    }
+  }
+
   .hero-grid {
-    display: grid;
-    gap: 3rem;
-    align-items: start;
+    position: relative;
+    z-index: 1;
+    width: 100%;
   }
-  .hero-mock {
-    min-width: 0;
+  /* The h1 shares the measure now. It was capped at 20ch, which at 52px is
+     ~520px — AdvoHub's 58-character headline wrapped to three lines there and
+     two at the full measure, and that third line is 55px the hero cannot
+     afford if it is to clear the viewport. */
+  .hero-text :where(h1, p, dl) {
+    max-width: var(--hero-measure);
+  }
+
+  /* ONE measure on all four, deliberately.
+
+     Per-layout measures were carried over from when a mock card sat on the
+     right and the narrow ones existed to leave room for it. With the mock gone
+     they had no job left, and they were actively distorting the set: AdvoHub
+     has the longest lede at 644 characters and had the narrowest column at
+     560px, so the same architecture produced a 1096px hero against MedOrbit's
+     925px and read as a different page rather than a sibling.
+
+     `heroLayout` still exists and still drives the capability and roles
+     variants; it just no longer sets this. Not a copy change — every word is
+     where it was. */
+  .hero {
+    /* 720, up from 660. Wider measure means fewer lines, which is height the
+       hero does not have to spend — and it is the cheapest of the three ways
+       to shorten it, because it changes no copy and no type size. */
+    --hero-measure: 720px;
   }
 
   @keyframes rise {

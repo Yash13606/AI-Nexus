@@ -14,13 +14,31 @@ export type HeroLayout = 'mock-below' | 'left-mock-right' | 'left-narrow-refs-ri
 
 /** How the module list is presented. Assigned so no two adjacent siblings in
  *  comparison-table order share one. */
-export type CapabilityLayout = 'bento' | 'tabs' | 'alternating';
+export type CapabilityLayout = 'bento' | 'tabs' | 'alternating' | 'showcase';
+
+/** How the role list is presented. Second axis of variation, so two pages can
+ *  share a capability layout without reading as the same page. */
+export type RolesLayout = 'grid' | 'bento' | 'spotlight' | 'alternating';
+
+/** Page-level patterns that are not layouts. §16 allows three motion patterns
+ *  per page and these are counted toward that budget, which is why they are
+ *  declared in content rather than switched on wherever they would look nice. */
+export type PageMotion = {
+  /** Decorative lockup strip. aria-hidden — the four names are already linked
+   *  in the siblings grid, so this adds no reachable content and no new link. */
+  marquee?: true;
+  magneticCta?: true;
+  /** Scroll parallax on alternating rows. Capped at 40px, transform only. */
+  parallax?: true;
+};
 
 export type Platform = {
   slug: 'medorbit' | 'edvation' | 'advohub' | 'trustproperty';
   /** Union-typed: an invalid value is a build error, not a silent fallback. */
   heroLayout: HeroLayout;
   capabilityLayout: CapabilityLayout;
+  rolesLayout: RolesLayout;
+  motion: PageMotion;
   name: string;
   sector: string;
   hue: string;
@@ -49,7 +67,9 @@ export const platforms: Platform[] = [
   {
     slug: 'medorbit',
     heroLayout: 'mock-below',
-    capabilityLayout: 'bento',
+    capabilityLayout: 'showcase',
+    rolesLayout: 'spotlight',
+    motion: { magneticCta: true },
     name: 'MedOrbit',
     sector: 'Healthcare',
     hue: 'var(--color-medorbit)',
@@ -109,6 +129,8 @@ export const platforms: Platform[] = [
     slug: 'edvation',
     heroLayout: 'left-mock-right',
     capabilityLayout: 'tabs',
+    rolesLayout: 'bento',
+    motion: {},
     name: 'Edvation',
     sector: 'Education',
     hue: 'var(--color-edvation)',
@@ -167,7 +189,9 @@ export const platforms: Platform[] = [
   {
     slug: 'advohub',
     heroLayout: 'left-narrow-refs-right',
-    capabilityLayout: 'alternating',
+    capabilityLayout: 'showcase',
+    rolesLayout: 'alternating',
+    motion: { parallax: true },
     name: 'AdvoHub',
     sector: 'Legal',
     hue: 'var(--color-advohub)',
@@ -229,6 +253,8 @@ export const platforms: Platform[] = [
     slug: 'trustproperty',
     heroLayout: 'split',
     capabilityLayout: 'bento',
+    rolesLayout: 'alternating',
+    motion: { marquee: true, magneticCta: true },
     name: 'TrustProperty',
     sector: 'Property',
     hue: 'var(--color-trustproperty)',

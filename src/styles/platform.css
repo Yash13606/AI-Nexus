@@ -1,0 +1,1008 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   §16 — the Platform section's own vocabulary.
+
+   Imported ONLY by src/pages/platforms/*, so nothing here reaches the other
+   thirteen routes. That is the mechanism §16 relies on: the overrides are
+   scoped by import, not by a selector prefix that could be copied elsewhere by
+   accident.
+
+   Everything is inside `@layer components` so Tailwind utilities still win
+   over it, exactly as theme.css arranges. Where a rule must beat a theme.css
+   rule it does so on SPECIFICITY (`.card.p-elev` over `.card`), never on source
+   order — bundling decides source order and that is not something to bet on.
+   The last pass lost three hours to a media block that landed before the rule
+   it was meant to override.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── Elevation ────────────────────────────────────────────────────────────
+     §11 banned resting shadows and hover lift; §16 permits both here. This is
+     ADDITIVE to the .hov vocabulary, not a replacement — the surface step, the
+     accent border and the arrow affordance all still fire. A card that only
+     lifted would have thrown away three signals to gain one. */
+  .card.p-elev {
+    box-shadow: var(--shadow-1);
+    transition:
+      background-color var(--dur-micro) var(--ease-entrance),
+      border-color var(--dur-micro) var(--ease-entrance),
+      box-shadow var(--dur-micro) var(--ease-entrance),
+      translate var(--dur-micro) var(--ease-entrance);
+  }
+  /* The lift is `translate`, NOT `transform`, and that is not a style choice.
+     Every tile is also a [data-reveal], and the reveal's finished state is
+     `html[data-reveal-ready] [data-reveal][data-revealed] { transform: none }`
+     — specificity (0,3,1) against this rule's (0,3,0), so a transform-based
+     lift is silently cancelled the moment the card finishes revealing.
+     Measured: hover produced matrix(1,0,0,1,0,0.0004) instead of -4px.
+
+     `translate` is an independent property, so the two no longer contend and
+     neither rule has to be weakened to accommodate the other. */
+  .card.p-elev:hover,
+  .card.p-elev:focus-within {
+    box-shadow: var(--shadow-2);
+    translate: 0 calc(-1 * var(--lift));
+  }
+
+  /* ── Border beam ──────────────────────────────────────────────────────────
+     One tile only. On every tile it is wallpaper, and the whole point of the
+     bento is that one cell carries more weight than the others.
+
+     The ring is a conic gradient masked to the padding box: `mask-composite`
+     subtracts the content box, leaving a 1.5px band. Rotating it needs the
+     angle to be a real animatable type, which is what @property buys.
+
+     Where @property is unsupported the custom property is an unanimatable
+     token, so the gradient renders once at its initial angle: a static hue arc
+     on the top-left corner. That is a still frame of the intended thing, not a
+     missing thing. */
+  @property --p-beam-a {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  /* `isolation` is load-bearing, not decoration. The ring is a z-index:-1
+     child so the tile's own content paints over it without any of that content
+     needing to be positioned — and a negative z-index only lands above its
+     stacking context's background, so without an explicit context here the
+     card's Paper background would swallow the ring entirely.
+
+     The alternative — positioning every child instead — silently breaks the
+     stretched card link: `.stretch::after` resolves against its nearest
+     positioned ancestor, so promoting the tile's inner divs would shrink a
+     whole-card click target down to one row of it. */
+  .p-beam {
+    position: relative;
+    isolation: isolate;
+  }
+  .p-beam::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--p-beam-a),
+      transparent 0deg 232deg,
+      color-mix(in oklab, var(--beam-hue, var(--page-accent)) 70%, transparent) 300deg,
+      var(--beam-hue, var(--page-accent)) 330deg,
+      transparent 358deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: p-beam 7s linear infinite;
+  }
+
+  /* ── Magnetic CTA ─────────────────────────────────────────────────────────
+     magnetic.js writes --mx/--my; this is the only thing that reads them. The
+     transition is what makes it a spring rather than a leash: the button
+     trails the pointer and takes 320ms to come home on pointerleave. Capped at
+     6px in the script, so it stays a button.
+
+     Lives here rather than in the page, because CtaBand is a separate
+     component and an Astro scoped style would not reach it. */
+  [data-magnetic] {
+    transform: translate3d(var(--mx, 0px), var(--my, 0px), 0);
+    transition: transform 320ms var(--ease-entrance);
+  }
+
+  /* ── The live roster ──────────────────────────────────────────────────────
+     A scan runs down the hero tile's real agent roster, stepping each row from
+     muted to ink as it passes.
+
+     §11 is not bent here: every name is server-rendered at full opacity and
+     stays legible with CSS or JS off. The scan changes COLOUR, never presence
+     — nothing on this panel starts hidden and nothing is revealed by it. That
+     is the same rule the agent-count already follows ("muted mono stepping to
+     ink. Never opacity 0"). */
+  .p-roster-row {
+    color: var(--color-muted);
+    animation: p-scan 6s var(--ease-entrance) infinite;
+    animation-delay: calc(var(--r) * 400ms);
+  }
+  .p-roster-row .p-roster-seat {
+    color: var(--color-control);
+  }
+
+  /* ── Spotlight ────────────────────────────────────────────────────────────
+     A radial wash following the pointer, painted UNDER the card's content by a
+     z-index:-1 pseudo-element on an isolated card — same arrangement, and same
+     reasoning, as the border beam. Opacity is driven by --lit so the glow fades
+     in and out rather than snapping between cards. */
+  [data-spotlight] > * {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  [data-spotlight] > *::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      14rem 14rem at var(--px, 50%) var(--py, 50%),
+      color-mix(in oklab, var(--page-accent) 12%, transparent),
+      transparent 70%
+    );
+    opacity: var(--lit, 0);
+    transition: opacity var(--dur-micro) var(--ease-entrance);
+    pointer-events: none;
+  }
+
+  /* The tabs indicator lives in CapabilitySection.astro, not here. Astro
+     scoped styles are UNLAYERED, and unlayered CSS beats layered CSS whatever
+     the specificity — so nothing in this file can override a scoped rule that
+     touches the same property. The border-bottom override needed exactly that,
+     and lost silently: measured with data-indicator set and the per-tab border
+     still painting rgb(180,83,9) underneath the bar. Rules here are safe only
+     where no scoped rule sets the same property; that is true of every other
+     block in this file, and was checked one by one. */
+
+  /* ── Alternating-row parallax ─────────────────────────────────────────────
+     Scroll-driven CSS, and this is the case §16 says it is for: the effect is
+     decorative depth, so where `animation-timeline` is unsupported the row
+     simply sits at its resting position and a reader loses nothing. Contrast
+     the sticky showcase, which must SWAP a step and therefore uses an
+     IntersectionObserver instead — a permission is not an instruction.
+
+     40px total, transform only, and split so odd and even rows drift in
+     opposite directions. Any more than this and it stops reading as depth and
+     starts reading as an effect. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .ralt-parallax .ralt-row {
+        animation: p-drift linear both;
+        animation-timeline: view();
+        animation-range: cover 0% cover 100%;
+      }
+      .ralt-parallax .ralt-row:nth-child(even) {
+        animation-name: p-drift-rev;
+      }
+    }
+  }
+
+  /* ── Table rows ───────────────────────────────────────────────────────────
+     A <tr> is not a reliable box-shadow host, so the shadow is painted by the
+     cells. Both offsets in --shadow-2 are purely vertical, so adjacent cells
+     produce one continuous band rather than a seam per column — verified by
+     screenshot at 1440, not assumed. */
+  .p-row th,
+  .p-row td {
+    transition:
+      background-color var(--dur-micro) var(--ease-entrance),
+      box-shadow var(--dur-micro) var(--ease-entrance);
+  }
+  tr.p-row:hover th,
+  tr.p-row:hover td,
+  tr.p-row:focus-within th,
+  tr.p-row:focus-within td {
+    box-shadow: var(--shadow-2);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Sort caret ───────────────────────────────────────────────────────────
+     Rotates rather than swapping glyphs, so ascending and descending are the
+     same object at two angles. Dim until its column is the sorted one. */
+  .p-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .p-caret {
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.28;
+    transition:
+      transform var(--dur-micro) var(--ease-entrance),
+      opacity var(--dur-micro) var(--ease-entrance);
+  }
+  .p-sort:hover .p-caret {
+    opacity: 0.6;
+  }
+  [aria-sort='ascending'] .p-caret {
+    opacity: 1;
+    transform: rotate(180deg);
+  }
+  [aria-sort='descending'] .p-caret {
+    opacity: 1;
+  }
+}
+
+@keyframes p-beam {
+  to {
+    --p-beam-a: 360deg;
+  }
+}
+
+/* 28px end to end. §16 caps it at 40 and 40 was the first attempt; at that
+   distance a ~150px row visibly slides against its neighbours and reads as an
+   effect rather than as depth, which is the failure the cap exists to prevent.
+   Under the cap is not the same as subtle. `translate` rather than
+   `transform`, for the same reason the hover lift uses it: these rows are also
+   [data-reveal] elements, and the reveal's finished state sets
+   `transform: none` at a specificity this cannot beat. Measured. */
+@keyframes p-drift {
+  from {
+    translate: 0 14px;
+  }
+  to {
+    translate: 0 -14px;
+  }
+}
+@keyframes p-drift-rev {
+  from {
+    translate: 0 -14px;
+  }
+  to {
+    translate: 0 14px;
+  }
+}
+
+/* Muted for most of the cycle, ink for the sixth of it the scan is on the row.
+   Resting state (no animation) is the muted end, which is the readable one. */
+@keyframes p-scan {
+  0%,
+  8%,
+  100% {
+    color: var(--color-muted);
+  }
+  2%,
+  5% {
+    color: var(--color-ink);
+  }
+}
+
+/* Unlayered, matching theme.css's kill switch: the section's two loops and the
+   hover lift all stop. The resting frame of each is already the correct one. */
+@media (prefers-reduced-motion: reduce) {
+  .p-beam::before,
+  .p-roster-row,
+  .ralt-parallax .ralt-row {
+    animation: none !important;
+  }
+  /* theme.css's kill switch only forces `transform: none`, so anything using
+     the independent `translate` property has to be nulled here by name. */
+  .card.p-elev:hover,
+  .card.p-elev:focus-within,
+  .ralt-parallax .ralt-row {
+    translate: none !important;
+  }
+  .p-ind {
+    transition: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   §16.7 — the rich card system.
+
+   The section's cards were correct and plain. This layer makes them the
+   thing the page is looking at, without touching a word of copy and without
+   putting any content behind an interaction.
+
+   Every effect here is decoration in the §16.2 sense: at rest, with no
+   pointer, no JavaScript and no CSS animation, every card shows the same
+   text at the same size in the same order. Motion moves surfaces, never
+   presence.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── The tilt surface ─────────────────────────────────────────────────────
+     The grid holds the perspective so all its cards share one vanishing
+     point — per-card perspective makes a row look like several photographs
+     rather than one scene. */
+  [data-tilt] {
+    perspective: 1400px;
+    perspective-origin: 50% 40%;
+  }
+
+  /* Keyed off the GRID, not a class on each card. That is what lets shared
+     components — AgentCard renders on /ai-agents/ too — pick the treatment up
+     inside the platform section and nowhere else, without a single edit to
+     them. Adding `data-tilt` to a grid is the whole opt-in. */
+  [data-tilt] > *,
+  .p-tilt {
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transform-style: preserve-3d;
+    transition:
+      transform 260ms var(--ease-entrance),
+      box-shadow var(--dur-micro) var(--ease-entrance),
+      border-color var(--dur-micro) var(--ease-entrance),
+      translate var(--dur-micro) var(--ease-entrance);
+    will-change: transform;
+  }
+  /* (0,4,1), beating theme.css's `html[data-reveal-ready] [data-reveal]
+     [data-revealed] { transform: none }` at (0,3,1). Both live in
+     @layer components, so specificity decides — see §14b for the two times
+     that assumption was wrong and how it was checked here. */
+  html[data-reveal-ready] .p-tilt[data-reveal][data-revealed],
+  html[data-reveal-ready] [data-tilt] > *[data-reveal][data-revealed],
+  html[data-reveal-ready] [data-tilt] [data-reveal][data-revealed] .p-tiltc {
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  }
+
+  /* ── Pointer glow ─────────────────────────────────────────────────────────
+     A hue wash under the content, following the cursor. z-index:-1 under an
+     isolated card, the same arrangement as the border beam — so nothing in
+     the card has to be positioned and the stretched card link survives. */
+  [data-tilt] > *,
+  .p-glow {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  [data-tilt] > *::before,
+  .p-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      18rem 18rem at var(--px, 50%) var(--py, 50%),
+      color-mix(in oklab, var(--card-hue, var(--chue, var(--page-accent))) 16%, transparent),
+      transparent 68%
+    );
+    opacity: var(--lit, 0);
+    transition: opacity var(--dur-micro) var(--ease-entrance);
+    pointer-events: none;
+  }
+
+  /* ── Shine sweep ──────────────────────────────────────────────────────────
+     A single specular band crossing the card once on enter. It is a highlight
+     on glass, so it runs at a shallow angle and never repeats — a looping
+     shimmer reads as a loading state, which is the one thing this site must
+     never imply. */
+  [data-tilt] > *::after,
+  .p-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      104deg,
+      transparent 38%,
+      color-mix(in oklab, var(--color-paper) 92%, var(--card-hue, var(--chue, var(--page-accent)))) 50%,
+      transparent 62%
+    );
+    translate: -130% 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  [data-tilt] > *:hover::after,
+  .p-glow:hover::after {
+    animation: p-shine 900ms var(--ease-entrance) forwards;
+  }
+
+  /* Grid cards get the resting elevation and the lift too, so a grid that opts
+     into tilt does not also have to opt into every other part of the
+     vocabulary one class at a time. */
+  [data-tilt] > *.card {
+    box-shadow: var(--shadow-1);
+  }
+  [data-tilt] > *.card:hover,
+  [data-tilt] > *.card:focus-within {
+    box-shadow: var(--shadow-3);
+  }
+
+  /* ── Hue header ───────────────────────────────────────────────────────────
+     Replaces the flat 3px top rule. Same identification, more surface: the
+     hue washes down out of the top edge and a solid 3px line still caps it,
+     so §6's "colour identifies" reading is unchanged at a glance. */
+  .p-huehead {
+    position: relative;
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--card-hue) 11%, transparent),
+      transparent 42%
+    );
+  }
+  .p-huehead::before {
+    content: '';
+    position: absolute;
+    inset: -1px -1px auto;
+    height: 3px;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    background: linear-gradient(
+      90deg,
+      var(--card-hue),
+      color-mix(in oklab, var(--card-hue) 45%, var(--color-paper)) 55%,
+      var(--card-hue)
+    );
+    background-size: 220% 100%;
+    transition: background-position 700ms var(--ease-entrance);
+  }
+  .p-huehead:hover::before {
+    background-position: 100% 0;
+  }
+
+  /* ── Section headings ─────────────────────────────────────────────────────
+     A rule that draws itself in from the left as the heading arrives. It is
+     the only new furniture on the page and it is purely a rule — no text, so
+     nothing can be stranded by it. */
+  .p-head {
+    position: relative;
+    padding-top: 1.5rem;
+  }
+  .p-head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    max-width: 5.5rem;
+    background: linear-gradient(90deg, var(--page-accent), transparent);
+    transform-origin: left;
+    scale: 0 1;
+  }
+  html[data-reveal-ready] .p-head[data-revealed]::before,
+  html:not([data-reveal-ready]) .p-head::before {
+    scale: 1 1;
+    transition: scale var(--dur-section) var(--ease-entrance) 120ms;
+  }
+
+  /* ── Headline word stagger ────────────────────────────────────────────────
+     The words are split server-side and every one is in the HTML as text. The
+     animation is `both`-filled from a rendered state, so with CSS animation
+     unavailable the headline is simply a headline. */
+  .p-word {
+    display: inline-block;
+    animation: p-word-in 620ms var(--ease-entrance) both;
+    animation-delay: calc(var(--w) * 45ms + 80ms);
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────────────────────
+     A sweep on hover, on top of the existing colour transition. */
+  .p-btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .p-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      100deg,
+      transparent 40%,
+      rgb(255 255 255 / 0.22) 50%,
+      transparent 60%
+    );
+    translate: -120% 0;
+    pointer-events: none;
+  }
+  .p-btn:hover::after {
+    animation: p-shine 720ms var(--ease-entrance) forwards;
+  }
+  .btn-secondary.p-btn::after {
+    background: linear-gradient(
+      100deg,
+      transparent 40%,
+      color-mix(in oklab, var(--page-accent) 14%, transparent) 50%,
+      transparent 60%
+    );
+  }
+
+  /* ── Reveal variety ───────────────────────────────────────────────────────
+     One direction everywhere reads as a template. These are the same
+     enter-once mechanism with a different starting offset, and every one of
+     them resolves to the identical resting state. */
+  /* Every variant drives `translate`, `scale` and `filter` — never `transform`.
+     The first version used transform and it tied at (0,4,1) with the tilt
+     override, then won on source order: the cards wrote --rx/--ry correctly and
+     computed `transform: none` anyway. That is the same failure class as the
+     hover lift and the tab indicator, and the same fix — take the two rules off
+     the same property instead of escalating specificity between them.
+
+     `transform: none` in the hidden state is deliberate: it cancels the base
+     reveal's translateY(12px) so a variant does not compound with it. */
+  html[data-reveal-ready] [data-reveal][data-rv] {
+    transform: none;
+    transition-property: opacity, translate, scale, filter;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv='left'] {
+    translate: -26px 0;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv='right'] {
+    translate: 26px 0;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv='scale'] {
+    scale: 0.965;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv='blur'] {
+    translate: 0 14px;
+    filter: blur(7px);
+  }
+  html[data-reveal-ready] [data-reveal][data-rv][data-revealed] {
+    translate: none;
+    scale: none;
+    filter: none;
+  }
+
+  /* ── Band atmosphere ──────────────────────────────────────────────────────
+     A very slow four-hue mesh behind Wash bands, at an alpha where it reads
+     as paper stock rather than as colour. Fixed attachment is deliberately
+     avoided — it costs a full-page repaint on every scroll frame. */
+  .p-atmos {
+    position: relative;
+    isolation: isolate;
+  }
+  .p-atmos::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(38% 55% at 8% 12%, color-mix(in oklab, var(--color-medorbit) 9%, transparent), transparent 70%),
+      radial-gradient(34% 50% at 92% 22%, color-mix(in oklab, var(--color-edvation) 8%, transparent), transparent 70%),
+      radial-gradient(40% 55% at 18% 88%, color-mix(in oklab, var(--color-advohub) 7%, transparent), transparent 70%),
+      radial-gradient(36% 52% at 84% 82%, color-mix(in oklab, var(--color-trustproperty) 9%, transparent), transparent 70%);
+    animation: p-atmos 44s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+}
+
+@keyframes p-shine {
+  from {
+    translate: -130% 0;
+    opacity: 1;
+  }
+  to {
+    translate: 130% 0;
+    opacity: 1;
+  }
+}
+
+@keyframes p-word-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.5em, 0) rotateX(-42deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes p-atmos {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-2%, 1.5%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p-tilt,
+  [data-tilt] > *,
+  html[data-reveal-ready] .p-tilt[data-reveal][data-revealed],
+  html[data-reveal-ready] [data-tilt] > *[data-reveal][data-revealed] {
+    transform: none !important;
+  }
+  [data-tilt] > *:hover::after,
+  .p-glow:hover::after,
+  .p-btn:hover::after,
+  .p-atmos::before {
+    animation: none !important;
+  }
+  .p-word {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .p-head::before {
+    scale: 1 1 !important;
+    transition: none !important;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv] {
+    filter: none !important;
+    translate: none !important;
+    scale: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   §16.8 — the reference pass.
+
+   Direction taken from Arcade (solutions / enterprise / blog) and
+   Amplemarket, per the owner's brief: take inspiration, do not replicate.
+
+   Three signatures were worth taking, and one was not:
+
+     TAKEN  grainy gradient blooms as the page's only large-scale colour.
+            Amplemarket bleeds one off the left edge behind the hero; the
+            grain is what stops a big soft gradient reading as a 2013
+            background image.
+     TAKEN  borderless light-fill cards with a rounded icon badge. Arcade's
+            small feature cards carry no border at all — the fill alone does
+            the separating, which is quieter and more modern than a hairline.
+     TAKEN  the two-column section header: heading left, supporting sentence
+            right, on one baseline. It also happens to satisfy §8.5's
+            left-alignment rule, which Arcade's centred hero does not.
+     LEFT   the centred hero and the pill buttons. §8.5 says the hero is
+            left-aligned and §5's radius ladder stops at 16px with pills
+            reserved for tags. Those are identity, not decoration — copying
+            them would make this look like Arcade rather than like itself.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── Grain ────────────────────────────────────────────────────────────────
+     One inline SVG turbulence, no network request and no image asset. Overlaid
+     on a bloom it breaks the banding that a wide soft gradient shows on an
+     8-bit display, which is the actual reason these sites use it. */
+  .p-grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.42;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  /* ── Bloom ────────────────────────────────────────────────────────────────
+     Large-scale colour, rationed to one per band and always behind content.
+     The four hues, so it stays identification rather than decoration — §16.5
+     makes that argument for the hero field and it holds here for the same
+     reason: this section's subject is the set of four. */
+  .p-bloom {
+    position: relative;
+    isolation: isolate;
+    /* `clip`, NOT `hidden`. overflow:hidden makes the section a scroll
+       container, and position:sticky does not work inside one — the showcase's
+       pinned counter scrolled away with the page instead of pinning, measured
+       at top:-471px where it should have held at 172. overflow:clip clips the
+       bloom without creating a scroll container, so descendants can still
+       stick. Safari below 16 does not support it and falls back to visible,
+       where the worst case is a soft gradient bleeding a few percent past the
+       band — a cosmetic loss against a broken sticky. */
+    overflow: clip;
+  }
+  .p-bloom::before {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    inset: -40% 20% -40% -30%;
+    background:
+      radial-gradient(48% 46% at 22% 30%, color-mix(in oklab, var(--color-edvation) 30%, transparent), transparent 68%),
+      radial-gradient(42% 40% at 6% 62%, color-mix(in oklab, var(--color-trustproperty) 26%, transparent), transparent 68%),
+      radial-gradient(38% 36% at 40% 78%, color-mix(in oklab, var(--color-advohub) 18%, transparent), transparent 70%),
+      radial-gradient(44% 38% at 34% 8%, color-mix(in oklab, var(--color-medorbit) 16%, transparent), transparent 70%);
+    filter: blur(10px);
+    animation: p-bloom 52s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  /* ── Section header ───────────────────────────────────────────────────────
+     Heading left, supporting sentence right, sharing a baseline. Below 900px
+     it stacks and is exactly what it was before. */
+  .p-secthead {
+    display: grid;
+    gap: 1.25rem 4rem;
+    align-items: end;
+  }
+  @media (min-width: 900px) {
+    .p-secthead {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    }
+    .p-secthead > :last-child {
+      padding-bottom: 0.35rem;
+    }
+  }
+
+  /* ── Borderless fill cards ────────────────────────────────────────────────
+     Arcade's small feature card: no border, a light fill, a rounded icon badge
+     and generous radius. The hairline comes back on hover as the page accent,
+     so the §16.1 hover vocabulary still has its border signal. */
+  .p-fill {
+    background: color-mix(in oklab, var(--color-wash) 78%, var(--color-paper));
+    border: 1px solid transparent;
+    border-radius: var(--radius-panel);
+    box-shadow: none;
+  }
+  .p-fill:hover,
+  .p-fill:focus-within {
+    background: var(--color-paper);
+    border-color: color-mix(in oklab, var(--card-hue, var(--page-accent)) 40%, transparent);
+    box-shadow: var(--shadow-2);
+  }
+  .band .p-fill {
+    background: var(--color-paper);
+  }
+  .band .p-fill:hover,
+  .band .p-fill:focus-within {
+    background: var(--color-paper);
+  }
+
+  /* The icon badge. A hue square with a hairline, 40px, 12px radius — inside
+     the ladder, so this adds no new value to §5. */
+  .p-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+    border-radius: var(--radius-card);
+    background: color-mix(in oklab, var(--card-hue, var(--page-accent)) 11%, var(--color-paper));
+    border: 1px solid color-mix(in oklab, var(--card-hue, var(--page-accent)) 26%, transparent);
+    color: var(--card-hue, var(--page-accent));
+    transition:
+      background-color var(--dur-micro) var(--ease-entrance),
+      scale var(--dur-micro) var(--ease-entrance);
+  }
+  .p-fill:hover .p-badge,
+  [data-tilt] > *:hover .p-badge {
+    background: color-mix(in oklab, var(--card-hue, var(--page-accent)) 18%, var(--color-paper));
+    scale: 1.06;
+  }
+  /* A hue dot for cards that carry no icon — the lockup already names the
+     product, so this is identification at a glance, not an ornament. */
+  .p-dot {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: var(--radius-pill);
+    background: var(--card-hue, var(--page-accent));
+    flex: none;
+  }
+}
+
+@keyframes p-bloom {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(6%, -4%, 0) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p-bloom::before {
+    animation: none !important;
+  }
+  .p-fill:hover .p-badge,
+  [data-tilt] > *:hover .p-badge {
+    scale: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   §16.10 — the long roster.
+
+   Edvation ships twenty agents against seven to eleven elsewhere, and the
+   grouping is lopsided: sixteen Students, then two, one and one. That is
+   3,214px of section in which a reader can lose track of which seat they are
+   looking at. Neither rule here hides anything — both are orientation.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* The seat bar pins under the main nav and the platform sub-nav, so the four
+     seats stay reachable through the whole roster instead of only at the top.
+     `data-spy` is set by initSeatSpy, so a bar that is not being tracked never
+     becomes sticky and cannot pin with nothing to say. */
+  .reorder-bar[data-spy] {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--subnav-h));
+    z-index: 6;
+    margin-inline: calc(var(--shell-pad, 0px) * -1);
+    padding: 0.75rem var(--shell-pad, 0px);
+    background: color-mix(in oklab, var(--color-paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-micro) var(--ease-entrance);
+  }
+
+  /* The group you are currently inside. A ring rather than the pressed state,
+     because pressed means "you chose this" and current means "you are here" —
+     they are different facts and can disagree.
+
+     The :not() is load-bearing. Without it this rule's `color: var(--color-ink)`
+     is (0,2,0), exactly tying theme.css's
+     `.reorder-btn[aria-pressed='true'] { color: var(--color-paper) }`, and the
+     tie goes to source order — this file loads later. A button that was both
+     pressed and current rendered ink text on an ink plate and its label
+     disappeared completely. Measured at 1:1 contrast.
+
+     Scoping by state rather than raising specificity is the fix, for the same
+     reason as every other instance in §14b: the two rules stop competing for
+     the property instead of one of them winning louder. */
+  .reorder-btn[data-current]:not([aria-pressed='true']) {
+    border-color: var(--page-accent);
+    color: var(--color-ink);
+    box-shadow: inset 0 -2px 0 0 var(--page-accent);
+  }
+  /* Pressed and current at once: the plate is already ink, so "here" is a
+     light underline on it rather than any colour change. */
+  .reorder-btn[aria-pressed='true'][data-current] {
+    box-shadow: inset 0 -2px 0 0 var(--color-paper);
+  }
+
+  /* Group headings pin too. In a sixteen-card group the heading is off screen
+     for most of the scroll, and without it the roster is an undifferentiated
+     wall of cards. */
+  .group-head {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--subnav-h) + 3.25rem);
+    z-index: 5;
+    background: var(--color-paper);
+    padding-top: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reorder-bar[data-spy] {
+    backdrop-filter: none;
+  }
+}
+
+@layer components {
+  /* The CTA band read as a flat Wash rectangle — the one section on the page
+     with no surface of its own. It gets the same grainy bloom the platform
+     band has, mirrored so the two do not read as the same image twice, and
+     pulled back because this band is centred text and a bloom under the middle
+     of it is a contrast problem rather than an atmosphere. */
+  .p-cta::before {
+    inset: -45% -30% -45% 30%;
+    opacity: 0.75;
+  }
+  .p-cta > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   §16.11 — the comparison table, restyled.
+
+   It was a boxed grid: an outline round the whole thing, a fill behind the
+   header, a rule under every row and body-sized figures. That is the register
+   of a spec sheet, and it made the page's most important object its dullest.
+
+   What changed is presentation only. It is still a real <table> with a real
+   <caption>, `scope` on every header cell, `aria-sort` on the sortable ones
+   and the desktop/mobile sticky split intact — §8.14 is not relaxed here, and
+   none of this is reachable by a screen reader as anything other than a table.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* No box. Hairlines between rows carry the structure, which is all the
+     structure a five-column table needs. */
+  .p-table .tbl-wrap {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .p-table thead th {
+    background: transparent;
+    border-bottom: 1px solid var(--color-hairline);
+    color: var(--color-muted);
+    padding-block: 0.5rem 0.875rem;
+  }
+  .p-table th,
+  .p-table td {
+    padding-inline: 1.25rem;
+  }
+  .p-table th:first-child,
+  .p-table td:first-child {
+    padding-inline-start: 0;
+  }
+  .p-table th:last-child,
+  .p-table td:last-child {
+    padding-inline-end: 0;
+  }
+  .p-table tbody th,
+  .p-table tbody td {
+    padding-block: 1.5rem;
+  }
+
+  /* The figures are what a reader is comparing, so they get the size. */
+  .p-table .numv {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-h3);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  /* A bar under the agent count, proportional to the largest. The figure above
+     it is still the fact; this is the comparison, which is the one thing a
+     column of numerals does not give you at a glance. aria-hidden and derived
+     from the same number, so nothing is asserted here that the cell does not
+     already say. */
+  .p-table .bar {
+    display: block;
+    height: 3px;
+    margin-top: 0.625rem;
+    max-width: 5.5rem;
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklab, var(--color-hairline) 70%, transparent);
+    position: relative;
+    overflow: hidden;
+  }
+  .p-table .bar::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--v, 0) * 100%);
+    border-radius: inherit;
+    background: var(--row-hue, var(--page-accent));
+    transform-origin: left;
+    scale: 0 1;
+  }
+  html[data-reveal-ready] [data-revealed] .p-table .bar::after,
+  html:not([data-reveal-ready]) .p-table .bar::after {
+    scale: 1 1;
+    transition: scale var(--dur-section) var(--ease-entrance) 200ms;
+  }
+
+  /* Hue reaches the whole row on hover, so the row you are reading is the row
+     you are reading. The swatch already carries identity at rest. */
+  .p-table tbody tr:hover th,
+  .p-table tbody tr:hover td {
+    background: color-mix(in oklab, var(--row-hue, var(--page-accent)) 5%, var(--color-paper));
+  }
+  .p-table .plat-cell a {
+    font-size: var(--text-h4);
+    font-weight: 600;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .p-table .plat-cell a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .p-table .swatch {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: var(--radius-pill);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .p-table .bar::after {
+      scale: 1 1 !important;
+      transition: none !important;
+    }
+  }
+}

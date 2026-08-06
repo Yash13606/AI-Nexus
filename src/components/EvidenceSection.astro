@@ -1,0 +1,431 @@
+---
+/** The worked example, promoted from a 560px block at the foot of the
+ *  capability band to a section of its own, with an illustration beside it.
+ *
+ *  FOUR DRAWINGS, ONE PER PAGE — each one draws the person in that page's
+ *  worked example, and only that. A patient on the phone at 20:40. A student
+ *  with the school's own book open. An advocate holding a brief. A tenant on
+ *  the phone at 11:40 PM. The scene changes because the example changes; the
+ *  mechanism beside them — the agent, the control it passes through, the thing
+ *  it produces — keeps the same shape on all four, because that shape IS the
+ *  product argument and it is genuinely the same argument four times.
+ *
+ *  NO PHOTOGRAPHS, NO STOCK PEOPLE. The figures are flat silhouettes with no
+ *  features: no face, no skin tone, no clothing that reads as one profession's
+ *  uniform. A reader recognises the situation without the drawing claiming to
+ *  show a particular person — and nothing here can be mistaken for a customer.
+ *
+ *  Every drawing is `aria-hidden` and carries no text. Every word a reader
+ *  needs is in the card beside it, so with images off, CSS off or a screen
+ *  reader the section loses nothing.
+ *
+ *  Colour comes from --page-accent, which each platform page sets to its own
+ *  hue — so each drawing matches its page without a hue being hard-coded here.
+ *  One shared stylesheet paints all four. */
+import EvidenceCard from './EvidenceCard.astro';
+import type { Evidence } from '../content/platforms';
+
+interface Props {
+  evidence: Evidence;
+  name: string;
+  /** Chooses the scene. An unknown slug falls through to no drawing at all,
+   *  and the card simply takes the full width — never a wrong picture. */
+  slug: string;
+}
+const { evidence, name, slug } = Astro.props;
+---
+
+<section class="section evi">
+  <div class={`shell evi-grid${slug === 'medorbit' || slug === 'edvation' || slug === 'advohub' || slug === 'trustproperty' ? '' : ' evi-solo'}`}>
+    <div class="evi-art" data-reveal data-rv="left" aria-hidden="true">
+      {
+        slug === 'medorbit' && (
+          /* 20:40. The front desk is closed — the moon says so — and the call
+             is answered anyway, by the agent, into the live schedule. */
+          <svg viewBox="0 0 420 340" fill="none" role="presentation">
+            <rect x="14" y="52" width="392" height="252" rx="20" class="a-plate" />
+
+            {/* After hours. */}
+            <path d="M56 70a15 15 0 1 0 15 15 12 12 0 0 1-15-15z" class="a-moon" />
+
+            {/* The patient, phone to ear. */}
+            <circle cx="76" cy="158" r="15" class="a-body" />
+            <path d="M46 224v-16c0-16.6 13.4-30 30-30s30 13.4 30 30v16z" class="a-body" />
+            <rect x="92" y="140" width="14" height="24" rx="4" class="a-node" transform="rotate(-14 99 152)" />
+            <path d="M118 142c7 8 7 20 0 28M128 134c12 13 12 31 0 44" class="a-wave" />
+
+            {/* Into the agent. */}
+            <path d="M146 158h24" class="a-flow" />
+            <circle cx="158" cy="158" r="2.5" class="a-dot" />
+            <rect x="170" y="130" width="56" height="56" rx="15" class="a-node" />
+            <path d="M198 140l6.5 11.5 11.5 6.5-11.5 6.5-6.5 11.5-6.5-11.5-11.5-6.5 11.5-6.5z" class="a-spark" />
+
+            {/* And out into the schedule: three slots offered, one taken. */}
+            <path d="M226 158h22" class="a-flow" />
+            <rect x="248" y="84" width="140" height="176" rx="14" class="a-node" />
+            <rect x="264" y="100" width="108" height="30" rx="9" class="a-slot" />
+            <path d="M278 115h56" class="a-rule" />
+            <rect x="264" y="138" width="108" height="30" rx="9" class="a-gate" />
+            <path d="M278 153h40" class="a-rule" />
+            <path d="M340 152l5 5 9-9" class="a-check" />
+            <rect x="264" y="176" width="108" height="30" rx="9" class="a-slot" />
+            <path d="M278 191h48" class="a-rule" />
+
+            {/* Every call logged. */}
+            <path d="M264 226h108M264 242h72" class="a-rule" />
+            <circle cx="256" cy="226" r="3" class="a-dot" />
+            <circle cx="256" cy="242" r="3" class="a-dot" />
+          </svg>
+        )
+      }
+
+      {
+        slug === 'edvation' && (
+          /* The student asks; the answer comes back out of the book that is
+             open in front of them, which is the whole point. The dashed line
+             is that provenance, drawn. */
+          <svg viewBox="0 0 420 340" fill="none" role="presentation">
+            <rect x="14" y="52" width="392" height="252" rx="20" class="a-plate" />
+
+            {/* The student. */}
+            <circle cx="78" cy="150" r="15" class="a-body" />
+            <path d="M48 216v-16c0-16.6 13.4-30 30-30s30 13.4 30 30v16z" class="a-body" />
+
+            {/* The school's own book, open. */}
+            <path d="M44 228c12-5 26-5 34 3v34c-8-8-22-8-34-3z" class="a-book" />
+            <path d="M112 228c-12-5-26-5-34 3v34c8-8 22-8 34-3z" class="a-book" />
+            <path d="M78 231v34" class="a-line" />
+            <path d="M94 224v20l7-6 7 6v-20z" class="a-mark" />
+
+            {/* The question. */}
+            <path
+              d="M120 96h50a12 12 0 0 1 12 12v22a12 12 0 0 1-12 12h-34l-16 14 2-14h-2a12 12 0 0 1-12-12v-22a12 12 0 0 1 12-12z"
+              class="a-node"
+            />
+            <path d="M124 114h44M124 126h26" class="a-rule" />
+
+            {/* Into the agent. */}
+            <path d="M182 130h6v18h8" class="a-flow" />
+            <circle cx="190" cy="148" r="2.5" class="a-dot" />
+            <rect x="196" y="120" width="56" height="56" rx="15" class="a-node" />
+            <path d="M224 130l6.5 11.5 11.5 6.5-11.5 6.5-6.5 11.5-6.5-11.5-11.5-6.5 11.5-6.5z" class="a-spark" />
+
+            {/* The answer, with the page it came from. */}
+            <path d="M252 148h10v-18h10" class="a-flow" />
+            <circle cx="267" cy="130" r="2.5" class="a-dot" />
+            <rect x="272" y="78" width="118" height="152" rx="14" class="a-node" />
+            <path d="M288 100h86M288 118h86M288 136h54" class="a-rule" />
+            <rect x="288" y="158" width="86" height="28" rx="9" class="a-gate" />
+            <circle cx="302" cy="172" r="3.5" class="a-dot" />
+            <path d="M314 172h44" class="a-rule" />
+
+            {/* Straight back to the book. Nothing else feeds the answer. */}
+            <path d="M112 250h206v-20" class="a-trace" />
+            <circle cx="212" cy="250" r="2.5" class="a-dot" />
+          </svg>
+        )
+      }
+
+      {
+        slug === 'advohub' && (
+          /* Four authorities go in. Three resolve and are cited; one cannot be
+             resolved, so its place in the answer is empty rather than hedged. */
+          <svg viewBox="0 0 420 340" fill="none" role="presentation">
+            <rect x="14" y="52" width="392" height="252" rx="20" class="a-plate" />
+
+            {/* The advocate, holding the brief. */}
+            <circle cx="76" cy="140" r="15" class="a-body" />
+            <path d="M46 206v-16c0-16.6 13.4-30 30-30s30 13.4 30 30v16z" class="a-body" />
+            <g transform="rotate(9 117 209)">
+              <rect x="94" y="180" width="46" height="58" rx="6" class="a-node" />
+              <path d="M104 196h26M104 208h26M104 220h16" class="a-rule" />
+            </g>
+
+            {/* Into the agent. */}
+            <path d="M146 190h12v-50h14" class="a-flow" />
+            <circle cx="158" cy="164" r="2.5" class="a-dot" />
+            <rect x="172" y="112" width="56" height="56" rx="15" class="a-node" />
+            <path d="M200 122l6.5 11.5 11.5 6.5-11.5 6.5-6.5 11.5-6.5-11.5-11.5-6.5 11.5-6.5z" class="a-spark" />
+
+            {/* Through verification. Nothing reaches the answer around it. */}
+            <path d="M200 168v24" class="a-flow" />
+            <rect x="170" y="192" width="60" height="32" rx="10" class="a-gate" />
+            <path d="M190 208l6 6 12-12" class="a-check" />
+
+            {/* The answer: cited, cited, cited — and one gap that says so. */}
+            <path d="M230 208h16v-70h8" class="a-flow" />
+            <circle cx="246" cy="170" r="2.5" class="a-dot" />
+            <rect x="254" y="72" width="136" height="176" rx="14" class="a-node" />
+            <path d="M268 100l5 5 10-10M268 134l5 5 10-10M268 168l5 5 10-10" class="a-check" />
+            <path d="M292 100h80M292 134h80M292 168h58" class="a-rule" />
+            <path d="M266 198l8 8M274 198l-8 8" class="a-cross" />
+            <rect x="290" y="192" width="76" height="20" rx="6" class="a-void" />
+            <path d="M292 228h66" class="a-rule" />
+          </svg>
+        )
+      }
+
+      {
+        slug === 'trustproperty' && (
+          /* 11:40 PM. The answer comes from the listing's own verified facts —
+             that is the line running up from the house — and ends in a booking
+             on the owner's calendar. */
+          <svg viewBox="0 0 420 340" fill="none" role="presentation">
+            <rect x="14" y="52" width="392" height="252" rx="20" class="a-plate" />
+
+            {/* Late. */}
+            <path d="M54 70a15 15 0 1 0 15 15 12 12 0 0 1-15-15z" class="a-moon" />
+
+            {/* The tenant, phone in hand. */}
+            <circle cx="76" cy="152" r="15" class="a-body" />
+            <path d="M46 218v-16c0-16.6 13.4-30 30-30s30 13.4 30 30v16z" class="a-body" />
+            <rect x="100" y="134" width="28" height="46" rx="7" class="a-node" />
+            <rect x="106" y="141" width="16" height="26" rx="3" class="a-slot" />
+            <path d="M110 172h8" class="a-rule" />
+            <path d="M138 140c7 9 7 22 0 31M148 132c12 14 12 33 0 47" class="a-wave" />
+
+            {/* Into the concierge. */}
+            <path d="M162 152h14" class="a-flow" />
+            <circle cx="168" cy="152" r="2.5" class="a-dot" />
+            <rect x="176" y="124" width="56" height="56" rx="15" class="a-node" />
+            <path d="M204 134l6.5 11.5 11.5 6.5-11.5 6.5-6.5 11.5-6.5-11.5-11.5-6.5 11.5-6.5z" class="a-spark" />
+
+            {/* Which answers only from this listing, and it is a verified one. */}
+            <path d="M256 250h-42v-70" class="a-flow" />
+            <circle cx="214" cy="216" r="2.5" class="a-dot" />
+            <path d="M256 232l32-26 32 26" class="a-line" />
+            <rect x="264" y="232" width="48" height="44" rx="4" class="a-node" />
+            <rect x="280" y="252" width="16" height="24" rx="3" class="a-fill" />
+            <circle cx="322" cy="222" r="11" class="a-fill" />
+            <circle cx="322" cy="222" r="11" class="a-line" />
+            <path d="M317 222l4 4 7-7" class="a-check" />
+
+            {/* And books the slot. */}
+            <path d="M232 152h8v-24h12" class="a-flow" />
+            <circle cx="246" cy="128" r="2.5" class="a-dot" />
+            <rect x="252" y="76" width="134" height="110" rx="13" class="a-node" />
+            <path d="M252 102h134" class="a-line" />
+            <path d="M268 90h28" class="a-rule" />
+            <circle cx="356" cy="90" r="3.5" class="a-slot" />
+            <circle cx="370" cy="90" r="3.5" class="a-slot" />
+            <circle cx="276" cy="126" r="3.5" class="a-dot" />
+            <circle cx="306" cy="126" r="3.5" class="a-dot" />
+            <circle cx="336" cy="126" r="3.5" class="a-dot" />
+            <circle cx="366" cy="126" r="3.5" class="a-dot" />
+            <circle cx="276" cy="152" r="3.5" class="a-dot" />
+            <circle cx="306" cy="152" r="3.5" class="a-dot" />
+            <circle cx="366" cy="152" r="3.5" class="a-dot" />
+            <rect x="324" y="140" width="24" height="24" rx="7" class="a-gate" />
+            <path d="M330 152l4 4 8-8" class="a-check" />
+          </svg>
+        )
+      }
+    </div>
+
+    <div class="evi-card" data-reveal data-rv="right" style="--i: 1;">
+      <p class="t-label evi-eyebrow">How {name} shows its work</p>
+      <EvidenceCard evidence={evidence} class="max-w-none" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .evi-grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .evi-grid {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: 4rem;
+    }
+  }
+  /* No drawing for this slug: the empty column would otherwise hold a gap open
+     beside a card that has nothing to sit next to. */
+  .evi-solo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 1024px) {
+    .evi-solo {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .evi-solo .evi-art {
+    display: none;
+  }
+
+  .evi-art {
+    /* Below the card on narrow screens — the words come first there. */
+    order: 2;
+    max-width: 26rem;
+    margin-inline: auto;
+    width: 100%;
+  }
+  .evi-card {
+    order: 1;
+    min-width: 0;
+  }
+  @media (min-width: 1024px) {
+    .evi-art {
+      order: 0;
+      max-width: none;
+    }
+    .evi-card {
+      order: 0;
+    }
+  }
+  .evi-eyebrow {
+    color: var(--color-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  /* Below 1024 the drawing and the card are stacked full-width, and a sideways
+     entrance on a full-width block reaches 26px past the viewport — measured:
+     the document gained 2px of horizontal scroll until the section revealed.
+     Vertical is both the fix and the truer motion for a stack. Guarded by
+     data-reveal-ready like the variants it overrides, so if the reveal script
+     never runs these sit at rest rather than 14px low forever. */
+  @media (max-width: 1023px) {
+    :global(html[data-reveal-ready]) .evi-art[data-rv],
+    :global(html[data-reveal-ready]) .evi-card[data-rv] {
+      translate: 0 14px;
+    }
+    :global(html[data-reveal-ready]) .evi-art[data-rv][data-revealed],
+    :global(html[data-reveal-ready]) .evi-card[data-rv][data-revealed] {
+      translate: none;
+    }
+  }
+
+  .evi-art svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Flat: strokes and low-alpha fills, no gradients and no shading. Every
+     colour is derived from --page-accent, so each drawing is in its own
+     platform's hue without a single hue being repeated here. */
+  .a-plate {
+    fill: color-mix(in oklab, var(--page-accent) 4%, transparent);
+    stroke: color-mix(in oklab, var(--page-accent) 18%, transparent);
+    stroke-width: 1.5;
+  }
+  /* The figure. Filled a shade heavier than the props around it so the person
+     is the first thing the eye lands on, which is the point of the change. */
+  .a-body {
+    fill: color-mix(in oklab, var(--page-accent) 20%, var(--color-paper));
+    stroke: color-mix(in oklab, var(--page-accent) 46%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-node {
+    fill: var(--color-paper);
+    stroke: color-mix(in oklab, var(--page-accent) 34%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-book {
+    fill: var(--color-paper);
+    stroke: color-mix(in oklab, var(--page-accent) 38%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-mark {
+    fill: color-mix(in oklab, var(--page-accent) 55%, var(--color-paper));
+  }
+  .a-moon {
+    fill: color-mix(in oklab, var(--page-accent) 14%, var(--color-paper));
+    stroke: color-mix(in oklab, var(--page-accent) 38%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-gate {
+    fill: color-mix(in oklab, var(--page-accent) 12%, var(--color-paper));
+    stroke: color-mix(in oklab, var(--page-accent) 40%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-slot {
+    fill: color-mix(in oklab, var(--page-accent) 4%, var(--color-paper));
+    stroke: color-mix(in oklab, var(--page-accent) 20%, transparent);
+    stroke-width: 1.5;
+  }
+  /* The removed authority: an outline where a citation would have been. */
+  .a-void {
+    fill: none;
+    stroke: color-mix(in oklab, var(--page-accent) 38%, transparent);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 5;
+  }
+  .a-cross {
+    stroke: color-mix(in oklab, var(--page-accent) 62%, transparent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .a-fill {
+    fill: color-mix(in oklab, var(--page-accent) 14%, var(--color-paper));
+  }
+  .a-line {
+    fill: none;
+    stroke: color-mix(in oklab, var(--page-accent) 45%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .a-flow {
+    stroke: color-mix(in oklab, var(--page-accent) 30%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  /* Provenance rather than flow — dashed, so it reads as "this came from
+     there" instead of as another step in the sequence. */
+  .a-trace {
+    stroke: color-mix(in oklab, var(--page-accent) 26%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 5 7;
+  }
+  .a-wave {
+    stroke: color-mix(in oklab, var(--page-accent) 26%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .a-spark {
+    fill: var(--page-accent);
+  }
+  .a-check {
+    fill: none;
+    stroke: var(--page-accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .a-rule {
+    stroke: color-mix(in oklab, var(--page-accent) 22%, transparent);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .a-dot {
+    fill: var(--page-accent);
+  }
+
+  /* The dots along the flow lines pulse, so the drawing reads as something
+     happening rather than a diagram. Decoration only: it is aria-hidden and
+     says the same thing standing still. */
+  @media (prefers-reduced-motion: no-preference) {
+    .a-dot {
+      animation: evi-pulse 3.2s var(--ease-entrance) infinite;
+    }
+    .a-dot:nth-of-type(2n) {
+      animation-delay: 0.8s;
+    }
+    .a-spark {
+      animation: evi-pulse 3.2s var(--ease-entrance) infinite 0.4s;
+    }
+  }
+  @keyframes evi-pulse {
+    0%,
+    70%,
+    100% {
+      opacity: 0.35;
+    }
+    35% {
+      opacity: 1;
+    }
+  }
+</style>

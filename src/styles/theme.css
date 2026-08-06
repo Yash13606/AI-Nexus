@@ -51,13 +51,36 @@
   --page-max-width: 1200px;
   --prose-max-width: 68ch;
 
+  /* The sticky nav's total height, single-sourced.
+     The nav is a floating pill: a 60px bar inside a wrapper whose vertical
+     padding is fluid, so the height it occupies is not a constant and cannot
+     be typed as one. Everything that sits under the nav — the platform
+     sub-nav, four sticky offsets, and the full-screen hero arithmetic —
+     composes from these two rather than repeating a number that was measured
+     once. When the pill changes, they all follow. */
+  --nav-pad-y: clamp(0.5rem, 1.4vw, 0.9rem);
+  --nav-h: calc(60px + 2 * var(--nav-pad-y));
+
   /* Radius — closed ladder of four */
   --radius-button: 8px;
   --radius-card: 12px;
   --radius-panel: 16px;
   --radius-pill: 999px;
 
-  /* Elevation — exactly two */
+  /* Elevation.
+     Was "exactly two". §16 adds a real scale for /platforms/*, where cards rest
+     on elevation rather than on a hairline alone.
+
+     Every value is derived from --color-ink at low alpha, so depth never
+     introduces a grey the palette does not contain. Tight offsets and negative
+     spread keep the register documentary — this is paper lifting off paper, not
+     a card floating in a room.
+
+     The tokens are declared site-wide because tokens are; USE is scoped to
+     /platforms/* by §16. The other 13 routes stay hairline-only. */
+  --shadow-1: 0 1px 2px -1px rgb(11 18 32 / 0.06), 0 2px 4px -2px rgb(11 18 32 / 0.04);
+  --shadow-2: 0 4px 8px -4px rgb(11 18 32 / 0.1), 0 8px 20px -8px rgb(11 18 32 / 0.08);
+  --shadow-3: 0 12px 24px -10px rgb(11 18 32 / 0.14), 0 24px 48px -20px rgb(11 18 32 / 0.12);
   --shadow-sticky: 0 1px 0 0 #dde5f0, 0 4px 16px -8px rgb(11 18 32 / 0.1);
 
   /* Section rhythm — DESIGN.md §5.
@@ -76,8 +99,10 @@
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --dur-micro: 200ms; /* hover, focus, colour */
   --dur-element: 400ms; /* one element arriving */
-  --dur-section: 600ms; /* a group arriving */
+  --dur-section: 700ms; /* a group arriving */
   --reveal-stagger: 60ms;
+  /* Hover lift, capped. §16 permits <=4px, transform-only. */
+  --lift: 4px;
 
   /* Legacy names, kept so existing components keep resolving. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -252,9 +277,12 @@ a {
    ═══════════════════════════════════════════════════════════════ */
 @layer components {
 .shell {
+  /* Exposed so an element inside the shell can bleed to its edges — the
+     sticky seat bar needs to, or it pins as a floating pill. */
+  --shell-pad: clamp(1.5rem, 4vw, 3rem);
   max-width: var(--page-max-width);
   margin-inline: auto;
-  padding-inline: clamp(1.5rem, 4vw, 3rem);
+  padding-inline: var(--shell-pad);
 }
 
 .band {
@@ -412,11 +440,19 @@ a:hover > .arrow {
     background: var(--color-mist);
     border-color: var(--page-accent);
   }
-  /* On a Wash band the card is Paper, so the step runs the other way. */
-  .band .hov:hover {
-    background: var(--color-paper);
-    border-color: var(--page-accent);
-  }
+  /* There used to be a `.band .hov:hover { background: var(--color-paper) }`
+     override here, on the reasoning that a card on a Wash band should step the
+     other way. It was wrong twice over:
+
+       · The card is ALREADY Paper at rest on a band, so setting Paper on hover
+         changed nothing — the surface step, one of this vocabulary's four
+         signals, was silently inert.
+       · Every `.hov` on the site is inside a band (the two bento grids), so the
+         override fired 100% of the time and the rule above fired never.
+
+     The step now runs the same direction everywhere — Paper at rest, Mist on
+     hover — which is toward the band rather than away from it. Measured on both
+     band types after the change; see §14b. */
   .hov-affordance {
     opacity: 0;
     transition: opacity var(--dur-micro) var(--ease-entrance);

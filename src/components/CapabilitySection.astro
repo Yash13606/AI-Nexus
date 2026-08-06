@@ -25,7 +25,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 <div class={`cap cap-${layout}`} id={id}>
   {
     layout === 'bento' && (
-      <div class="bento">
+      <div class="bento" data-tilt>
         {/* data-reveal sits on the styled element itself. Passing a scoped
             class to <Reveal> renders a div WITHOUT this component's
             data-astro-cid, so the scoped rule never matches — measured:
@@ -34,9 +34,9 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
           <article
             data-reveal
             style={`--i: ${Math.min(i, 3)};`}
-            class={`bento-cell card hov p-6 flex flex-col gap-2 ${i === 0 ? 'bento-lead' : ''}`}
+            class="bento-cell card hov p-elev p-fill p-7 flex flex-col gap-2"
           >
-            <h3 class={i === 0 ? 't-h3' : 't-h4'}>{m.title}</h3>
+            <h3 class="t-h4">{m.title}</h3>
             <p class="t-sm">{m.body}</p>
           </article>
         ))}
@@ -61,6 +61,11 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
               {m.title}
             </button>
           ))}
+          {/* The sliding indicator. Empty and aria-hidden: it marks the
+              selection, it does not announce it — aria-selected already does
+              that. Zero-width and invisible until initIndicator measures a
+              tab, so JS off leaves the per-tab border doing the marking. */}
+          <span class="p-ind" aria-hidden="true" />
         </div>
         {/* No `hidden` in the SSR. With JS off every panel renders, stacked and
             fully readable — nothing is unreachable. The armed root hides all but
@@ -78,6 +83,39 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
             <p class="t-sm mt-2">{m.body}</p>
           </div>
         ))}
+      </div>
+    )
+  }
+
+  {
+    layout === 'showcase' && (
+      /* Sticky showcase. The pinned half is DECORATION ONLY — a step counter
+         and a rail marker, both aria-hidden. It deliberately does not echo the
+         module titles: duplicating them would make a screen reader read every
+         title twice, and would put a copy of real content behind an opacity
+         swap, which §11 forbids.
+
+         So the reading column is the whole content, in document order, at full
+         opacity. JS off means --step is never written, the counter sits at 01
+         and the marker at the top, and all six modules render exactly as they
+         do now. Nothing is a step that has to be reached. */
+      <div class="show" data-showcase style={`--n: ${modules.length};`}>
+        <div class="show-pin" aria-hidden="true">
+          <p class="show-count mono m-0" />
+          <div class="show-rail">
+            <span class="show-mark" />
+          </div>
+          <p class="show-total mono t-cap m-0">/ {String(modules.length).padStart(2, '0')}</p>
+        </div>
+
+        <ol class="show-steps list-none m-0 p-0">
+          {modules.map((m, i) => (
+            <li class="show-step" data-step style={`--s: ${i};`}>
+              <h3 class="t-h3">{m.title}</h3>
+              <p class="t-sm mt-3">{m.body}</p>
+            </li>
+          ))}
+        </ol>
       </div>
     )
   }
@@ -102,34 +140,46 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 </div>
 
 <style>
-  /* ── Bento: uneven spans, lead tile first ─────────────────────────────── */
+  /* ── Bento: alternating pairs ──────────────────────────────────────────
+     Two cards per row on a 12-column grid, and the wide one swaps sides each
+     row: 7/5, then 5/7, then 7/5. Uneven spans without any cell spanning two
+     ROWS, which is the whole point.
+
+     The previous shape gave the first tile `grid-row: span 2`. A grid row
+     equalises to its tallest cell, so that tile inherited the height of the
+     two stacked beside it and its own short body left roughly 300px of empty
+     card — measured on TrustProperty, whose first module is two lines long.
+     Pairs cannot do that: each row is only as tall as the taller of two cards
+     that hold comparable amounts of text.
+
+     Titles are all one size for the same reason the rows are paired — with no
+     cell carrying more weight than another, a larger first title would be
+     arbitrary rather than hierarchical. */
   .bento {
     display: grid;
     gap: 1.5rem;
     grid-template-columns: 1fr;
   }
-  /* The cell IS the card — no wrapper, so the scoped rule lands. */
   .bento-cell {
     height: 100%;
   }
-  @media (min-width: 700px) {
+  @media (min-width: 900px) {
     .bento {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(12, minmax(0, 1fr));
     }
-  }
-  @media (min-width: 1024px) {
-    .bento {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .bento-cell {
+      grid-column: span 5;
     }
-    /* One tile carries more weight, so the grid is not six equal boxes. */
-    .bento-lead {
-      grid-column: span 2;
-      grid-row: span 2;
+    .bento-cell:nth-child(6n + 1),
+    .bento-cell:nth-child(6n + 4),
+    .bento-cell:nth-child(6n + 5) {
+      grid-column: span 7;
     }
   }
 
   /* ── Tabs ─────────────────────────────────────────────────────────────── */
   .tablist {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
@@ -178,6 +228,152 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     }
   }
 
+  /* ── Sliding indicator ────────────────────────────────────────────────────
+     Lives here rather than in platform.css because the override below has to
+     beat this component's own `.tab[aria-selected='true']` rule — and Astro
+     scoped styles are unlayered, so a layered file cannot do it at any
+     specificity. Measured: with the rule in platform.css both markers painted.
+
+     Progressive enhancement, in order:
+       no JS  → the per-tab bottom border marks the selection, as built
+       JS     → initIndicator sets data-indicator, the per-tab border goes
+                transparent and this one bar takes over and slides
+     The tabs' ARIA, roving tabindex and keyboard handling are untouched. */
+  .p-ind {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 2px;
+    width: var(--ind-w, 0);
+    background: var(--page-accent);
+    transform: translate(var(--ind-x, 0), calc(var(--ind-y, 0px) - 2px));
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tablist[data-indicator] .p-ind {
+    opacity: 1;
+    transition:
+      transform var(--dur-micro) var(--ease-entrance),
+      width var(--dur-micro) var(--ease-entrance);
+  }
+  .tablist[data-indicator] .tab[aria-selected='true'] {
+    border-bottom-color: transparent;
+  }
+
+  /* ── Sticky showcase ──────────────────────────────────────────────────────
+     The pin was 13rem of column holding a two-digit number, with the steps
+     squeezed into the right half and everything below the counter empty. Three
+     changes:
+
+       · the pin is vertical — number, a rail running DOWN the column, total —
+         so it occupies the height it is given instead of floating at the top
+       · the reading column gets the width back
+       · the step you are on is marked IN that column, which is where a reader
+         is looking. Colour and a rule, never opacity: every step stays fully
+         legible whether or not it is current, so nothing here is revealed. */
+  .show {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .show-steps {
+    display: flex;
+    flex-direction: column;
+  }
+  .show-step {
+    position: relative;
+    padding-block: 2rem;
+    padding-inline-start: 1.5rem;
+    border-top: 1px solid var(--color-hairline);
+    max-width: var(--prose-max-width);
+  }
+  .show-step:first-child {
+    border-top: 0;
+  }
+  /* The current step's marker. A rule down its inside edge — present at every
+     step, accent only on the one being read. */
+  .show-step::before {
+    content: '';
+    position: absolute;
+    inset-block: 1.25rem;
+    inset-inline-start: 0;
+    width: 2px;
+    border-radius: var(--radius-pill);
+    background: var(--color-hairline);
+    transition: background-color var(--dur-element) var(--ease-entrance);
+  }
+  .show-step[data-current]::before {
+    background: var(--page-accent);
+  }
+  .show-step h3 {
+    color: var(--color-muted);
+    transition: color var(--dur-element) var(--ease-entrance);
+  }
+  .show-step[data-current] h3 {
+    color: var(--color-ink);
+  }
+  /* No JS: no step is ever marked current, so every heading must read as a
+     heading rather than as a dimmed one. */
+  .show:not([data-showcase-ready]) .show-step h3 {
+    color: var(--color-ink);
+  }
+  .show-pin {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .show {
+      grid-template-columns: 7rem minmax(0, 1fr);
+      gap: 3.5rem;
+    }
+    .show-pin {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      position: sticky;
+      top: calc(var(--nav-h) + var(--subnav-h) + 3rem);
+      align-self: start;
+      height: 18rem;
+    }
+    .show-step {
+      padding-block: 3.25rem;
+      padding-inline-start: 2rem;
+    }
+  }
+
+  .show-count {
+    font-size: var(--text-display);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    counter-reset: show-s calc(var(--step, 0) + 1);
+  }
+  .show-count::after {
+    content: counter(show-s, decimal-leading-zero);
+  }
+  .show-total {
+    color: var(--color-muted);
+  }
+  /* Vertical, so it fills the column rather than sitting as a 6rem dash. */
+  .show-rail {
+    position: relative;
+    flex: 1;
+    width: 2px;
+    background: var(--color-hairline);
+    border-radius: var(--radius-pill);
+  }
+  .show-mark {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: calc(100% / var(--n));
+    background: var(--page-accent);
+    border-radius: inherit;
+    transform: translateY(calc(var(--step, 0) * 100%));
+    transition: transform var(--dur-element) var(--ease-entrance);
+  }
+
   /* ── Alternating ──────────────────────────────────────────────────────── */
   .alt {
     display: flex;
@@ -213,6 +409,12 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
       animation: none;
     }
     .tab {
+      transition: none;
+    }
+    /* The marker still tracks the step — it just arrives instead of sliding.
+       Removing it would leave the rail saying nothing. */
+    .show-mark,
+    .p-ind {
       transition: none;
     }
   }
