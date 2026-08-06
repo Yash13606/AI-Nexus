@@ -1,7 +1,21 @@
 ---
 /** Authored SVG icon set. One stroke weight (1.5), one grid (16).
  *  The craft floor bans unicode glyphs and emoji standing in for icons. */
-type Name = 'check' | 'arrow-right' | 'arrow-up-right' | 'chevron-down' | 'menu' | 'close' | 'rule';
+type Name =
+  | 'check'
+  | 'arrow-right'
+  | 'arrow-up-right'
+  | 'chevron-down'
+  | 'menu'
+  | 'close'
+  | 'rule'
+  | 'cross'
+  | 'book'
+  | 'scale'
+  | 'home'
+  | 'stack'
+  | 'globe'
+  | 'shield';
 interface Props {
   name: Name;
   size?: number;
@@ -17,6 +31,13 @@ const paths: Record<Name, string> = {
   menu: '<path d="M2.5 5h11"/><path d="M2.5 11h11"/>',
   close: '<path d="M4 4l8 8"/><path d="M12 4l-8 8"/>',
   rule: '<path d="M2 8h12"/>',
+  cross: '<path d="M8 3v10"/><path d="M3 8h10"/>',
+  book: '<path d="M2 3.5c1.8-.7 3.4-.7 6 .5v9c-2.6-1.2-4.2-1.2-6-.5z"/><path d="M14 3.5c-1.8-.7-3.4-.7-6 .5v9c2.6-1.2 4.2-1.2 6-.5z"/>',
+  scale: '<path d="M8 2v11"/><path d="M3 4h10"/><path d="M3 4 1.5 8a1.8 1.8 0 0 0 3.4 0z"/><path d="M13 4l-1.5 4a1.8 1.8 0 0 0 3.4 0z"/><path d="M5.5 14h5"/>',
+  home: '<path d="M2.5 8 8 3l5.5 5"/><path d="M4 6.5V13h8V6.5"/>',
+  stack: '<path d="M8 2 2 5.5 8 9l6-3.5z"/><path d="M2 8.5 8 12l6-3.5"/><path d="M2 11.5 8 15l6-3.5"/>',
+  globe: '<circle cx="8" cy="8" r="5.5"/><ellipse cx="8" cy="8" rx="2.4" ry="5.5"/><path d="M2.5 8h11"/>',
+  shield: '<path d="M8 2 3 4v4.2c0 3.2 2.1 5.6 5 6.8 2.9-1.2 5-3.6 5-6.8V4z"/><path d="M5.7 8 7.3 9.6 10.5 6.4"/>',
 };
 ---
 

@@ -34,6 +34,14 @@ const ROTATIONS  = [-15, -7.5, 7.5, 15];     // degrees
 // Exact floating delays from code.zip/styles.css
 const FLOAT_DELAYS = [0, 0.2, 0.4, 0.6];    // seconds
 
+// Real brand logos, dropped in at public/platforms/.
+const LOGOS: Record<(typeof platforms)[number]['slug'], string> = {
+  medorbit: '/platforms/medorbit.png',
+  edvation: '/platforms/edvation.png',
+  advohub: '/platforms/advohub.png',
+  trustproperty: '/platforms/trustproperty.png',
+};
+
 // ─── Card inner ───────────────────────────────────────────────────────────────
 // Structure mirrors the original:  .card > .card-wrapper > .flip-card-inner
 //                                              > .flip-card-front / .flip-card-back
@@ -47,9 +55,9 @@ function SpreadCard({
   return (
     // .card — 300 × 450 px, absolutely positioned, same as the original
     <div
-      className={`ssc-card platform-swap-card--${platform.slug}`}
+      className="ssc-card"
       id={`ssc-card-${index}`}
-      style={{ animationDelay: `${FLOAT_DELAYS[index]}s` } as React.CSSProperties}
+      style={{ animationDelay: `${FLOAT_DELAYS[index]}s`, '--hue': platform.hue } as React.CSSProperties}
     >
       {/* .card-wrapper — floating layer */}
       <div className="ssc-card-wrapper">
@@ -58,7 +66,10 @@ function SpreadCard({
 
           {/* .flip-card-front — shown initially */}
           <div className="ssc-flip-front" id={`ssc-front-${index}`}>
-            {/* Platform colour bar at the top (3px rule, same as other cards) */}
+            {/* Brand mark, shown before the flip */}
+            <div className="ssc-front__logo">
+              <img src={LOGOS[platform.slug]} alt={`${platform.name} logo`} />
+            </div>
             <p
               className="ssc-front__eyebrow"
               style={{ color: platform.hue } as React.CSSProperties}

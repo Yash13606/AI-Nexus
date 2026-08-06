@@ -89,7 +89,7 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
               style={`--i: ${i}; border-top: 3px solid ${p.hue};`}
             >
                 <div>
-                  <PlatformLockup name={p.name} as="h3" />
+                  <PlatformLockup name={p.name} slug={p.slug} as="h3" />
                   <p class="t-sm mt-1.5" style="color: var(--color-muted);">{p.subtitle}</p>
                 </div>
 

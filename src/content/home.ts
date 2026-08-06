@@ -69,11 +69,46 @@ export const deploymentCaveat =
 export const whyLede =
   'Hospitals, schools, law practices and property businesses run on tangles of disconnected software — a dozen logins, manual re-entry, and hours lost to administration. We build one deeply integrated, AI-native platform per industry, so the people inside these institutions can spend their time on patients, students, clients and homes.';
 
+/** Each entry pairs the existing claim with a small real-data panel — every
+ *  number here is published elsewhere on the site (platform stats, FAQ),
+ *  never invented for the visual. */
 export const why = [
-  { title: 'One platform per institution', body: 'Each product replaces a stack of point tools with a single system and a single source of truth — 100+ modules in a hospital, a complete school OS under the teaching agents, twelve modules from intake to invoice in a law firm.' },
-  { title: 'AI that shows its work', body: 'Page citations in education. Indian Kanoon verification in law. Chart-grounded outputs in health. Explainable scores in property. Every one is checkable by the person relying on it.' },
-  { title: 'Built for India first', body: 'ABDM, NHCX and PM-JAY in healthcare. Any board in education. eCourts, GST, BSA §63 and 22 languages in law. RERA and registration workflows in property. Compliance and language are foundations here, not afterthoughts.' },
-  { title: 'Your data stays in India', body: 'Every platform runs in AWS Mumbai (ap-south-1) under the DPDP Act 2023, with consent flows, erasure workflows and audit trails built into the software.' },
+  {
+    title: 'One platform per institution',
+    body: 'Each product replaces a stack of point tools with a single system and a single source of truth — 100+ modules in a hospital, a complete school OS under the teaching agents, twelve modules from intake to invoice in a law firm.',
+    icon: 'stack',
+    panelLabel: 'System size',
+    stat: '100+',
+    unit: 'modules',
+    rows: ['100+ modules · MedOrbit', '640+ screens · Edvation', '12 modules · AdvoHub'],
+  },
+  {
+    title: 'AI that shows its work',
+    body: 'Page citations in education. Indian Kanoon verification in law. Chart-grounded outputs in health. Explainable scores in property. Every one is checkable by the person relying on it.',
+    icon: 'check',
+    panelLabel: 'Verified, not just generated',
+    stat: '4',
+    unit: 'verification methods',
+    rows: ['Page citations · Edvation', 'Indian Kanoon check · AdvoHub', 'Explainable scores · TrustProperty'],
+  },
+  {
+    title: 'Built for India first',
+    body: 'ABDM, NHCX and PM-JAY in healthcare. Any board in education. eCourts, GST, BSA §63 and 22 languages in law. RERA and registration workflows in property. Compliance and language are foundations here, not afterthoughts.',
+    icon: 'globe',
+    panelLabel: 'Indian languages',
+    stat: '22',
+    unit: 'languages · AdvoHub',
+    rows: ['13 · Edvation', '3 · TrustProperty', 'Hindi, Marathi, Kannada · MedOrbit'],
+  },
+  {
+    title: 'Your data stays in India',
+    body: 'Every platform runs in AWS Mumbai (ap-south-1) under the DPDP Act 2023, with consent flows, erasure workflows and audit trails built into the software.',
+    icon: 'shield',
+    panelLabel: 'Data residency',
+    stat: 'ap-south-1',
+    unit: 'AWS Mumbai',
+    rows: ['DPDP Act 2023', 'Consent flows built in', 'Append-only audit trails'],
+  },
 ];
 
 export const roleFamilies = [

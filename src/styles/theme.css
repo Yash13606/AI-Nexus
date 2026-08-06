@@ -957,19 +957,6 @@ a:hover > .arrow {
   text-decoration: underline;
 }
 
-.platform-swap-card--medorbit {
-  border-top: 3px solid var(--color-medorbit);
-}
-.platform-swap-card--edvation {
-  border-top: 3px solid var(--color-edvation);
-}
-.platform-swap-card--advohub {
-  border-top: 3px solid var(--color-advohub);
-}
-.platform-swap-card--trustproperty {
-  border-top: 3px solid var(--color-trustproperty);
-}
-
 .platform-swap-legend {
   display: flex;
   flex-wrap: wrap;
@@ -1047,7 +1034,7 @@ a:hover > .arrow {
   perspective: 1000px;
 }
 
-/* The 3px hue top rule comes from .platform-swap-card--{slug} classes */
+/* Per-card hue wash comes from --hue, set inline on .ssc-card */
 
 /* ── .card-wrapper — the floating layer (positions the inner) ── */
 .ssc-card-wrapper {
@@ -1079,6 +1066,9 @@ a:hover > .arrow {
   /* Paper surface — DESIGN.md §5 Level-2 card */
   background: var(--color-paper);
   border: 1px solid var(--color-hairline);
+  /* §6 permitted use #3: a 3px top rule on a platform card. (A gradient or
+     any other card fill in hue is explicitly forbidden by the same list.) */
+  border-top: 3px solid var(--hue, var(--color-accent));
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -1097,6 +1087,19 @@ a:hover > .arrow {
 }
 
 /* ── Front face content ── */
+.ssc-front__logo {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.ssc-front__logo img {
+  max-height: 100%;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
 .ssc-front__eyebrow {
   margin: 0;
   font-size: var(--text-eyebrow);
@@ -1242,5 +1245,304 @@ a:hover > .arrow {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   STICKY SCROLL REVEAL — "What each platform actually does"
+   Text scrolls through all four platforms; the proof panel (timeline +
+   evidence) pins on the side and swaps to match whichever one is centered,
+   via IntersectionObserver toggling [data-active] — see index.astro's
+   trailing script. Single column, no rail, below 1024px: no room for a
+   pinned side panel at that width, so each platform's evidence card renders
+   inline in .ssr-mobile-evidence instead. Both are server-rendered in full
+   either way — nothing here is JS-only content. ═══════════════════════ */
+.ssr {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+.ssr-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4rem, 8vw, 7rem);
+}
+.ssr-rail {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .ssr {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    /* Default (stretch): .ssr-rail matches .ssr-list's height, giving the
+       sticky child room to travel before it releases. */
+  }
+  .ssr-rail {
+    display: block;
+    position: relative;
+  }
+  .ssr-sticky {
+    position: sticky;
+    top: 88px;
+  }
+  .ssr-visual {
+    display: none;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .ssr-visual[data-active] {
+    display: flex;
+    animation: ssr-fade var(--dur-element) var(--ease-entrance) both;
+  }
+  .ssr-mobile-evidence {
+    display: none;
+  }
+}
+
+@keyframes ssr-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ssr-visual[data-active] {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOW CARDS — "Built for every seat" role grid
+   Mouse-following radial glow (scripts/glow-cards.js sets --x/--y), a
+   diagonal striped texture, both tinted per-role. Hover-only decoration —
+   --x/--y default to center, so a card with JS off or on touch just renders
+   flat. Fill/gradient is per-role identity, deliberate here. ═══════════════ */
+.glow-card {
+  position: relative;
+  display: block;
+  border-radius: 20px;
+  padding: 1px;
+  background: var(--color-hairline);
+}
+.glow-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(480px circle at var(--x, 50%) var(--y, 50%), var(--glow-color, transparent), transparent 45%);
+  opacity: 0;
+  transition: opacity var(--dur-feedback) var(--ease-out);
+  pointer-events: none;
+}
+.glow-card:hover::before,
+.glow-card:focus-visible::before {
+  opacity: 1;
+}
+.glow-card-texture {
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.glow-card-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  border-radius: 19px;
+  background: var(--color-paper);
+  overflow: hidden;
+}
+.glow-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--color-hairline);
+}
+.glow-card-stat {
+  margin: 0;
+  font-size: var(--text-h1);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-ink);
+}
+.glow-card-stat-unit {
+  font-size: var(--text-body-sm);
+  font-weight: 400;
+  color: var(--color-muted);
+  margin-left: 0.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-card::before {
+    transition: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FEATURE CARDS — "Why institutions choose AI Nexus"
+   A soft outer wash holding an elevated inner panel: one real stat plus a
+   couple of supporting facts, all pulled from numbers published elsewhere on
+   the site (platform stats, FAQ) — never invented for the visual. The only
+   place on the page a shadow sits on a resting surface, deliberate, so this
+   panel reads as a raised console next to the flat cards used everywhere
+   else. ═══════════════════════════════════════════════════════════════ */
+.feat-card {
+  background: var(--color-wash);
+  border-radius: 28px;
+  padding: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.feat-card-head {
+  padding: 1.25rem 1.25rem 0;
+}
+.feat-card-panel {
+  background: var(--color-paper);
+  border-radius: 20px;
+  padding: 1.5rem;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  box-shadow: 0 3px 8px -1px rgb(11 18 32 / 0.05), 0 1px 2px -1px rgb(11 18 32 / 0.05);
+}
+.feat-card-row {
+  margin: 0;
+  padding-block: 0.5rem;
+  border-top: 1px solid var(--color-hairline);
+  color: var(--color-muted);
+}
+.feat-card-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HOW-IT-WORKS WALKTHROUGH — "How a deployment works"
+   A connected rail of numbered steps; click (or arrow-key) any node to bring
+   its panel forward. Same accessible tablist as CapabilitySection's "tabs"
+   layout (scripts/tabs.js) — SSR ships every panel stacked and readable, the
+   pre-paint rule below shows only the first before JS runs, initTabs then
+   takes over via [hidden]. No line-progress fill: this explains a fixed
+   sequence, it doesn't track where a visitor is in a live deployment, so
+   only the step being looked at is spotlighted. ═══════════════════════ */
+html[data-reveal-ready] .hiw:not([data-ready]) .hiw-panel:not(:first-of-type) {
+  display: none;
+}
+
+.hiw-rail {
+  display: flex;
+  align-items: flex-start;
+}
+.hiw-node {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 0 0.5rem;
+  cursor: pointer;
+  text-align: center;
+}
+.hiw-node:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 19px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--color-hairline);
+  z-index: 0;
+}
+.hiw-node-circle {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-hairline);
+  background: var(--color-paper);
+  color: var(--color-muted);
+  font-weight: 500;
+  transition: background-color var(--dur-feedback) var(--ease-out), border-color var(--dur-feedback) var(--ease-out), color var(--dur-feedback) var(--ease-out);
+}
+.hiw-node-title {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-muted);
+  transition: color var(--dur-feedback) var(--ease-out);
+}
+.hiw-node:hover .hiw-node-circle {
+  border-color: var(--color-control);
+}
+.hiw-node[aria-selected='true'] .hiw-node-circle {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+.hiw-node[aria-selected='true'] .hiw-node-title {
+  color: var(--color-ink);
+}
+
+.hiw-panel {
+  animation: hiw-panel-in var(--dur-element) var(--ease-entrance) both;
+}
+@keyframes hiw-panel-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 700px) {
+  .hiw-rail {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.75rem;
+  }
+  .hiw-node {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 1rem;
+    padding: 0;
+  }
+  .hiw-node:not(:last-child)::after {
+    top: 40px;
+    left: 19px;
+    width: 2px;
+    height: calc(100% + 1.75rem - 40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hiw-node-circle,
+  .hiw-node-title {
+    transition: none;
+  }
+  .hiw-panel {
+    animation: none;
+  }
+}
 
 }

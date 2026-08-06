@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
+import RevealRoot from '../components/ui/RevealRoot.astro';
 import ScrollExpand from '../components/react/ScrollExpand';
 import GradualBlur from '../components/react/GradualBlur';
 import MagicBento from '../components/react/MagicBento';
@@ -16,6 +17,11 @@ import {
 import { entities, contact } from '../content/site';
 
 const agentsPlanned = isPlanned('/ai-agents/');
+
+/** Role-card icon + texture angle, in roleFamilies order (hospitals, schools,
+ *  law firms, property) — indexed, not keyed, since the order is fixed. */
+const roleIcons = ['cross', 'book', 'scale', 'home'] as const;
+const roleAngles = [45, -45, 135, 90];
 ---
 
 <Base
@@ -23,6 +29,8 @@ const agentsPlanned = isPlanned('/ai-agents/');
   description={hero.lede}
   jsonldFaq
 >
+  <RevealRoot />
+
   {/* ══════════════ HERO ══════════════
       An inset card: white where the type sits, blue pooling at the bottom,
       with the product screen breaking the card's lower edge. Everything is
@@ -172,7 +180,13 @@ const agentsPlanned = isPlanned('/ai-agents/');
     </div>
   </section>
 
-  {/* ══════════════ WHAT EACH PLATFORM DOES ══════════════ */}
+  {/* ══════════════ WHAT EACH PLATFORM DOES ══════════════
+      Sticky-scroll reveal: the worked-example proof (timeline + evidence)
+      stays pinned while the text scrolls through all four platforms, swapping
+      to match whichever one is centered. Below 1024px there's no room for a
+      pinned side panel, so each platform's evidence renders inline instead,
+      right after its own text — nothing drops on mobile, it just stops being
+      sticky. */}
   <section class="section">
     <div class="shell">
       <h2 class="t-h2" style="max-width: 20ch;">What each platform actually does</h2>
@@ -180,14 +194,38 @@ const agentsPlanned = isPlanned('/ai-agents/');
         Every platform below ships with a worked example: the input a real user gives, the output the
         agent produces, and the guardrail that constrains it.
       </p>
+
+      <nav aria-label="Jump to a platform" class="mt-7 flex flex-wrap gap-2">
+        {platforms.map((p) => (
+          <a
+            href={`#${p.slug}`}
+            class="hov t-sm no-underline inline-flex items-center rounded-[999px] px-4 py-2"
+            style="border: 1px solid var(--color-hairline); color: var(--color-body);"
+          >
+            {p.name}
+          </a>
+        ))}
+      </nav>
     </div>
 
-    {platforms.map((p, idx) => (
-      <div class={idx % 2 === 1 ? 'band' : ''} style="margin-top: clamp(3rem, 6vw, 5rem);">
-        <div class="shell section">
-          <div class="grid gap-12 lg:grid-cols-2 lg:items-start">
-            <div class={idx % 2 === 1 ? 'lg:order-2' : ''}>
-              <p class="t-label" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
+    <div class="shell" style="margin-top: clamp(3rem, 6vw, 5rem);">
+      <div class="ssr">
+        <div class="ssr-list">
+          {platforms.map((p, idx) => (
+            <div id={p.slug} class="ssr-item" style="scroll-margin-top: 88px;" data-ssr-index={idx} data-reveal>
+              <div class="flex items-center gap-3">
+                <span class="mono t-cap shrink-0" style="color: var(--color-muted);" aria-hidden="true">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <span class="shrink-0" style="height: 28px; display: flex; align-items: center;">
+                  <img
+                    src={`/platforms/${p.slug}.png`}
+                    alt=""
+                    style="height: 100%; width: auto; max-width: 120px; object-fit: contain;"
+                  />
+                </span>
+                <p class="t-label m-0" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
+              </div>
               <h3 class="t-h2 mt-3">{p.headline}</h3>
               <p class="t-lede mt-5">{p.body}</p>
 
@@ -228,31 +266,41 @@ const agentsPlanned = isPlanned('/ai-agents/');
                   Visit {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={14} />
                 </a>
               </div>
-            </div>
 
-            <div class={`flex flex-col gap-6 ${idx % 2 === 1 ? 'lg:order-1' : ''}`}>
-              {/* Dark panel. One of at most two per page — DESIGN.md §5. */}
-              <div class="rounded-[16px] p-6" style="background: var(--color-ink);">
-                <p class="t-cap m-0 mb-4" style="color: #a8b4c8;">{p.panel.title}</p>
-                {p.panel.rows.map((r, i) => (
-                  <div
-                    class="flex gap-4 items-baseline py-3"
-                    style={`border-top: ${i > 0 ? '1px' : '0'} solid rgb(255 255 255 / 0.10);`}
-                  >
-                    <span class="mono t-cap shrink-0" style="color: #a8b4c8; width: 62px;">{r.when}</span>
-                    <span class="t-sm flex-1" style="color: #fff;">{r.what}</span>
-                    <span class="t-cap text-right" style="color: #a8b4c8;">{r.outcome}</span>
-                  </div>
-                ))}
-                <p class="t-cap italic mt-4 m-0" style="color: #7c8ba5;">{p.panel.note}</p>
+              {/* Rail is hidden below 1024px — this is the proof's only home there. */}
+              <div class="ssr-mobile-evidence">
+                <EvidenceCard evidence={p.evidence} />
               </div>
-
-              <EvidenceCard evidence={p.evidence} />
             </div>
+          ))}
+        </div>
+
+        <div class="ssr-rail">
+          <div class="ssr-sticky">
+            {platforms.map((p, idx) => (
+              <div class="ssr-visual" data-ssr-panel={idx} {...(idx === 0 ? { 'data-active': '' } : {})}>
+                <div class="card p-6">
+                  <p class="t-cap m-0 mb-4" style="color: var(--color-muted);">{p.panel.title}</p>
+                  {p.panel.rows.map((r, i) => (
+                    <div
+                      class="flex gap-4 items-baseline py-3"
+                      style={`border-top: ${i > 0 ? '1px' : '0'} solid var(--color-hairline);`}
+                    >
+                      <span class="mono t-cap shrink-0" style="color: var(--color-muted); width: 62px;">{r.when}</span>
+                      <span class="t-sm flex-1" style="color: var(--color-ink);">{r.what}</span>
+                      <span class="t-cap text-right" style="color: var(--color-muted);">{r.outcome}</span>
+                    </div>
+                  ))}
+                  <p class="t-cap italic mt-4 m-0" style="color: var(--color-muted);">{p.panel.note}</p>
+                </div>
+
+                <EvidenceCard evidence={p.evidence} />
+              </div>
+            ))}
           </div>
         </div>
       </div>
-    ))}
+    </div>
   </section>
 
   {/* ══════════════ 48 AGENTS ══════════════
@@ -318,21 +366,41 @@ const agentsPlanned = isPlanned('/ai-agents/');
   </section>
 
   {/* ══════════════ DEPLOYMENT ══════════════
-      Numbered because this genuinely is a sequence. */}
+      Numbered because this genuinely is a sequence — a connected rail of
+      steps, click (or arrow-key) any node to bring its panel forward. */}
   <section class="section band">
     <div class="shell">
       <h2 class="t-h2" style="max-width: 20ch;">How a deployment works</h2>
       <p class="t-lede mt-5">The same four steps for every platform.</p>
 
-      <ol class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4 list-none m-0 p-0">
-        {deployment.map((d) => (
-          <li class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
-            <span class="mono t-h3" style="color: var(--color-control); font-weight: 500;">{d.n}</span>
-            <h3 class="t-h4">{d.title}</h3>
-            <p class="t-sm">{d.body}</p>
-          </li>
-        ))}
-      </ol>
+      <div id="deployment-tabs" class="hiw mt-14">
+        <div role="tablist" aria-label="Deployment steps" class="hiw-rail">
+          {deployment.map((d, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`hiw-tab-${i}`}
+              aria-controls={`hiw-panel-${i}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="hiw-node"
+            >
+              <span class="hiw-node-circle mono">{d.n}</span>
+              <span class="hiw-node-title">{d.title}</span>
+            </button>
+          ))}
+        </div>
+
+        <div class="mt-10" style="max-width: var(--prose-max-width);">
+          {deployment.map((d, i) => (
+            <div role="tabpanel" id={`hiw-panel-${i}`} aria-labelledby={`hiw-tab-${i}`} tabindex="0" class="hiw-panel">
+              <p class="t-cap mono" style="color: var(--color-muted);">{d.n}</p>
+              <h3 class="t-h3 mt-2">{d.title}</h3>
+              <p class="t-body mt-3">{d.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <p class="t-sm mt-9 prose" style="color: var(--color-muted);">{deploymentCaveat}</p>
     </div>
@@ -344,11 +412,31 @@ const agentsPlanned = isPlanned('/ai-agents/');
       <h2 class="t-h2" style="max-width: 20ch;">Why institutions choose AI Nexus</h2>
       <p class="t-lede mt-5">{whyLede}</p>
 
-      <div class="mt-12 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {why.map((w) => (
-          <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
-            <h3 class="t-h4">{w.title}</h3>
-            <p class="t-sm">{w.body}</p>
+          <div class="feat-card">
+            <div class="feat-card-head">
+              <h3 class="t-h4">{w.title}</h3>
+              <p class="t-sm mt-2.5" style="color: var(--color-muted);">{w.body}</p>
+            </div>
+
+            <div class="feat-card-panel">
+              <div class="flex items-center gap-1.5 t-cap" style="color: var(--color-muted);">
+                <Icon name={w.icon} size={14} />
+                {w.panelLabel}
+              </div>
+
+              <div>
+                <p class="glow-card-stat mono">{w.stat}</p>
+                <p class="t-cap mt-1" style="color: var(--color-muted);">{w.unit}</p>
+              </div>
+
+              <div class="flex flex-col">
+                {w.rows.map((row) => (
+                  <p class="feat-card-row t-cap">{row}</p>
+                ))}
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -358,27 +446,48 @@ const agentsPlanned = isPlanned('/ai-agents/');
   {/* ══════════════ ROLE FAMILIES ══════════════ */}
   <section class="section band">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Built for every seat</h2>
-      <p class="t-lede mt-5">
-        A doctor, a teacher, an intern and a property owner need different things from the same platform.
-        Each product ships role-specific views, and the audit log records who saw what.
-      </p>
+      <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
+        <div class="lg:col-span-5">
+          <h2 class="t-h2" style="max-width: 20ch;">Built for every seat</h2>
+          <p class="t-lede mt-5">
+            A doctor, a teacher, an intern and a property owner need different things from the same platform.
+            Each product ships role-specific views, and the audit log records who saw what.
+          </p>
+        </div>
 
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {roleFamilies.map((r) => (
-          <a
-            href={r.href}
-            class="card card-hover tx-fast p-6 flex flex-col gap-3 no-underline group/link"
-            style={`border-top: 3px solid ${r.hue};`}
-          >
-            <h3 class="t-h4">{r.title}</h3>
-            <p class="t-sm flex-1">{r.body}</p>
-            <p class="t-cap mono" style="color: var(--color-muted);">{r.meta}</p>
-            <span class="link-accent">
-              Explore <Icon name="arrow-right" class="arrow" size={14} />
-            </span>
-          </a>
-        ))}
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-7">
+          {roleFamilies.map((r, idx) => {
+            const stat = r.meta.match(/^\d+/)?.[0] ?? '';
+            const unit = r.meta.replace(/^\d+\s*/, '');
+            return (
+              <a href={r.href} class="glow-card no-underline" style={`--glow-color: color-mix(in oklab, ${r.hue} 55%, transparent);`} data-glow-card>
+                <span
+                  class="glow-card-texture"
+                  aria-hidden="true"
+                  style={`background-image: repeating-linear-gradient(${roleAngles[idx]}deg, color-mix(in oklab, ${r.hue} 10%, transparent), color-mix(in oklab, ${r.hue} 10%, transparent) 10px, transparent 10px, transparent 22px);`}
+                />
+                <div class="glow-card-inner flex flex-col gap-5 p-6">
+                  <div class="glow-card-icon" style={`color: ${r.hue};`} aria-hidden="true">
+                    <Icon name={roleIcons[idx]} size={18} />
+                  </div>
+
+                  <div>
+                    <p class="glow-card-stat mono" aria-hidden="true">
+                      {stat}<span class="glow-card-stat-unit">{unit}</span>
+                    </p>
+                    <h3 class="t-h4 mt-2">{r.title}</h3>
+                  </div>
+
+                  <p class="t-sm flex-1" style="color: var(--color-muted);">{r.body}</p>
+                  <span class="t-cap mono" style="color: var(--color-muted);">{r.meta}</span>
+                  <span class="link-accent">
+                    Explore <Icon name="arrow-right" class="arrow" size={14} />
+                  </span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
       </div>
     </div>
   </section>
@@ -444,3 +553,35 @@ const agentsPlanned = isPlanned('/ai-agents/');
   </section>
 
 </Base>
+
+<script>
+  import { initReveal } from '../scripts/reveal.js';
+  import { initGlowCards } from '../scripts/glow-cards.js';
+  import { initTabs } from '../scripts/tabs.js';
+  initReveal();
+  initGlowCards();
+
+  const deploymentTabs = document.getElementById('deployment-tabs');
+  if (deploymentTabs) initTabs(deploymentTabs);
+
+  // Sticky-scroll reveal: swap the pinned worked-example panel to match
+  // whichever platform's text block is centered in the viewport.
+  const ssrItems = document.querySelectorAll('.ssr-item');
+  const ssrPanels = document.querySelectorAll('.ssr-visual');
+  if (ssrItems.length && ssrPanels.length) {
+    const setActive = (index) => {
+      ssrPanels.forEach((panel) => {
+        panel.toggleAttribute('data-active', Number(panel.dataset.ssrPanel) === index);
+      });
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(Number(entry.target.dataset.ssrIndex));
+        });
+      },
+      { rootMargin: '-45% 0px -45% 0px' }
+    );
+    ssrItems.forEach((el) => io.observe(el));
+  }
+</script>
