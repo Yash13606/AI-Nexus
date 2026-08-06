@@ -145,13 +145,18 @@ const items = [
     TrustProperty chip lands at left: 402px in a 390px viewport, i.e. the active
     indicator is invisible on the page it identifies.
 
-    Deliberately NOT in the shared boot script: that runs at the top of <body>,
-    before this markup exists, and deferring it to DOMContentLoaded would set
-    the offset after first paint — a visible jump. It has to be here, inline,
-    immediately after the row. That is one more <script> tag than instructed;
-    flagged rather than traded for a jump.
+    Deliberately NOT in the shared boot script: that runs at the top of the
+    document body, before this markup exists, and deferring it to
+    DOMContentLoaded would set the offset after first paint — a visible jump. It
+    has to be here, inline, immediately after the row. That is one more inline
+    script tag than instructed; flagged rather than traded for a jump.
 
     scrollLeft is set directly, never scrollIntoView — that walks ancestors and
     can move the page. Instant, with no behaviour: 'smooth', so it is identical
-    under prefers-reduced-motion. This is initial state, not motion. */}
+    under prefers-reduced-motion. This is initial state, not motion.
+
+    NOTE — never write a literal HTML script tag inside this comment. Astro's
+    compiler scans for script tags before JSX comment semantics apply, so the
+    prose following it is handed to esbuild as if it were code. It cost a hard
+    dev-server error: `Expected ";" but found "than"`. */}
 <script is:inline>var r=document.querySelector('.subnav-row'),a=r&&r.querySelector('[aria-current]');if(a&&r.scrollWidth>r.clientWidth)r.scrollLeft=a.offsetLeft-20;</script>
