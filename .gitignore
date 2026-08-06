@@ -12,6 +12,9 @@ node_modules/
 .DS_Store
 Thumbs.db
 
+# Local Claude Code settings — per-machine, not shared
+.claude/settings.local.json
+
 # Third-party reference material — full-page screencaptures and screen
 # recordings of other companies' websites (arcade.software, amplemarket.com),
 # ~43 MB of binaries. Kept local: not ours to republish, and not needed to
@@ -28,3 +31,11 @@ refrence design md files/
 
 # Reference material dropped in the repo root — never committed
 screencapture-*.pdf
+
+# Screen recordings and code dumps used while porting the React Bits
+# components — ~51 MB of local scratch, not build inputs.
+*.mp4
+*.zip
+code-extracted/
+dev.bat
+skills-lock.json

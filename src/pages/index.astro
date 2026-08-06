@@ -2,12 +2,15 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
+import ScrollExpand from '../components/react/ScrollExpand';
+import GradualBlur from '../components/react/GradualBlur';
+import MagicBento from '../components/react/MagicBento';
+import ScrollSpread from '../components/react/ScrollSpread';
 import { platforms } from '../content/platforms';
-import { markIndic } from '../content/indic';
 import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
 import {
-  hero, heroStats, standards, disciplineBody, governance,
+  hero, standards, showcase, proof, governance,
   deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs, aboutBlock,
 } from '../content/home';
 import { entities, contact } from '../content/site';
@@ -21,160 +24,150 @@ const agentsPlanned = isPlanned('/ai-agents/');
   jsonldFaq
 >
   {/* ══════════════ HERO ══════════════
-      The focal moment. Content is at final opacity in the HTML; a rule sweeps
-      beneath the headline and the standards below it tick from unverified gray
-      to verified teal. The check happens — it never reveals the content. */}
-  <section class="section" style="padding-block: clamp(3.5rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem);">
-    <div class="shell">
-      <h1 class="t-display" style="max-width: 18ch;">{hero.headline}</h1>
+      An inset card: white where the type sits, blue pooling at the bottom,
+      with the product screen breaking the card's lower edge. Everything is
+      at final opacity in the HTML — the gradient is the only decoration and
+      it is CSS, so there is no image to wait for and nothing to crop. */}
+  <section class="relative" style="padding: clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.5rem) 0;">
+    <div class="hero-card">
+      <div class="hero-inner">
+        <p class="t-label" style="color: var(--color-muted);">{hero.eyebrow}</p>
 
-      <div class="sweep-rule mt-8 h-px w-full max-w-[560px]" style="background: var(--color-accent);"></div>
+        <h1 class="t-display mt-6" style="font-weight: 500;">{hero.headline}</h1>
 
-      <p class="t-lede mt-8">{hero.lede}</p>
-      <p class="t-sm mt-5 mono" style="color: var(--color-muted);">{hero.byline}</p>
+        <p class="t-lede mt-6" style="margin-inline: auto;">{hero.lede}</p>
 
-      <div class="mt-9 flex flex-wrap gap-3">
-        <a href="/contact/" class="btn btn-primary tx-fast">
-          Book a demo <Icon name="arrow-right" class="arrow" />
-        </a>
-        <a href="/platforms/" class="btn btn-secondary tx-fast">Explore the four platforms</a>
+        <div class="mt-9 flex flex-wrap gap-3 justify-center">
+          <a href="/contact/" class="btn btn-primary tx-fast">
+            Book a demo <Icon name="arrow-right" class="arrow" />
+          </a>
+          <a href="#see-it-work" class="btn btn-secondary tx-fast">Watch it work</a>
+        </div>
+
+        <p class="t-cap mt-8 mono" style="color: var(--color-muted);">{hero.summary}</p>
       </div>
 
-      <p class="t-cap mt-10 mono" style="color: var(--color-muted);">{hero.summary}</p>
+      {/* React Bits GradualBlur — frosts the streak texture at the card's edge. */}
+      <GradualBlur
+        client:visible
+        target="parent"
+        position="bottom"
+        height="7rem"
+        strength={2}
+        divCount={5}
+        curve="bezier"
+        exponential
+        opacity={1}
+      />
+    </div>
+  </section>
 
-      {/* Stat strip. Server-rendered at final value — DESIGN.md §1.1. */}
-      <dl class="mt-5 grid grid-cols-2 md:grid-cols-4 m-0 card overflow-hidden">
-        {heroStats.map((s, i) => (
-          <div
-            class="flex flex-col gap-1.5 p-6"
-            style={`border-right: ${i < 3 ? '1px' : '0'} solid var(--color-hairline); border-top: ${i > 1 ? '1px' : '0'} solid var(--color-hairline);`}
-          >
-            <dd class="m-0 mono" style="font-size: var(--text-mono-lg); line-height: 1.1; letter-spacing: -0.02em; font-weight: 500; color: var(--color-ink);">
-              {s.figure}
-            </dd>
-            <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
-          </div>
-        ))}
-      </dl>
-
-      <ul class="mt-6 flex flex-wrap gap-2 list-none m-0 p-0">
-        {standards.map((s, i) => (
-          <li
-            class="chip-verify pill mono tx-fast"
-            style={`--i:${i}; border: 1px solid var(--color-hairline); background: var(--color-paper);`}
-          >
-            {s}
-          </li>
-        ))}
-      </ul>
-      <p class="t-cap mt-3" style="color: var(--color-muted);">
-        Capability statements, not certification logos. Certificates are published only when they exist.
+  {/* ══════════════ SCROLL EXPAND ══════════════
+      React Bits ScrollExpand on window scroll: the frame opens from an inset
+      rect to full bleed while the media counter-zooms back to 1. The overlay
+      copy is duplicated in a visually-hidden block below so the section is
+      still readable to a crawler while the overlay sits at opacity 0. */}
+  <section aria-label="What the platforms do">
+    <ScrollExpand
+      client:load
+      src="/screen-placeholder.svg"
+      alt="AI Nexus platform interface"
+      title="Four platforms. One discipline."
+      scrollHint="Scroll to open"
+      useWindowScroll
+      startWidth={46}
+      startHeight={58}
+      startRadius={24}
+      endRadius={0}
+      mediaZoom={1.25}
+      scrollDistance={1.1}
+      holdDistance={0.3}
+      smoothing={0.1}
+      overlayScrim={0.5}
+    >
+      <h2 class="t-h2" style="color: #fff; max-width: 22ch;">Every answer shows its source.</h2>
+      <p class="t-lede mt-4" style="color: rgb(255 255 255 / 0.86); margin-inline: auto;">
+        Page citations in education. Indian Kanoon verification in law. Chart-grounded outputs in
+        health. Explainable scores in property.
       </p>
-    </div>
+    </ScrollExpand>
+
+    <p class="sr-only">
+      Every answer shows its source. Page citations in education. Indian Kanoon verification in law.
+      Chart-grounded outputs in health. Explainable scores in property.
+    </p>
   </section>
 
-  {/* ══════════════ FOUR PLATFORMS ══════════════ */}
-  <section class="section band">
+  {/* ══════════════ SEE IT WORK — four platforms, scroll-spread ══════════════
+      ScrollSpread: GSAP ScrollTrigger pins the section and spreads four
+      paper cards from a centre stack as the user scrolls. Minimal card
+      content per brief: name, sector, agent count, headline. Evidence triad
+      stays in the HTML (sr-only list) so crawlers still see it. */}
+  <section id="see-it-work" style="background: var(--color-wash);">
+    <div class="shell pt-16 pb-4">
+      <p class="t-label" style="color: var(--color-accent);">{showcase.kicker}</p>
+      <h2 class="t-h2 mt-4" style="max-width: 30ch;">{showcase.heading}</h2>
+    </div>
+
+    <ScrollSpread client:load />
+
+    {/* Evidence triad for crawlers — hidden visually, always in DOM */}
+    <ul class="sr-only">
+      {platforms.map((p) => (
+        <li>
+          {p.name} ({p.sector}): {p.headline}.
+          Input: {p.evidence.input}
+          Output: {p.evidence.output}
+          Control: {p.evidence.control}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {/* ══════════════ PROOF — React Bits MagicBento ══════════════
+      Upstream logic, retinted: paper cards, hairline borders, ink text and a
+      Nexus Indigo glow in place of the stock #120F17 / #8400ff purple. The
+      card copy is duplicated as a visually-hidden list because the grid is
+      client-rendered and the figures must still reach a crawler. */}
+  <section class="section" id="proof">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Four platforms, one engineering discipline</h2>
-      <p class="t-lede mt-5">{disciplineBody}</p>
+      <p class="t-label" style="color: var(--color-accent);">{proof.kicker}</p>
+      <h2 class="t-h2 mt-4" style="max-width: 20ch;">{proof.heading}</h2>
 
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {platforms.map((p) => (
-          <article class="card card-hover tx-fast p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
-            <div>
-              <p class="t-h3" style="color: var(--color-ink);">{p.name}</p>
-              <p class="t-sm mt-1" style="color: var(--color-muted);">{p.subtitle}</p>
-            </div>
-
-            <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
-              {p.bullets.map((b) => (
-                <li class="t-sm flex gap-2.5">
-                  <Icon name="check" class="mt-1 shrink-0" size={14} />
-                  <span set:html={markIndic(b)} />
-                </li>
-              ))}
-            </ul>
-
-            {/* Hue sits on paper, not accent-wash: on the tinted fill MedOrbit
-                teal and Edvation ochre measured 4.34/4.35:1 — below AA. */}
-            <p
-              class="pill mono self-start"
-              style={`background: var(--color-paper); color: ${p.hue}; border: 1px solid ${p.hue}33;`}
-            >
-              {p.agentCount} AI agents
-            </p>
-
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-              <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
-                Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
-              </a>
-              <a href={p.site} target="_blank" rel="noopener" class="t-sm no-underline inline-flex items-center gap-1 tx-fast" style="color: var(--color-muted);">
-                {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-              </a>
-            </div>
-          </article>
-        ))}
+      <div class="mt-10">
+        <MagicBento
+          client:visible
+          textAutoHide={false}
+          enableStars
+          enableSpotlight
+          enableBorderGlow
+          enableTilt={false}
+          enableMagnetism={false}
+          clickEffect
+          spotlightRadius={400}
+          particleCount={10}
+          glowColor="43, 70, 212"
+        />
       </div>
 
-      <a href="/platforms/" class="link-accent mt-10 group/link">
-        Compare all four platforms <Icon name="arrow-right" class="arrow" size={14} />
-      </a>
-    </div>
-  </section>
+      <ul class="sr-only">
+        <li>{proof.lead.figure} {proof.lead.label}. {proof.lead.body}</li>
+        {proof.tiles.map((t) => <li>{t.figure} — {t.label}</li>)}
+      </ul>
 
-  {/* ══════════════ ONE SCREEN, FOUR INSTITUTIONS ══════════════
-      CSS-only radio picker + a stacked "stage" that swaps the front card.
-      Zero JavaScript — keyboard-correct for free from the native radio
-      group, works with JS disabled, every card stays in the DOM
-      (crawlable) even when visually behind the stack.
-
-      Radios sit flat inside .picker so `:checked ~` can reach both the
-      tabs and the stage as true siblings — :has() was tried first but
-      doesn't reliably drive a CSS transition in every engine; the plain
-      sibling combinator has none of that risk. */}
-  <section class="section">
-    <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">One screen, four institutions</h2>
-      <p class="t-lede mt-5">Pick an institution. Watch what the agent actually does.</p>
-
-      <div class="picker mt-12" role="group" aria-label="Choose an institution to preview">
-        {platforms.map((p, i) => (
-          <input
-            type="radio"
-            name="picker"
-            id={`pick-${p.slug}`}
-            class="picker-input sr-only"
-            checked={i === 0}
-          />
-        ))}
-
-        <div class="picker-tabs">
-          {platforms.map((p) => (
-            <label for={`pick-${p.slug}`} class="picker-tab" style={`--hue: ${p.hue};`}>
-              <span class="picker-tab-name">{p.name}</span>
-              <span class="picker-tab-meta mono">{p.sector} · {p.agentCount} agents</span>
-            </label>
+      {/* Compliance Chip Row — DESIGN.md §8.15 exactly: a flat wrapping row
+          of pills with the mandatory disclaimer above. Not a bordered
+          panel — the badge-wall anti-reference this line exists to refute
+          shouldn't itself arrive with more chrome than a paragraph gets. */}
+      <div class="mt-8">
+        <p class="t-cap" style="color: var(--color-muted);">
+          Capability statements, not certification logos. Certificates are published only when they exist.
+        </p>
+        <ul class="mt-3 flex flex-wrap gap-2 list-none m-0 p-0">
+          {standards.map((s) => (
+            <li class="standards-chip mono tx-fast">{s}</li>
           ))}
-        </div>
-
-        <div class="picker-stage">
-          {platforms.map((p) => (
-            <div class="picker-card" data-platform={p.slug}>
-              <div class="flex flex-wrap items-center gap-3">
-                <p class="t-label" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
-                <p
-                  class="pill mono"
-                  style={`background: var(--color-paper); color: ${p.hue}; border: 1px solid color-mix(in oklab, ${p.hue} 35%, transparent);`}
-                >
-                  {p.agentCount} AI agents
-                </p>
-              </div>
-              <h3 class="t-h3 mt-3">{p.headline}</h3>
-              <EvidenceCard evidence={p.evidence} class="mt-5" />
-            </div>
-          ))}
-        </div>
+        </ul>
       </div>
     </div>
   </section>
@@ -196,7 +189,7 @@ const agentsPlanned = isPlanned('/ai-agents/');
             <div class={idx % 2 === 1 ? 'lg:order-2' : ''}>
               <p class="t-label" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
               <h3 class="t-h2 mt-3">{p.headline}</h3>
-              <p class="t-lede mt-5" set:html={markIndic(p.body)} />
+              <p class="t-lede mt-5">{p.body}</p>
 
               <div class="mt-9 flex flex-col gap-7">
                 {p.features.map((f) => (
@@ -222,7 +215,7 @@ const agentsPlanned = isPlanned('/ai-agents/');
                     >
                       {s.figure}
                     </dd>
-                    <dt class="t-cap" style="color: var(--color-muted);" set:html={markIndic(s.label)} />
+                    <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
                   </div>
                 ))}
               </dl>
@@ -390,18 +383,47 @@ const agentsPlanned = isPlanned('/ai-agents/');
     </div>
   </section>
 
-  {/* ══════════════ FAQ — native <details>, zero JS ══════════════ */}
+  {/* ══════════════ FAQ — native <details>, zero JS ══════════════
+      Two columns: a sticky rail carrying the heading and a direct-contact
+      card, and the accordion itself. The rail collapses above the accordion
+      on narrow viewports. Native <details> keeps every answer in the DOM and
+      keyboard-operable with no client script. */}
   <section class="section">
-    <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Frequently asked questions</h2>
-      <div class="faq mt-10">
+    <div class="shell grid gap-x-16 gap-y-10 lg:grid-cols-[5fr_7fr] lg:items-start">
+      <div class="faq-rail flex flex-col gap-5">
+        <p class="t-label" style="color: var(--color-accent);">Answers</p>
+        <h2 class="t-h2" style="max-width: 14ch;">Frequently asked questions</h2>
+        <p class="t-sm" style="color: var(--color-muted); max-width: 42ch;">
+          The things institutions ask us first — on data residency, the agents, pricing and how a
+          deployment actually runs.
+        </p>
+
+        <div class="card p-6 flex flex-col gap-3 mt-2">
+          <h3 class="t-h4">Still have a question?</h3>
+          <p class="t-sm" style="color: var(--color-body);">
+            Ask us directly — we reply within one business day.
+          </p>
+          <div class="flex flex-wrap gap-3 mt-1">
+            <a href="/contact/" class="btn btn-primary tx-fast">
+              Book a demo <Icon name="arrow-right" class="arrow" />
+            </a>
+            <a href={`mailto:${contact.email}`} class="btn btn-secondary tx-fast">
+              <Icon name="mail" size={15} /> Email us
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq">
         {faqs.map((f, i) => (
           <details open={i === 0}>
             <summary>
-              {f.q}
-              <Icon name="chevron-down" class="chev" size={18} />
+              <span>{f.q}</span>
+              <span class="faq-toggle">
+                <Icon name="plus" class="chev" size={16} />
+              </span>
             </summary>
-            <p class="answer t-body" set:html={markIndic(f.a)} />
+            <p class="answer t-body">{f.a}</p>
           </details>
         ))}
       </div>
@@ -449,91 +471,5 @@ const agentsPlanned = isPlanned('/ai-agents/');
       </div>
     </div>
   </section>
+
 </Base>
-
-<style>
-  /* One screen, four institutions — CSS-only tab picker. DESIGN.md tokens
-     throughout; no shadow (depth is opacity + scale, per §5's no-shadow
-     rule); no card-in-card (the wrapper carries no chrome of its own,
-     only the EvidenceCard beneath it does). */
-  .picker-tabs {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    border: 0;
-    padding: 0;
-    margin: 0;
-  }
-  @media (min-width: 860px) {
-    .picker-tabs {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-  .picker-tab {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.875rem 1.125rem;
-    border: 1px solid var(--color-hairline);
-    border-left: 3px solid transparent;
-    border-radius: var(--radius-card);
-    background: var(--color-paper);
-    cursor: pointer;
-    transition:
-      border-color var(--dur-feedback) var(--ease-out),
-      background-color var(--dur-feedback) var(--ease-out);
-  }
-  .picker-tab:hover {
-    border-color: var(--color-control);
-  }
-  .picker-tab-name {
-    font-size: var(--text-body-sm);
-    font-weight: 500;
-    color: var(--color-ink);
-  }
-  .picker-tab-meta {
-    font-size: var(--text-caption);
-    color: var(--color-muted);
-  }
-  #pick-medorbit:checked ~ .picker-tabs label[for='pick-medorbit'],
-  #pick-edvation:checked ~ .picker-tabs label[for='pick-edvation'],
-  #pick-advohub:checked ~ .picker-tabs label[for='pick-advohub'],
-  #pick-trustproperty:checked ~ .picker-tabs label[for='pick-trustproperty'] {
-    border-left-color: var(--hue);
-    background: var(--color-wash);
-  }
-  #pick-medorbit:focus-visible ~ .picker-tabs label[for='pick-medorbit'],
-  #pick-edvation:focus-visible ~ .picker-tabs label[for='pick-edvation'],
-  #pick-advohub:focus-visible ~ .picker-tabs label[for='pick-advohub'],
-  #pick-trustproperty:focus-visible ~ .picker-tabs label[for='pick-trustproperty'] {
-    box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-accent);
-  }
-
-  .picker-stage {
-    position: relative;
-    display: grid;
-    margin-top: 2rem;
-  }
-  .picker-card {
-    grid-area: 1 / 1;
-    max-width: 640px;
-    transition:
-      opacity var(--dur-focal) var(--ease-out),
-      transform var(--dur-focal) var(--ease-out);
-    pointer-events: none;
-  }
-  .picker-card:nth-of-type(1) { transform: translateY(0) scale(1); opacity: 1; z-index: 4; }
-  .picker-card:nth-of-type(2) { transform: translateY(14px) scale(0.97); opacity: 0.5; z-index: 3; }
-  .picker-card:nth-of-type(3) { transform: translateY(26px) scale(0.94); opacity: 0.3; z-index: 2; }
-  .picker-card:nth-of-type(4) { transform: translateY(36px) scale(0.91); opacity: 0.16; z-index: 1; }
-
-  #pick-medorbit:checked ~ .picker-stage [data-platform='medorbit'],
-  #pick-edvation:checked ~ .picker-stage [data-platform='edvation'],
-  #pick-advohub:checked ~ .picker-stage [data-platform='advohub'],
-  #pick-trustproperty:checked ~ .picker-stage [data-platform='trustproperty'] {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-    z-index: 5;
-    pointer-events: auto;
-  }
-</style>

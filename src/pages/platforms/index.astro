@@ -60,7 +60,7 @@ const totals = {
       the hero a reader has to scroll a full viewport before the four platforms
       are reachable — which is the one thing this strip exists to fix. At the
       top it is on screen from the first frame and pins from the first pixel of
-      scroll. Everything that offsets by `68px + var(--subnav-h)` is unaffected;
+      scroll. Everything that offsets by `var(--nav-h) + var(--subnav-h)` is unaffected;
       the strip still pins in the same place. */}
   <PlatformSubnav />
 
@@ -285,7 +285,7 @@ const totals = {
     /* Fills the screen under the sticky chrome — see the note in
        [slug].astro. Composed from the tokens, and svh so mobile browser chrome
        does not push the fold off screen. */
-    --chrome: calc(68px + 1px + var(--subnav-h) + 1px);
+    --chrome: calc(var(--nav-h) + var(--subnav-h) + 1px);
     min-height: calc(100svh - var(--chrome));
     display: flex;
     align-items: center;
@@ -335,7 +335,7 @@ const totals = {
      air was what pushed the deck below the fold. */
   .fold {
     --section-y: clamp(1.5rem, 2.75vw, 2.5rem);
-    min-height: calc(100svh - var(--chrome, 126px));
+    min-height: calc(100svh - var(--chrome, 146px));
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -619,7 +619,7 @@ const totals = {
 
   /* The header takes the eyebrow role — a column label is exactly what eyebrow
      is for, and `caption` size read as shrunken body. Sticky with no JS: it
-     pins under the 68px main nav plus the platform sub-nav. */
+     pins under the main nav plus the platform sub-nav. */
   /* Static by default. Sticky is switched ON only at >=1024px, where the
      wrapper is `overflow: visible` and the viewport is the scroll container.
      Below that the wrapper scrolls, and a sticky thead pins to the WRAPPER —
@@ -644,7 +644,7 @@ const totals = {
   @media (min-width: 1024px) {
     thead th {
       position: sticky;
-      top: calc(68px + var(--subnav-h));
+      top: calc(var(--nav-h) + var(--subnav-h));
     }
   }
 

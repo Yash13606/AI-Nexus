@@ -51,6 +51,16 @@
   --page-max-width: 1200px;
   --prose-max-width: 68ch;
 
+  /* The sticky nav's total height, single-sourced.
+     The nav is a floating pill: a 60px bar inside a wrapper whose vertical
+     padding is fluid, so the height it occupies is not a constant and cannot
+     be typed as one. Everything that sits under the nav — the platform
+     sub-nav, four sticky offsets, and the full-screen hero arithmetic —
+     composes from these two rather than repeating a number that was measured
+     once. When the pill changes, they all follow. */
+  --nav-pad-y: clamp(0.5rem, 1.4vw, 0.9rem);
+  --nav-h: calc(60px + 2 * var(--nav-pad-y));
+
   /* Radius — closed ladder of four */
   --radius-button: 8px;
   --radius-card: 12px;
@@ -124,6 +134,14 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Same-page anchor jumps (e.g. hero "Watch it work" -> #see-it-work) land
+   the target flush under the sticky nav without this — the nav's height
+   varies with viewport width since it wraps instead of using a hamburger,
+   so this stays generous rather than matched to one exact pixel value. */
+section[id] {
+  scroll-margin-top: 96px;
 }
 
 body {
@@ -545,6 +563,25 @@ a:hover > .arrow {
   font-weight: 500;
 }
 
+/* Compliance Chip Row — DESIGN.md §8.15, verbatim: a flat pill row, no
+   panel chrome around it. The point of this line is that these are not
+   badges; giving it a bordered card with its own header contradicted
+   that on sight, regardless of what the copy said. */
+.standards-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-mist);
+  color: var(--color-body);
+  font-size: var(--text-caption);
+}
+
+.standards-chip:hover {
+  border-color: var(--color-control);
+}
+
 /* Reorder controls — injected by script, so they never render as dead
    controls when JavaScript is unavailable. See src/scripts/reorder.js. */
 .reorder-bar {
@@ -574,19 +611,38 @@ a:hover > .arrow {
   color: var(--color-paper);
 }
 
-/* Native details — zero JS, crawlable, keyboard-correct */
-.faq details {
-  border-bottom: 1px solid var(--color-hairline);
+/* FAQ accordion — native <details>, zero JS, crawlable, keyboard-correct.
+   Card items rather than a hairline list: each question is its own surface
+   so an open answer reads as a panel, not a run of rules. The toggle is a
+   single plus glyph that rotates 45° into a cross on open — one icon, two
+   states, no second asset. */
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
 }
-.faq details:first-child {
-  border-top: 1px solid var(--color-hairline);
+.faq details {
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-card);
+  background: var(--color-paper);
+  padding-inline: clamp(1rem, 2.4vw, 1.5rem);
+  transition:
+    border-color var(--dur-micro) var(--ease-entrance),
+    background-color var(--dur-micro) var(--ease-entrance);
+}
+.faq details:hover {
+  border-color: var(--color-control);
+}
+.faq details[open] {
+  border-color: color-mix(in oklab, var(--color-accent) 42%, var(--color-hairline));
+  background: var(--color-wash);
 }
 .faq summary {
   list-style: none;
   cursor: pointer;
-  padding-block: 1.125rem;
+  padding-block: 1.15rem;
   font-size: var(--text-h4);
-  line-height: 1.3;
+  line-height: 1.35;
   letter-spacing: -0.012em;
   font-weight: 500;
   color: var(--color-ink);
@@ -598,16 +654,692 @@ a:hover > .arrow {
 .faq summary::-webkit-details-marker {
   display: none;
 }
-.faq summary .chev {
+/* The toggle chip. Accent outline at rest; fills accent when the panel opens. */
+.faq summary .faq-toggle {
   flex: none;
-  transition: transform var(--dur-state) var(--ease-out);
-  color: var(--color-control);
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid color-mix(in oklab, var(--color-accent) 32%, var(--color-hairline));
+  background: var(--color-paper);
+  color: var(--color-accent);
+  transition:
+    transform var(--dur-state) var(--ease-out),
+    background-color var(--dur-micro) var(--ease-entrance),
+    border-color var(--dur-micro) var(--ease-entrance),
+    color var(--dur-micro) var(--ease-entrance);
 }
-.faq details[open] summary .chev {
-  transform: rotate(180deg);
+.faq summary .faq-toggle .chev {
+  flex: none;
+}
+.faq details[open] summary .faq-toggle {
+  transform: rotate(45deg);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
 }
 .faq .answer {
-  padding-bottom: 1.125rem;
+  padding-bottom: 1.25rem;
   max-width: var(--prose-max-width);
+  color: var(--color-body);
 }
+/* The answer slides in when the panel opens. Native <details> gives no
+   open transition, so this animates the content on appearance instead —
+   reduced-motion collapses it to the finished state via the global kill. */
+.faq details[open] .answer {
+  animation: faq-reveal var(--dur-element) var(--ease-entrance);
+}
+@keyframes faq-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The heading rail tracks the accordion on desktop; static once the columns
+   stack. 96px clears the sticky nav, matching section[id] scroll-margin. */
+@media (min-width: 1024px) {
+  .faq-rail {
+    position: sticky;
+    top: 96px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO CARD
+   ───────────────────────────────────────────────────────────────
+   Inset rounded card, white at the top where the type sits, blue
+   pooling at the bottom where the product screen emerges from it.
+   The gradient is CSS, not an image: sharp at every viewport,
+   zero bytes, and it reflows instead of cropping.
+   ═══════════════════════════════════════════════════════════════ */
+.hero-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: clamp(16px, 2.2vw, 28px);
+  padding: clamp(3.5rem, 7vw, 5.5rem) clamp(1.5rem, 4vw, 3rem) clamp(4.5rem, 9vw, 7rem);
+  text-align: center;
+  /* The tail runs long on purpose: a short final stop leaves the radial's
+     ellipse edge visible as an arc across the white part of the card. */
+  background: radial-gradient(
+    132% 94% at 50% 130%,
+    #2b46d4 0%,
+    #3f63e2 21%,
+    #7ea3f0 43%,
+    #bed3f8 60%,
+    #dbe7fb 72%,
+    #eff5fe 84%,
+    #fbfdff 93%,
+    #ffffff 100%
+  );
+}
+
+/* Vertical rules — the streaked-light texture from the references.
+   Fine enough to read as material, not as a grid overlay. */
+.hero-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0.14) 0 1px,
+    transparent 1px clamp(52px, 6vw, 82px)
+  );
+  mask-image: linear-gradient(180deg, transparent 0%, #000 38%, #000 100%);
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 780px;
+  margin-inline: auto;
+}
+
+/* The screen breaks the card's bottom edge — it is not contained by it. */
+.hero-screen {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(-8.5rem, -10vw, -4.5rem);
+}
+
+/* Product screen. Empty until the real UI capture lands; the slot
+   holds its own aspect ratio so dropping an <img> in changes nothing
+   about the layout around it. */
+.screen {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: clamp(10px, 1.2vw, 16px);
+  background: var(--color-paper);
+  border: 1px solid var(--color-hairline);
+  box-shadow: 0 26px 64px -26px rgb(11 18 32 / 0.3);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.screen > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.screen-empty {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--color-control);
+  text-align: center;
+  padding: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TAB SWITCHER — four platforms, one screen, zero JavaScript
+   ───────────────────────────────────────────────────────────────
+   Radio inputs drive it, so arrow keys move between tabs for free
+   and every panel is in the DOM at all times. With CSS disabled all
+   four panels render stacked, which is the correct fallback.
+   ═══════════════════════════════════════════════════════════════ */
+.tabs {
+  position: relative;
+}
+
+/* Kept focusable — display:none would drop them out of tab order. */
+.tabs > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Centred with fit-content rather than a wrapper element, so it stays a
+   direct sibling of the inputs — the ~ combinator below depends on that. */
+.tablist {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: 0.25rem;
+  padding: 0.3125rem;
+  background: var(--color-wash);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-pill);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tablist::-webkit-scrollbar {
+  display: none;
+}
+.tablist label {
+  padding: 0.5rem 1.125rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--dur-feedback) var(--ease-out),
+    background-color var(--dur-feedback) var(--ease-out);
+}
+.tablist label:hover {
+  color: var(--color-ink);
+}
+
+.tabs .panel {
+  display: none;
+}
+
+/* The screen glow below bleeds past its own box on purpose. Clip only the
+   horizontal spill so it can never widen the page — `clip` rather than
+   `hidden` because hidden would force the vertical axis to scroll too. */
+.panels {
+  overflow-x: clip;
+}
+
+#pf-medorbit:checked ~ .tablist label[for='pf-medorbit'],
+#pf-edvation:checked ~ .tablist label[for='pf-edvation'],
+#pf-advohub:checked ~ .tablist label[for='pf-advohub'],
+#pf-trustproperty:checked ~ .tablist label[for='pf-trustproperty'] {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgb(11 18 32 / 0.12);
+}
+
+#pf-medorbit:focus-visible ~ .tablist label[for='pf-medorbit'],
+#pf-edvation:focus-visible ~ .tablist label[for='pf-edvation'],
+#pf-advohub:focus-visible ~ .tablist label[for='pf-advohub'],
+#pf-trustproperty:focus-visible ~ .tablist label[for='pf-trustproperty'] {
+  box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-accent);
+}
+
+#pf-medorbit:checked ~ .panels #panel-medorbit,
+#pf-edvation:checked ~ .panels #panel-edvation,
+#pf-advohub:checked ~ .panels #panel-advohub,
+#pf-trustproperty:checked ~ .panels #panel-trustproperty {
+  display: block;
+}
+
+/* The blue bloom behind the panel's screen — the one place the
+   accent is allowed to glow rather than mark. */
+.screen-glow {
+  position: relative;
+}
+.screen-glow::before {
+  content: '';
+  position: absolute;
+  inset: -14% -10% -6%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(43 70 212 / 0.3), transparent 74%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+.screen-glow > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD SWAP — four institutions stack (React Bits, Nexus retint)
+   ═══════════════════════════════════════════════════════════════ */
+.platform-swap {
+  position: relative;
+  height: 600px;
+  margin-top: 2.5rem;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.card-swap-stage {
+  position: relative;
+  transform-origin: center center;
+  perspective: 900px;
+  overflow: visible;
+}
+
+.card-swap-card {
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-paper);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.8) inset,
+    0 18px 48px -28px rgb(11 18 32 / 0.28);
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--color-body);
+}
+
+.platform-swap-card__inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.35rem 1.35rem;
+  box-sizing: border-box;
+}
+
+.platform-swap-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.platform-swap-card__eyebrow {
+  margin: 0;
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.platform-swap-card__agents {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.platform-swap-card__title {
+  margin: 1rem 0 0;
+  font-size: var(--text-h3);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-ink);
+  max-width: 16ch;
+}
+
+.platform-swap-card__evidence {
+  margin-top: 1.1rem;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-card);
+  background: var(--color-wash);
+  padding: 0.85rem 0.95rem;
+  overflow: hidden;
+}
+
+.platform-swap-card__tag {
+  margin: 0 0 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.platform-swap-card__rows {
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.platform-swap-card__rows > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.platform-swap-card__rows dt {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.platform-swap-card__rows dd {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--color-body);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.platform-swap-card__control {
+  margin-top: 0.15rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--color-hairline);
+  background: transparent;
+}
+
+.platform-swap-card__control dd {
+  color: var(--color-ink);
+  -webkit-line-clamp: 2;
+}
+
+.platform-swap-card__link {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.platform-swap-card__link:hover {
+  text-decoration: underline;
+}
+
+.platform-swap-card--medorbit {
+  border-top: 3px solid var(--color-medorbit);
+}
+.platform-swap-card--edvation {
+  border-top: 3px solid var(--color-edvation);
+}
+.platform-swap-card--advohub {
+  border-top: 3px solid var(--color-advohub);
+}
+.platform-swap-card--trustproperty {
+  border-top: 3px solid var(--color-trustproperty);
+}
+
+.platform-swap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.platform-swap-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-button);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-paper);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.platform-swap-legend__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .platform-swap {
+    height: 520px;
+  }
+  .card-swap-stage {
+    transform: scale(0.82);
+  }
+}
+
+@media (max-width: 480px) {
+  .platform-swap {
+    height: 460px;
+  }
+  .card-swap-stage {
+    transform: scale(0.68);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL SPREAD — "One screen, four institutions"
+   Exact port of code.zip structure + dimensions into DESIGN.md tokens.
+   Card: 300 × 450 px  |  Positions: [14,38,62,86]%
+   Rotations: [-15,-7.5,7.5,15]°  |  Pin: 3 × 100vh
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Stage — the element GSAP pins (mirrors .cards in the zip) ── */
+.ssc-stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  /* Wash background matches the outer section */
+  background: var(--color-wash);
+}
+
+/* ── Individual card — exact .card from styles.css ── */
+.ssc-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* EXACT dimensions from code.zip/styles.css */
+  width: 300px;
+  height: 450px;
+  perspective: 1000px;
+}
+
+/* The 3px hue top rule comes from .platform-swap-card--{slug} classes */
+
+/* ── .card-wrapper — the floating layer (positions the inner) ── */
+.ssc-card-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+}
+
+/* ── .flip-card-inner — preserve-3d, exact match ── */
+.ssc-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* ── Both faces — exact .flip-card-front / .flip-card-back ── */
+.ssc-flip-front,
+.ssc-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;   /* = var(--radius-card), matches 0.8em at 15px base */
+  overflow: hidden;
+  /* Paper surface — DESIGN.md §5 Level-2 card */
+  background: var(--color-paper);
+  border: 1px solid var(--color-hairline);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* Subtle depth shadow so the stacked pile reads correctly */
+  box-shadow: 0 12px 40px -16px rgb(11 18 32 / 0.22);
+}
+
+/* Back starts rotated away — exact transform from styles.css */
+.ssc-flip-back {
+  transform: rotateY(180deg);
+  /* Mist well for the back — like the Control row in EvidenceCard */
+  background: var(--color-mist);
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ── Front face content ── */
+.ssc-front__eyebrow {
+  margin: 0;
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  /* colour set inline from platform.hue */
+}
+
+.ssc-front__headline {
+  margin: 0;
+  font-size: var(--text-h4);
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+  color: var(--color-ink);
+  /* Allow 3 lines at this large card size */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: auto;
+}
+
+/* ── Back face content ── */
+.ssc-back__eyebrow {
+  margin: 0;
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  /* colour set inline from platform.hue */
+}
+
+/* The big mono number — agent count */
+.ssc-back__count {
+  margin: 0.5rem 0 0;
+  font-size: 5rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+.ssc-back__label {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  color: var(--color-muted);
+}
+
+.ssc-back__link {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.ssc-back__link:hover {
+  text-decoration: underline;
+}
+
+
+
+/* ── reduced-motion — static 2×2 grid, no animation ── */
+@media (prefers-reduced-motion: reduce) {
+  .ssc-stage {
+    position: static;
+    height: auto;
+    width: 100%;
+    overflow: visible;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .ssc-card {
+    position: static;
+    width: 100%;
+    height: auto;
+    transform: none;
+    animation: none;
+    perspective: none;
+  }
+
+  .ssc-card-wrapper {
+    position: static;
+    transform: none;
+    width: 100%;
+    height: auto;
+  }
+
+  .ssc-flip-inner {
+    transform-style: flat;
+    height: auto;
+  }
+
+  .ssc-flip-back {
+    display: none;
+  }
+
+  .ssc-flip-front {
+    position: static;
+    height: auto;
+    box-shadow: none;
+  }
+}
+
+/* ── Mobile — scale down the 300px cards slightly on narrow viewports ── */
+@media (max-width: 1024px) {
+  .ssc-stage {
+    transform-origin: center center;
+  }
+
+  .ssc-card {
+    width: 240px;
+    height: 360px;
+  }
+
+  .ssc-back__count {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ssc-card {
+    width: 180px;
+    height: 280px;
+  }
+
+  .ssc-flip-front,
+  .ssc-flip-back {
+    padding: 1rem;
+  }
+
+  .ssc-back__count {
+    font-size: 2.5rem;
+  }
+}
+
+
 }

@@ -1,7 +1,7 @@
 ---
 /** Authored SVG icon set. One stroke weight (1.5), one grid (16).
  *  The craft floor bans unicode glyphs and emoji standing in for icons. */
-type Name = 'check' | 'arrow-right' | 'arrow-up-right' | 'chevron-down' | 'menu' | 'close' | 'rule';
+type Name = 'check' | 'arrow-right' | 'arrow-up-right' | 'chevron-down' | 'menu' | 'close' | 'rule' | 'plus' | 'mail' | 'phone' | 'map-pin';
 interface Props {
   name: Name;
   size?: number;
@@ -17,6 +17,10 @@ const paths: Record<Name, string> = {
   menu: '<path d="M2.5 5h11"/><path d="M2.5 11h11"/>',
   close: '<path d="M4 4l8 8"/><path d="M12 4l-8 8"/>',
   rule: '<path d="M2 8h12"/>',
+  plus: '<path d="M8 3v10"/><path d="M3 8h10"/>',
+  mail: '<path d="M2.5 4h11v8h-11z"/><path d="m2.5 4.5 5.5 4 5.5-4"/>',
+  phone: '<path d="M4 2.5h2.2l1 2.6-1.4 1a7.5 7.5 0 0 0 3.1 3.1l1-1.4 2.6 1V12a1.4 1.4 0 0 1-1.5 1.4A10.5 10.5 0 0 1 2.6 4 1.4 1.4 0 0 1 4 2.5"/>',
+  'map-pin': '<path d="M8 14s5-4 5-8A5 5 0 0 0 3 6c0 4 5 8 5 8"/><circle cx="8" cy="6" r="1.8"/>',
 };
 ---
 

@@ -823,7 +823,7 @@
      becomes sticky and cannot pin with nothing to say. */
   .reorder-bar[data-spy] {
     position: sticky;
-    top: calc(68px + var(--subnav-h));
+    top: calc(var(--nav-h) + var(--subnav-h));
     z-index: 6;
     margin-inline: calc(var(--shell-pad, 0px) * -1);
     padding: 0.75rem var(--shell-pad, 0px);
@@ -863,7 +863,7 @@
      wall of cards. */
   .group-head {
     position: sticky;
-    top: calc(68px + var(--subnav-h) + 3.25rem);
+    top: calc(var(--nav-h) + var(--subnav-h) + 3.25rem);
     z-index: 5;
     background: var(--color-paper);
     padding-top: 0.75rem;

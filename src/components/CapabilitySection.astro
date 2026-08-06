@@ -331,7 +331,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
       align-items: flex-start;
       gap: 1rem;
       position: sticky;
-      top: calc(68px + var(--subnav-h) + 3rem);
+      top: calc(var(--nav-h) + var(--subnav-h) + 3rem);
       align-self: start;
       height: 18rem;
     }

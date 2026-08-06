@@ -68,7 +68,7 @@ const groups = grouped
       the hero a reader has to scroll a full viewport before the four platforms
       are reachable — which is the one thing this strip exists to fix. At the
       top it is on screen from the first frame and pins from the first pixel of
-      scroll. Everything that offsets by `68px + var(--subnav-h)` is unaffected;
+      scroll. Everything that offsets by `var(--nav-h) + var(--subnav-h)` is unaffected;
       the strip still pins in the same place. */}
   <PlatformSubnav />
 
@@ -338,22 +338,24 @@ const groups = grouped
     position: relative;
     overflow: hidden;
     isolation: isolate;
-    /* Tightened so the hero clears the viewport under the 68px nav and the
-       56px sub-nav. The 3D field is unaffected: it is anchored to the hero's
-       TOP at a fixed box, and u_fit scales from a constant reference rather
-       than from the hero — so the form keeps the size and position it had. */
+    /* Tightened so the hero clears the viewport under the nav and the sub-nav.
+       The 3D field is unaffected: it is anchored to the hero's TOP at a fixed
+       box, and u_fit scales from a constant reference rather than from the
+       hero — so the form keeps the size and position it had. */
     padding-block: clamp(2rem, 4vw, 3.25rem) clamp(1.75rem, 3.5vw, 2.75rem);
     /* The hero fills the screen under the sticky chrome, so nothing of the
        next section shows while a reader is still in it.
 
-       --chrome is composed from the tokens rather than typed as 126px: the nav
-       is 68 plus its 1px hairline and the sub-nav is --subnav-h plus its own,
-       and the measured total was exactly 126. Composed, it tracks --subnav-h
-       if that ever moves instead of silently drifting.
+       --chrome is composed from the tokens rather than typed as a number: the
+       nav is --nav-h (fluid — it is a floating pill with clamped padding) and
+       the sub-nav is --subnav-h plus its 1px hairline. Composed, it tracks
+       both if either moves instead of silently drifting. It already has: the
+       nav went from 68px to 89px in the merge with main, and every offset that
+       had been written as 68px was wrong the moment it landed.
 
        svh, not vh: on mobile `vh` is the LARGEST viewport, so a 100vh hero sits
        partly under the browser's own chrome until it retracts. */
-    --chrome: calc(68px + 1px + var(--subnav-h) + 1px);
+    --chrome: calc(var(--nav-h) + var(--subnav-h) + 1px);
     min-height: calc(100svh - var(--chrome));
     display: flex;
     align-items: center;

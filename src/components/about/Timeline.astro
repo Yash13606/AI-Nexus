@@ -1,0 +1,127 @@
+---
+import Reveal from '../ui/Reveal.astro';
+
+/** A modern alternating timeline. A single hairline spine runs the full height;
+ *  each milestone card sits to one side of it on desktop and stacks to the right
+ *  of a left spine on mobile. Cards use the enter-once Reveal (§7) — arrival,
+ *  never scrubbed. With JS off every card renders at full opacity.
+ *
+ *  The ordered list is semantically correct: this is a sequence, so <ol>. */
+interface Item {
+  marker: string;
+  title: string;
+  body: string;
+}
+interface Props {
+  items: Item[];
+}
+const { items } = Astro.props;
+---
+
+<ol class="tl">
+  {
+    items.map((item, i) => (
+      <Reveal as="li" i={i % 2} class="tl__item">
+        <span class="tl__node" aria-hidden="true" />
+        <div class="tl__card card">
+          <p class="tl__marker t-label">{item.marker}</p>
+          <h3 class="tl__title t-h4">{item.title}</h3>
+          <p class="tl__body t-sm">{item.body}</p>
+        </div>
+      </Reveal>
+    ))
+  }
+</ol>
+
+<style>
+  .tl {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  /* The spine — one hairline, offset to the left on mobile. */
+  .tl::before {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 7px;
+    width: 2px;
+    background: var(--color-hairline);
+  }
+  .tl__item {
+    position: relative;
+    padding-left: 2.5rem;
+  }
+  .tl__node {
+    position: absolute;
+    left: 0;
+    top: 1.75rem;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--radius-pill);
+    background: var(--color-paper);
+    border: 2px solid var(--page-accent);
+    z-index: 1;
+  }
+  .tl__card {
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color var(--dur-micro) var(--ease-entrance);
+  }
+  .tl__item:hover .tl__card {
+    border-color: var(--color-control);
+  }
+  .tl__marker {
+    color: var(--page-accent);
+  }
+  .tl__body {
+    color: var(--color-body);
+  }
+
+  /* ── Desktop: centre spine, alternating sides ─────────────────────────── */
+  @media (min-width: 768px) {
+    .tl::before {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .tl__item {
+      width: 50%;
+      padding-left: 0;
+    }
+    /* Odd items on the left, card text aligned toward the spine. */
+    .tl__item:nth-child(odd) {
+      grid-column: 1;
+      padding-right: 2.75rem;
+      text-align: right;
+    }
+    .tl__item:nth-child(odd) .tl__card {
+      align-items: flex-end;
+    }
+    .tl__item:nth-child(odd) .tl__node {
+      left: auto;
+      right: -8px;
+    }
+    /* Even items on the right. */
+    .tl__item:nth-child(even) {
+      grid-column: 2;
+      margin-left: 50%;
+      padding-left: 2.75rem;
+    }
+    .tl__item:nth-child(even) .tl__node {
+      left: -8px;
+    }
+    /* Pull each even item up so the two columns interleave rather than stack. */
+    .tl__item:nth-child(even) {
+      margin-top: clamp(-3.5rem, -5vw, -2rem);
+    }
+    .tl__item:first-child {
+      margin-top: 0;
+    }
+  }
+</style>

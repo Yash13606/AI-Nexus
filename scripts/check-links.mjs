@@ -8,8 +8,12 @@
  *  Exits non-zero on any broken link. */
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = new URL('../dist/', import.meta.url).pathname.replace(/\/$/, '');
+/* fileURLToPath, not .pathname: on Windows the latter yields "/D:/repo/dist"
+   — leading slash before the drive letter — which never exists, so the gate
+   silently reported "no dist/" and passed by never running. */
+const ROOT = fileURLToPath(new URL('../dist/', import.meta.url)).replace(/[\\/]$/, '');
 
 if (!existsSync(ROOT)) {
   console.error('check:links — no dist/. Run `npm run build` first.');
