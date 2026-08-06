@@ -39,29 +39,13 @@ interface Props {
   /** `quad` tints the static layer in all four hues; `single` uses the page
    *  accent, so a platform page's fallback stays in its own colour. */
   tone?: 'quad' | 'single';
-  /** Nudges the form right, in clip-space units where the canvas spans -1..1 —
-   *  so 0.1 moves it 5% of the canvas width. Applied to BOTH layers: the shader
-   *  takes it as a uniform, the static gradients as a percentage, so a bail
-   *  path puts the object in the same place the canvas would have. Ignored
-   *  below 1100px, where the field is under the text and centred in its own
-   *  box. */
-  shift?: number;
 }
-const { hues, tone = 'quad', shift = 0 } = Astro.props;
+const { hues, tone = 'quad' } = Astro.props;
 ---
 
-<div
-  class={`hf hf-${tone}`}
-  aria-hidden="true"
-  style={shift ? `--hf-shift: ${shift * 50}%;` : undefined}
->
+<div class={`hf hf-${tone}`} aria-hidden="true">
   <span class="hf-static"></span>
-  <canvas
-    class="hf-canvas"
-    data-hero-field
-    data-hues={hues}
-    data-ox-shift={shift || undefined}
-  ></canvas>
+  <canvas class="hf-canvas" data-hero-field data-hues={hues}></canvas>
 </div>
 
 <script>
@@ -146,19 +130,14 @@ const { hues, tone = 'quad', shift = 0 } = Astro.props;
   /* A single platform page has one hue, so its static layer is four steps of
      that hue rather than four different ones. Same arrangement, same spindle,
      same count — just in the page's own colour. */
-  /* --hf-shift moves the static spindle by the same distance the shader moves
-     the particle form, so the bail paths land the object where the canvas
-     would have. Half of the clip-space value, because clip space spans -1..1
-     across a box that is 100% wide. Defaults to 0, so /platforms/ — which
-     passes no shift — computes byte-identical positions to before. */
   .hf-single .hf-static {
     background:
-      radial-gradient(11% 21% at calc(69% + var(--hf-shift, 0%)) 19%, color-mix(in oklab, var(--page-accent) 30%, transparent), transparent 72%),
-      radial-gradient(11% 21% at calc(79% + var(--hf-shift, 0%)) 40%, color-mix(in oklab, var(--page-accent) 20%, transparent), transparent 72%),
-      radial-gradient(11% 21% at calc(68% + var(--hf-shift, 0%)) 63%, color-mix(in oklab, var(--page-accent) 26%, transparent), transparent 72%),
-      radial-gradient(11% 21% at calc(78% + var(--hf-shift, 0%)) 84%, color-mix(in oklab, var(--page-accent) 16%, transparent), transparent 72%),
-      radial-gradient(13% 44% at calc(73% + var(--hf-shift, 0%)) 50%, var(--color-mist), transparent 74%),
-      radial-gradient(34% 78% at calc(74% + var(--hf-shift, 0%)) 50%, var(--color-wash), transparent 76%);
+      radial-gradient(11% 21% at 69% 19%, color-mix(in oklab, var(--page-accent) 30%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 79% 40%, color-mix(in oklab, var(--page-accent) 20%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 68% 63%, color-mix(in oklab, var(--page-accent) 26%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 78% 84%, color-mix(in oklab, var(--page-accent) 16%, transparent), transparent 72%),
+      radial-gradient(13% 44% at 73% 50%, var(--color-mist), transparent 74%),
+      radial-gradient(34% 78% at 74% 50%, var(--color-wash), transparent 76%);
   }
   @media (max-width: 1099px) {
     .hf-single .hf-static {

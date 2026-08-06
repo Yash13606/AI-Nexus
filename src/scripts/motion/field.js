@@ -268,17 +268,10 @@ export function initField(canvas) {
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.uniform1f(uAspect, w / h);
     gl.uniform1f(uPx, dpr * 3.6);
-    /* The form sits in the empty right of the hero, clear of the text column.
-       Below 1100px there is no empty right, so the component drops the whole
-       canvas box under the text instead and the form centres in it — and the
-       nudge goes with it, because there is nothing to be clear of.
-
-       `data-ox-shift` is in clip space, where the canvas spans -1..1, so 0.1 is
-       5% of the canvas width. The detail pages pass one: their text column is
-       narrower than the index's, which leaves the form sitting closer to the
-       words than it does there. */
-    const shift = w >= 1100 ? parseFloat(el.dataset.oxShift || '0') || 0 : 0;
-    gl.uniform1f(uOx, w >= 1100 ? 0.46 + shift : 0);
+    // The form sits in the empty right of the hero, clear of the text column.
+    // Below 1100px there is no empty right, so the component drops the whole
+    // canvas box under the text instead and the form centres in it.
+    gl.uniform1f(uOx, w >= 1100 ? 0.46 : 0);
 
     /* The projection fits the canvas HEIGHT, so without this the form is as
        big as its hero — and the heroes are not the same height. AdvoHub's lede
