@@ -1,0 +1,215 @@
+---
+/** "What {platform} does" — the six modules, in one of three presentations.
+ *
+ *  Which one is a content decision (`capabilityLayout` on the platform entry),
+ *  not a branch on identity. Section ORDER is identical across all four pages;
+ *  only this block's internal arrangement varies, which is what keeps the four
+ *  reading as a family rather than as one template repeated.
+ *
+ *  All three render the same six modules from the same data. Nothing is hidden
+ *  from a crawler in any of them — the tabs variant ships every panel in the
+ *  HTML and only toggles `hidden` after hydration. */
+import type { Module } from '../content/platform-detail-fixed';
+import type { CapabilityLayout } from '../content/platforms';
+
+interface Props {
+  layout: CapabilityLayout;
+  modules: Module[];
+  name: string;
+  id?: string;
+}
+const { layout, modules, name, id = 'capabilities' } = Astro.props;
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+---
+
+<div class={`cap cap-${layout}`} id={id}>
+  {
+    layout === 'bento' && (
+      <div class="bento">
+        {/* data-reveal sits on the styled element itself. Passing a scoped
+            class to <Reveal> renders a div WITHOUT this component's
+            data-astro-cid, so the scoped rule never matches — measured:
+            grid-column resolved to `auto` instead of `span 2`. */}
+        {modules.map((m, i) => (
+          <article
+            data-reveal
+            style={`--i: ${Math.min(i, 3)};`}
+            class={`bento-cell card hov p-6 flex flex-col gap-2 ${i === 0 ? 'bento-lead' : ''}`}
+          >
+            <h3 class={i === 0 ? 't-h3' : 't-h4'}>{m.title}</h3>
+            <p class="t-sm">{m.body}</p>
+          </article>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    layout === 'tabs' && (
+      <div class="tabs">
+        <div role="tablist" aria-label={`What ${name} does`} class="tablist">
+          {modules.map((m, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${slugify(m.title)}`}
+              aria-controls={`panel-${slugify(m.title)}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="tab"
+            >
+              {m.title}
+            </button>
+          ))}
+        </div>
+        {/* No `hidden` in the SSR. With JS off every panel renders, stacked and
+            fully readable — nothing is unreachable. The armed root hides all but
+            the first before paint, and once initTabs sets data-ready it manages
+            `hidden` itself. So: no flash, and no content stranded. */}
+        {modules.map((m, i) => (
+          <div
+            role="tabpanel"
+            id={`panel-${slugify(m.title)}`}
+            aria-labelledby={`tab-${slugify(m.title)}`}
+            tabindex="0"
+            class="panel"
+          >
+            <h3 class="t-h4">{m.title}</h3>
+            <p class="t-sm mt-2">{m.body}</p>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    layout === 'alternating' && (
+      <ol class="alt list-none m-0 p-0">
+        {modules.map((m, i) => (
+          <li class="alt-row" data-reveal style={`--i: ${Math.min(i, 3)};`}>
+            <span class="alt-n mono t-cap" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <div class="alt-body">
+              <h3 class="t-h4">{m.title}</h3>
+              <p class="t-sm mt-2">{m.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+</div>
+
+<style>
+  /* ── Bento: uneven spans, lead tile first ─────────────────────────────── */
+  .bento {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  /* The cell IS the card — no wrapper, so the scoped rule lands. */
+  .bento-cell {
+    height: 100%;
+  }
+  @media (min-width: 700px) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .bento {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    /* One tile carries more weight, so the grid is not six equal boxes. */
+    .bento-lead {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  }
+
+  /* ── Tabs ─────────────────────────────────────────────────────────────── */
+  .tablist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .tab {
+    font: inherit;
+    font-size: var(--text-body-sm);
+    font-weight: 450;
+    color: var(--color-body);
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 0.875rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--dur-micro) var(--ease-entrance);
+  }
+  .tab:hover {
+    color: var(--color-ink);
+  }
+  .tab[aria-selected='true'] {
+    color: var(--color-ink);
+    font-weight: 600;
+    border-bottom-color: var(--page-accent);
+  }
+  /* Pre-JS: armed root shows only the first panel, before paint. Once
+     initTabs adds data-ready it owns visibility via `hidden`. JS off → the
+     attribute never appears → all six panels render. */
+  :global(html[data-reveal-ready]) .tabs:not([data-ready]) .panel:not(:first-of-type) {
+    display: none;
+  }
+  .panel {
+    padding-top: 1.75rem;
+    max-width: var(--prose-max-width);
+    animation: panel-in var(--dur-micro) var(--ease-entrance) both;
+  }
+  /* Crossfade only. No height animation — the panels differ in length and
+     animating that produces a jump on every switch. */
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* ── Alternating ──────────────────────────────────────────────────────── */
+  .alt {
+    display: flex;
+    flex-direction: column;
+  }
+  .alt-row {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 0 1.5rem;
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .alt-n {
+    color: var(--color-control);
+  }
+  .alt-body {
+    max-width: var(--prose-max-width);
+  }
+  @media (min-width: 900px) {
+    /* Alternating sides, which is what makes this read as a sequence rather
+       than a list. Numerals stay in the reading column either way. */
+    .alt-row:nth-child(even) .alt-body {
+      margin-left: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel {
+      animation: none;
+    }
+    .tab {
+      transition: none;
+    }
+  }
+</style>

@@ -512,7 +512,26 @@ Emit `FAQPage` JSON-LD from the same source data.
 
 **Real `<table>`, real `<th scope="col">`.** Non-negotiable (§1.3).
 
-`<caption>` (visually hidden). Header row on Wash, `caption` size 600 in `--color-ink`. Cells `body-sm`, 16px/20px padding, 1px hairline between rows. Numeric columns right-aligned in `--font-mono`. Each row gets a 3px left rule in its platform hue. Zebra in `--color-mist`.
+`<caption>` **present and accessible, not necessarily visible.** Amended: a
+`<caption>` must be a child of `<table>`, so it cannot be lifted out of the
+horizontal-scroll wrapper — a visible one scrolls sideways with the table and
+clips. Measured at 390px. Keep it as the accessible name and let a visible lede
+above the table carry the sighted version.
+
+Header row on Wash, in the `eyebrow` role — a column label is what eyebrow is
+for, and `caption` size reads as shrunken body. Cells `body-sm`. **Row height on
+the 8-scale, 48px minimum.** Numeric columns right-aligned in `--font-mono`.
+
+**Zebra: only on tables over ~8 rows, and only where rows have no hover state.**
+Amended: zebra in `--color-mist` and row hover in `--color-mist` cannot coexist,
+and hover is the one carrying information. Four rows with a hairline between each
+do not need banding to track across.
+
+**Sticky `<thead>` and a sticky first column are mutually exclusive**, because
+`overflow-x: auto` forces computed `overflow-y: auto` and a sticky header then
+pins to the wrapper rather than the viewport. Split them by viewport: header
+sticks where the table fits without scrolling, first column pins where it does
+not.
 
 Wrapper: `overflow-x: auto`, 16px radius, 1px hairline. The page body never scrolls sideways.
 

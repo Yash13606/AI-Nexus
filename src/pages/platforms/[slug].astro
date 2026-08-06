@@ -7,6 +7,10 @@ import PlatformSubnav from '../../components/PlatformSubnav.astro';
 import EvidenceCard from '../../components/EvidenceCard.astro';
 import AgentCard from '../../components/AgentCard.astro';
 import Faq from '../../components/Faq.astro';
+import RevealRoot from '../../components/ui/RevealRoot.astro';
+import Reveal from '../../components/ui/Reveal.astro';
+import CapabilitySection from '../../components/CapabilitySection.astro';
+import HeroMock from '../../components/HeroMock.astro';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
 import { markIndic } from '../../content/indic';
@@ -25,6 +29,24 @@ const trail = [
   { href: '/platforms/', label: 'Platforms' },
   { label: p.name },
 ];
+
+/** The hero mock. AdvoHub's whole argument is which citations survive
+ *  verification, so its panel renders as the citation shape; the rest use the
+ *  Ink timeline. Driven by heroLayout, not by slug. */
+const mockShape = p.heroLayout === 'left-narrow-refs-right' ? 'citations' : 'timeline';
+
+/** Grouping the agent roster. A 3-column grid of near-identical cards stops
+ *  being scannable somewhere around a dozen; Edvation ships 20. The threshold
+ *  is data-driven — no platform is named — and `audience` is the grouping that
+ *  already exists on every agent. */
+const GROUP_AT = 12;
+const grouped = d.agents.length >= GROUP_AT;
+const groups = grouped
+  ? [...new Set(d.agents.map((a) => a.audience))].map((audience) => ({
+      audience,
+      agents: d.agents.filter((a) => a.audience === audience),
+    }))
+  : [];
 ---
 
 <Base
@@ -34,19 +56,22 @@ const trail = [
   faqItems={d.faqs}
   jsonldFaq
 >
-  {/* ── Hero ── */}
-  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
-    <div class="shell">
+  <RevealRoot />
+
+  {/* ══════════════ HERO ══════════════
+      Same architecture on all four — eyebrow → h1 → lede → CTA → stat strip.
+      Only the arrangement moves, from `heroLayout` in content. */}
+  <section class={`hero section hero-${p.heroLayout}`} style={`--page-accent: ${hueVar};`}>
+    <div class="shell hero-grid">
+      <div class="hero-text">
       <Breadcrumbs trail={trail} />
 
-      <p class="t-label" style={`color: ${hueVar};`}>{p.name} · {p.sector}</p>
-      <h1 class="t-h1 mt-3" style="max-width: 20ch;">{p.pageH1}</h1>
+      <p class="t-label rise" style={`--i: 0; color: ${hueVar};`}>{p.name} · {p.sector}</p>
+      <h1 class="t-h1 rise mt-3" style="--i: 1; max-width: 20ch;">{p.pageH1}</h1>
 
-      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style={`background: ${hueVar};`}></div>
+      <p class="t-lede rise mt-6" style="--i: 2;" set:html={markIndic(p.pageLede)} />
 
-      <p class="t-lede mt-7" set:html={markIndic(p.pageLede)} />
-
-      <div class="mt-9 flex flex-wrap gap-3">
+      <div class="rise mt-9 flex flex-wrap gap-3" style="--i: 3;">
         <a href="/contact/" class="btn btn-primary tx-fast">
           Book a demo <Icon name="arrow-right" class="arrow" />
         </a>
@@ -78,49 +103,39 @@ const trail = [
           ))
         }
       </dl>
+      </div>
+
+      <div class="hero-mock rise" style="--i: 4;">
+        <HeroMock platform={p} shape={mockShape} />
+        <p class="t-cap mt-3 m-0" style="color: var(--color-muted);">
+          Illustrative — every step is a shipped capability.
+        </p>
+      </div>
     </div>
   </section>
 
   <PlatformSubnav />
 
-  {/* ── What it does + the panel ── */}
-  <section class="section band">
+  {/* ══════════════ WHAT IT DOES ══════════════
+        Six modules, presented per `capabilityLayout`. The Ink timeline that
+        used to sit here has moved into the hero, so it is not rendered twice —
+        §11 caps a page at two Ink blocks and the footer is the other one. */}
+  <section class="section band" style={`--page-accent: ${hueVar};`}>
     <div class="shell">
-      <div class="grid gap-12 lg:grid-cols-[1.15fr_1fr] lg:items-start">
-        <div>
-          <h2 class="t-h2" style="max-width: 20ch;">What {p.name} does</h2>
-          <div class="mt-9 grid gap-x-9 gap-y-7 sm:grid-cols-2">
-            {
-              d.modules.map((m) => (
-                <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
-                  <h3 class="t-h4">{m.title}</h3>
-                  <p class="t-sm">{m.body}</p>
-                </div>
-              ))
-            }
-          </div>
-        </div>
+      <Reveal>
+        <h2 class="t-h2" style="max-width: 20ch;">What {p.name} does</h2>
+      </Reveal>
+      <Reveal i={1}>
+        <p class="t-lede mt-5 mb-11">
+          {d.modules.length} modules, one platform. Every one of them is where an AI agent gets its
+          data — the agents sit inside the system of record, not beside it.
+        </p>
+      </Reveal>
 
-        <div class="flex flex-col gap-6">
-          <div class="rounded-[16px] p-6" style="background: var(--color-ink);">
-            <p class="t-cap m-0 mb-4" style="color: #a8b4c8;">{p.panel.title}</p>
-            {
-              p.panel.rows.map((r, i) => (
-                <div
-                  class="flex gap-4 items-baseline py-3"
-                  style={`border-top: ${i > 0 ? '1px' : '0'} solid rgb(255 255 255 / 0.10);`}
-                >
-                  <span class="mono t-cap shrink-0" style="color: #a8b4c8; width: 62px;">{r.when}</span>
-                  <span class="t-sm flex-1" style="color: #fff;">{r.what}</span>
-                  <span class="t-cap text-right" style="color: #a8b4c8;">{r.outcome}</span>
-                </div>
-              ))
-            }
-            <p class="t-cap italic mt-4 m-0" style="color: #7c8ba5;">{p.panel.note}</p>
-          </div>
+      <CapabilitySection layout={p.capabilityLayout} modules={d.modules} name={p.name} />
 
-          <EvidenceCard evidence={p.evidence} class="max-w-none" />
-        </div>
+      <div class="mt-12 max-w-[560px]">
+        <EvidenceCard evidence={p.evidence} class="max-w-none" />
       </div>
     </div>
   </section>
@@ -129,16 +144,42 @@ const trail = [
         its agents to the front. Nothing is hidden — emphasis and order only,
         and the controls are injected by script so they are never dead. ── */}
   <section class="section">
-    <div class="shell" id="agents" data-hue={p.slug}>
+    <div class="shell" id="agents" data-hue={p.slug} style={`--page-accent: ${hueVar};`}>
       <h2 class="t-h2" style="max-width: 22ch;">The {p.agentCount} {p.name} AI agents</h2>
       <p class="t-lede mt-5 mb-9">
         Each agent does one job, and each carries its own guardrail. Product examples on this site are
         illustrative.
       </p>
 
-      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-agent-grid>
-        {d.agents.map((a) => <AgentCard agent={a} hue={hueVar} />)}
-      </div>
+      {
+        grouped ? (
+          /* Grouped by the seat each agent serves — the grouping that already
+             exists on every agent. Reveal staggers per GROUP, not per card: 20
+             cards staggered individually is a 1.2s wave, which reads as the
+             page loading rather than arriving. */
+          <div class="agent-groups" data-agent-grid>
+            {groups.map((g, gi) => (
+              <div class="agent-group" data-reveal style={`--i: ${Math.min(gi, 3)};`}>
+                <div class="group-head">
+                  <h3 class="t-h3">{g.audience}</h3>
+                  <span class="mono t-cap group-n">{g.agents.length}</span>
+                </div>
+                <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mt-6">
+                  {g.agents.map((a) => (
+                    <AgentCard agent={a} hue={hueVar} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-agent-grid>
+            {d.agents.map((a) => (
+              <AgentCard agent={a} hue={hueVar} />
+            ))}
+          </div>
+        )
+      }
     </div>
   </section>
 
@@ -227,6 +268,11 @@ const trail = [
 
 <script>
   import { initSeatFilter } from '../../scripts/reorder.js';
+  import { initReveal } from '../../scripts/reveal.js';
+  import { initTabs } from '../../scripts/tabs.js';
+  initReveal();
+  const tabRoot = document.querySelector('.tabs');
+  if (tabRoot) initTabs(tabRoot);
   const root = document.getElementById('agents');
   if (root) {
     const hues = {
@@ -238,3 +284,81 @@ const trail = [
     initSeatFilter(root, hues[root.dataset.hue] ?? 'var(--color-accent)');
   }
 </script>
+
+<style>
+  /* ── Hero compositions ─────────────────────────────────────────────────
+     One architecture, four arrangements, chosen by `heroLayout` in content.
+     Every one of them keeps the text left-aligned: §8.5 says the hero is
+     "left-aligned, never centered" and §8.18 makes the CTA band the only
+     centred block in the system. `mock-below` centres the MOCK, not the copy. */
+  .hero {
+    padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
+  }
+  .hero-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: start;
+  }
+  .hero-mock {
+    min-width: 0;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .rise {
+    animation: rise var(--dur-element) var(--ease-entrance) both;
+    animation-delay: calc(var(--i, 0) * var(--reveal-stagger));
+  }
+
+  @media (min-width: 1024px) {
+    .hero-left-mock-right .hero-grid {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+    .hero-left-narrow-refs-right .hero-grid {
+      grid-template-columns: 0.85fr 1.15fr;
+    }
+    .hero-split .hero-grid {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+    /* Mock below, full measure, centred as a block. Copy stays left. */
+    .hero-mock-below .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hero-mock-below .hero-mock {
+      max-width: 900px;
+      margin-inline: auto;
+    }
+  }
+
+  /* ── Agent groups ──────────────────────────────────────────────────────── */
+  .agent-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .group-n {
+    color: var(--color-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      animation: none;
+    }
+  }
+</style>

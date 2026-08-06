@@ -83,8 +83,11 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
       <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {
           platforms.map((p, i) => (
-            <Reveal i={i} class="pcard-wrap">
-              <article class="pcard card hov p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
+            <article
+              data-reveal
+              class="pcard card hov p-6 flex flex-col gap-4"
+              style={`--i: ${i}; border-top: 3px solid ${p.hue};`}
+            >
                 <div>
                   <PlatformLockup name={p.name} as="h3" />
                   <p class="t-sm mt-1.5" style="color: var(--color-muted);">{p.subtitle}</p>
@@ -120,8 +123,7 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
                     {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
                   </a>
                 </div>
-              </article>
-            </Reveal>
+            </article>
           ))
         }
       </div>
@@ -232,9 +234,6 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
   }
 
   /* ── Platform cards ───────────────────────────────────────────────────── */
-  .pcard-wrap {
-    display: flex;
-  }
   .pcard {
     position: relative;
     width: 100%;
