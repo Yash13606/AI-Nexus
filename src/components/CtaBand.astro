@@ -1,9 +1,22 @@
 ---
 import Icon from './Icon.astro';
 import { contact } from '../content/site';
+
+/** `magnetic` is opt-in and off by default, because this band renders on nine
+ *  routes and only /platforms/* is in §16's scope. Passing it adds one
+ *  attribute; the six routes that do not pass it emit byte-identical HTML and
+ *  load no extra script. */
+interface Props {
+  magnetic?: boolean;
+  /** Opt-in grainy four-hue bloom behind the band. Off by default: this band
+   *  renders on nine routes and only /platforms/* is in §16's scope, so the
+   *  six that do not pass it emit byte-identical HTML. */
+  atmos?: boolean;
+}
+const { magnetic = false, atmos = false } = Astro.props;
 ---
 
-<section class="section" style="background: var(--color-wash);">
+<section class={`section${atmos ? ' p-bloom p-grain p-cta' : ''}`} style="background: var(--color-wash);">
   <div class="shell text-center flex flex-col items-center gap-5">
     <h2 class="t-h2">See a platform in action.</h2>
     <p class="t-lede" style="margin-inline: auto;">
@@ -11,7 +24,9 @@ import { contact } from '../content/site';
       conversation about partnership. We reply within one business day.
     </p>
     <div class="mt-3 flex flex-wrap gap-3 justify-center">
-      <a href="/contact/" class="btn btn-primary tx-fast">
+      {/* The href and the label are in the HTML either way. initMagnetic adds
+          pointer response to an anchor that already works. */}
+      <a href="/contact/" class="btn btn-primary tx-fast" data-magnetic={magnetic ? '' : undefined}>
         Book a demo <Icon name="arrow-right" class="arrow" />
       </a>
       <a href={contact.linkedin} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">

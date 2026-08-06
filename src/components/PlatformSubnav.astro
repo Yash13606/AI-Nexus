@@ -57,8 +57,8 @@ const items = [
 <style>
   .subnav {
     position: sticky;
-    /* Clears the 68px main nav. */
-    top: 68px;
+    /* Clears the main nav, whose height is fluid — see --nav-h in theme.css. */
+    top: var(--nav-h);
     z-index: 40;
     background: var(--color-paper);
     border-bottom: 1px solid var(--color-hairline);

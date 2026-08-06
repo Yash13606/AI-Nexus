@@ -16,6 +16,8 @@ Every section below is a decision, already made. Do not re-open them per page.
 - Building a component → §8 has a spec for all 22.
 - Picking a color/size/radius → §3–§7. Nothing outside these tables ships.
 - Tempted to add motion, a gradient, a shadow, or a fifth color → §11 says no, and why.
+- Building inside `/platforms/*` → **read §16 first.** Those five routes override §5, §7, §8.7, §8.14 and §11, and the overrides win there. Everywhere else the unamended rule stands.
+- About to report something as verified → §14b lists the checks that produce confident wrong answers.
 
 ---
 
@@ -195,6 +197,12 @@ Depth comes from **surface lightness + a 1px hairline**, following Clearbit. The
 
 Resting cards have **no shadow**. Ever.
 
+**Overridden inside `/platforms/*` (§16.1).** Those five routes ship a real
+elevation scale — `--shadow-1/2/3` and `--lift: 4px` — because four products
+side by side need faster separation than a hairline gives. Every value is
+derived from `--color-ink` at low alpha. This does not apply to the other
+thirteen routes, and the scoping is enforced by import, not by convention.
+
 ### Surfaces
 
 | Level | Name | Value | Purpose |
@@ -283,6 +291,13 @@ ever hidden, and §1.2 holds exactly as written. Under
 - Count-up / odometer / `NumberFlow` on any figure
 - Parallax, pinned sections, scroll-scrubbed anything
 - Marquees, auto-carousels, typewriter effects
+
+**All five of the above are permitted inside `/platforms/*` — see §16.**
+Scroll-scrubbed effects, sticky showcases, parallax, marquees and count-up are
+all in use on those five routes under §16.3's constraints. Count-up carries a
+condition rather than a permission: the server must render the final value as
+text, because the reason for the ban was that a crawler reads `0%`. Everywhere
+else on the site this list stands unamended.
 - Skeleton loaders (this is a static site — nothing loads)
 - Entrance animation on page load
 
@@ -413,6 +428,11 @@ Then: subtitle (`body-sm`, muted) → 3 bullets (`body-sm`, 8px gaps, accent che
 
 Hover: border → `--color-control`. No lift, no shadow, no scale.
 
+**Overridden inside `/platforms/*` (§16.1).** There the card rests on
+`--shadow-1` and hover adds a surface step, the page accent on the border, an
+arrow affordance, `--shadow-2` and a 4px lift — additively. The four signals are
+not traded for one.
+
 ---
 
 ### 8.8 Alternating Product Row
@@ -492,6 +512,11 @@ Emit `FAQPage` JSON-LD from the same source data.
 ### 8.14 Comparison Table
 
 **Real `<table>`, real `<th scope="col">`.**
+
+**Extended inside `/platforms/*` (§16.1):** sortable column headers carrying
+`aria-sort`, and a 460ms FLIP re-rank. The headers ship as plain text and are
+upgraded into buttons by script, so with JS off a reader gets a readable header
+rather than a control that does nothing.
 
 `<caption>` **present and accessible, not necessarily visible.** Amended: a
 `<caption>` must be a child of `<table>`, so it cannot be lifted out of the
@@ -650,17 +675,17 @@ WCAG 2.1 AA is a published compliance claim. It ships or the claim is false.
 
 ### Don't
 
-- **Don't animate a number from zero.** The brand exists partly to criticize this.
-- Don't hide content behind scroll-reveal.
+- **Don't animate a number from zero.** The brand exists partly to criticize this. *(Conditionally lifted inside `/platforms/*` — §16.1. The condition is that the server renders the final value; without it the ban stands.)*
+- Don't hide content behind scroll-reveal. *(Still absolute, everywhere, including `/platforms/*` — §16.2.)*
 - Don't add a fifth color, or promote a platform hue past §6.
-- Don't put a shadow on a resting card, or any shadow on a dark panel.
+- Don't put a shadow on a resting card, or any shadow on a dark panel. *(Overridden inside `/platforms/*` — §16.1.)*
 - Don't use pill-radius buttons. 8px.
 - Don't center body copy or a section heading.
 - Don't build a badge wall, trust-seal row, or logo carousel.
 - Don't add a floating chat orb or sticky demo widget.
 - Don't use Inter (§4). Don't use weight 700+.
 - Don't nest a card inside a card. The Control well is the only nested surface, and it's a well, not a card.
-- Don't install GSAP, Lenis, or Motion (§7).
+- Don't install GSAP, Lenis, or Motion (§7). *(Still true — nothing was installed. §16's motion is hand-written; see §15.)*
 - Don't use more than two Ink blocks per page.
 - Don't let a platform hue touch a button, a background, or body text.
 
@@ -668,6 +693,12 @@ WCAG 2.1 AA is a published compliance claim. It ships or the claim is false.
 only. **Hover may not reveal content.** Content that appears on hover must exist
 at rest: change its colour (`--color-muted` → `--color-ink`), never its opacity
 from zero. A count or a sublabel is content. An arrow is not.
+
+**This one is site-wide and absolute. §16 does not scope it, and no future
+section may.** It is listed again in §16.2 alongside the other three that cannot
+be scoped away: mocks built from real content and labelled illustrative; no
+fabricated numbers, customers, logos or testimonials; mono for anything meant to
+be checked.
 
 ---
 
@@ -686,11 +717,20 @@ The Ink surface (`#0b1220`) already provides tonal contrast where it earns its p
 | Framework | **Next.js (App Router), `output: 'export'`** | 19 static pages, no backend. Static export gives real HTML per route. |
 | Styling | **Tailwind v4 `@theme`** | Tokens in §14 drop straight in. |
 | Components | **Plain React. No component library.** | These 22 are bespoke marketing components. shadcn/Radix solves app primitives this site doesn't have. The two places a library would be reached for — accordion and select — are better served natively (§8.13, §8.19). |
-| Animation | **None** | §7. |
+| Animation | **No library.** Hand-written primitives on `/platforms/*` only | §7 site-wide; §16 for the five platform routes. The correct statement is per-route, not per-dependency — see §15. |
 | Fonts | **`next/font/local`, IBM Plex Sans + Sans Devanagari + Mono** | Self-hosted, no layout shift, no third-party request. |
 | Icons | **Inline SVG, ~16px, 1.5px stroke** | Under 15 icons needed. An icon package would be larger than the icons. |
 | Content | **Typed TS modules** (`content/agents.ts`, `platforms.ts`, `faqs.ts`) | 48 agents appear on 3+ pages each. One source, or they drift. Also feeds JSON-LD. |
 | SEO | **Static JSON-LD** — `Organization`, `SoftwareApplication` ×4, `FAQPage`, `BreadcrumbList` | The site is built for retrieval; structured data is the point, not an add-on. |
+
+> **Two rows above are stale and were not rewritten here — flagged for the
+> owner, since they are decisions rather than errors of fact about this branch.**
+> The repository is **Astro 5** with static output and Tailwind v4 via
+> `@tailwindcss/vite`, not Next.js App Router. There is **no React on any
+> route**; the components are `.astro` files, and §16.6 records the measurement
+> that kept React out. The *reasoning* in both rows still holds — static export
+> per route, no component library — but the named technologies do not match what
+> ships.
 
 ### Structure
 
@@ -823,6 +863,9 @@ reconciliation so the file is actually a source of truth rather than a claim.
 | **8.14** | Header row at `caption` size | Header row in the **eyebrow** role | A column label is what eyebrow is for; `caption` size read as shrunken body. |
 | **9** | Sticky jump-nav exception is `/ai-agents/` only | Exception also covers `/platforms/` | Five pages whose only lateral navigation is a strip at the foot of each. Build-time active state, no JS. |
 | **11** | — | Hover may reveal **decoration** from `opacity: 0`; never content | A count or sublabel is content and must exist at rest — colour steps muted → ink. An arrow is decoration. |
+| **11** | `.band .hov:hover` stepped the surface to Paper | Deleted; the step runs one direction everywhere — Paper at rest, Mist on hover | The card is *already* Paper on a band, so the override changed nothing and one of the vocabulary's four signals was inert. Worse, every `.hov` on the site sits inside a band, so the override fired 100% of the time and the general rule fired never. |
+| **5, 7, 8.7, 8.14, 11, 13** | Site-wide rules | **§16** overrides them for `/platforms/*` only | The platform section was rebuilt to a different standard with sign-off. Recorded as a scoped section rather than by loosening the site-wide rules, so the other thirteen routes are unaffected and can be shown to be. |
+| **15** | "Zero animation libraries in `package.json`" | "No animation library is loaded on any route outside `/platforms/*`", verified per route | A dependency list cannot express a per-route fact, and the original phrasing would have gone false the moment anything was installed — including things that ship to no route at all. |
 
 ### Fragilities recorded, not defended against
 
@@ -842,26 +885,58 @@ without knowing why:
    and two `display: flex` rules resolved to `block`. Put the behaviour
    attribute on the styled element instead of wrapping it.
 
+### The failure class: a rule that renders is not a rule that wins
+
+Three separate bugs on this branch were the same bug. Each shipped CSS that was
+syntactically valid, appeared in the built stylesheet, and matched the element it
+was written for — and still had no effect, because something else won. None was
+visible in review, in a diff, or in the source. All three were found by reading
+**computed styles in a browser**, and only by that.
+
+| Instance | What was written | What actually won | How it surfaced |
+|---|---|---|---|
+| **Scoped class passed to a child component** | `<Reveal class="bento-lead">`, with `.bento-lead { grid-column: span 2 }` scoped to the parent | Nothing. Astro does not put the parent's `data-astro-cid` on a child component's root, so the selector never matched anything. | `grid-column` computed to `auto`, and two `display: flex` rules to `block`. Shipped, and was approved, before anyone measured it. |
+| **A higher-specificity rule elsewhere** | `.card.p-elev:hover { transform: translateY(-4px) }` — specificity (0,3,0) | `html[data-reveal-ready] [data-reveal][data-revealed] { transform: none }` — specificity (0,3,1). Every card is also a reveal target, so the lift died the moment the card finished revealing. | Hover computed `matrix(1,0,0,1,0,0.0004)` instead of `-4px`. |
+| **Cascade layers beating specificity outright** | `.tabs .tablist[data-indicator] .tab[aria-selected='true'] { border-bottom-color: transparent }` — specificity (0,4,0), inside `@layer components` | The component's own scoped `.tab[aria-selected='true']` at (0,3,0) — because **Astro scoped styles are unlayered, and unlayered CSS beats layered CSS at any specificity.** | Both markers painted at once: the per-tab border still computed `rgb(180,83,9)` underneath the sliding bar. |
+
+**What generalises.** Three different mechanisms, one lesson: matching an element
+is necessary and nowhere near sufficient. Before believing a rule is in effect,
+read the computed value of the property it sets, on the element it targets, in
+the state it applies to.
+
+Two corollaries earned the hard way:
+
+- **Raising specificity is the wrong reflex.** It was the instinct in the third
+  case and it cannot work across layers at all. The fix was to move the rule so
+  both sides are scoped — not to weaken either.
+- **A systemic bug deserves a sweep, not a patch.** After the layers case, every
+  other block in `platform.css` was checked against the scoped rules it could
+  collide with. None do; that is now a measured fact rather than an assumption.
+
 ### Verification methods that produce false passes
 
-Checking which layout variant rendered by grepping the page for its class name
-matches the **inlined stylesheet**, which contains every variant's rules. It
-reported all four platform pages as `left-mock-right`. Verify variants from the
-rendered element (`<section class="hero section hero-…">`), never from a
-substring search over the whole document.
+Eight, all of which produced a confident and wrong result during this work. Each
+was caught only because a second measurement disagreed with the first.
+
+**1. Detecting which variant rendered by searching the document.** Grepping the
+page for a variant's class name matches the **inlined stylesheet**, which
+contains every variant's rules. It reported all four platform pages as
+`left-mock-right`. Verify from the rendered element
+(`<section class="hero section hero-…">`), never from a substring search over the
+whole document.
 
 **2. Focusing elements to test tab order.** Calling `.focus()` scrolls the
 element into view, which moves every subsequent measurement. Comparing
 viewport-relative positions across a focus walk reports breaks that are not
-there. Measure absolute document position (`rect.top + scrollY`) captured
-without focusing.
+there. Measure absolute document position (`rect.top + scrollY`) captured without
+focusing.
 
 **3. Instant-jump scrolling defeats `IntersectionObserver`.**
-`scrollTo(0, document.body.scrollHeight)` moves elements from below the
-viewport to above it in a single frame. The observer sees `isIntersecting:
-false` at both ends and never fires, so a working reveal reports `0/8` and
-looks like content stranded at `opacity: 0`. **Step-scroll** — increments of
-roughly a third of the viewport with a frame between — or the test lies.
+`scrollTo(0, document.body.scrollHeight)` moves elements from below the viewport
+to above it in a single frame. The observer sees `isIntersecting: false` at both
+ends and never fires, so a working reveal reports `0/8` and looks like content
+stranded at `opacity: 0`. **Step-scroll** — increments of roughly a third of the
+viewport with a frame between — or the test lies.
 
 **4. A preview-only verification loop cannot see dev-path failures.**
 `astro build` and `astro dev` do not agree. The compiler will extract a script
@@ -877,9 +952,41 @@ path is never exercised at all.
 never write a run-locally guide containing a command you have not executed
 against the current tree.
 
-All four of these produced a confident, wrong result during the platform section
-work. Each was caught only because a second measurement — or a second person —
-disagreed with the first.
+**5. Contrast: the adversarial frame is the darkest one, not the brightest.**
+For dark ink on a light ground, contrast falls as the ground *darkens*. Sampling
+the brightest frame of an animated background measures the safest case and calls
+it the worst. Sweep the animation — scale `requestAnimationFrame` timestamps to
+cover a full cycle in a few seconds — and keep the **minimum** luminance found
+behind each line of text.
+
+**6. Measuring a text element's box is not measuring its text.** `nav`, `p` and
+`li` are block boxes that span the full column. Their bounding rects reach into
+whitespace where no glyph exists, so a decorative pixel far from the text counts
+as that text's background. This reported the breadcrumbs failing contrast at
+2.18 against a particle roughly 900px to the right of the last glyph. Use
+`Range.getClientRects()` over the text node for tight per-line boxes.
+
+**7. Synthetic pointer probes: viewport coordinates, and the scroll must have
+landed.** Two independent traps, and they compounded into reporting a working
+feature as broken twice:
+
+- `elementHandle.boundingBox()` returns **page** coordinates;
+  `page.mouse.move()` takes **viewport** coordinates. After scrolling ~2000px
+  the pointer lands nowhere near the element and no `pointermove` ever fires.
+- `html { scroll-behavior: smooth }` is set site-wide outside the reduced-motion
+  block, so `scrollIntoView()` is **animated**. A `getBoundingClientRect()` read
+  in the same `evaluate()` returns the pre-scroll position. Scroll with
+  `behavior: 'instant'`, then read.
+
+Reporting working code as broken is the most expensive class of false pass,
+because it invites a "fix" to something that was correct.
+
+**8. `@theme` declarations are not proof of shipping.** Tailwind v4 tree-shakes
+custom properties nothing references, so a token can be declared in
+`theme.css`, be visible in the source, and be **absent from every built
+stylesheet**. `--shadow-1/2/3` and `--lift` were reported as landed in one unit
+and did not appear in any shipped byte until a rule read them a unit later.
+Verify a token against the built CSS, never against the source.
 
 ---
 
@@ -887,11 +994,11 @@ disagreed with the first.
 
 Ship gate. All must pass.
 
-- [ ] No number animates. View-source shows every figure at final value.
+- [ ] View-source shows every figure at its final value. *(This is the real rule. Inside `/platforms/*` a figure may count up — §16.1 — but only because the SSR output is already the final number. The check is on the HTML, not on whether something moves.)*
 - [ ] JS disabled → all content readable, FAQs expandable, nav usable.
 - [ ] Only one filled-button color site-wide (`#2b46d4`).
 - [ ] No platform hue on a button, background, or body text.
-- [ ] No resting card has a shadow.
+- [ ] No resting card has a shadow. *(Except `/platforms/*` — §16.1.)*
 - [ ] Comparison table is `<table>` with `<th scope>`.
 - [ ] Every citation / statute / ID / count / price / timestamp is mono.
 - [ ] Every Evidence Card has all three rows, Control in its Mist well.
@@ -899,8 +1006,194 @@ Ship gate. All must pass.
 - [ ] "We do not publish a go-live duration…" present in full.
 - [ ] Contrast audit clean; muted text never lighter than `#5f6c85`.
 - [ ] Keyboard-only traversal of all 19 pages; focus always visible.
+- [ ] Every pattern verified with JavaScript disabled — not reasoned about. Sortable headers are plain text, tab panels are all present, showcase steps are all rendered, stat figures are the real numbers.
 - [ ] 200% zoom, 320px viewport — no horizontal page scroll.
 - [ ] Devanagari renders in Plex Sans Devanagari, wrapped in `lang="hi"`.
 - [ ] `Organization` + 4× `SoftwareApplication` + `FAQPage` + `BreadcrumbList` JSON-LD validate.
-- [ ] Zero animation libraries in `package.json`.
-```
+- [ ] **No animation library is loaded on any route outside `/platforms/*`.**
+
+  Replaces *"zero animation libraries in `package.json`"*, which was the wrong
+  assertion in two ways. A dependency list cannot express a per-route fact — a
+  package can be installed and ship to nothing, or be absent while the same
+  behaviour is hand-written into every page. And the phrasing became false the
+  moment anything was installed, whether or not a single byte reached a user.
+
+  Verify by measuring **per route**, against the built HTML: follow each page's
+  `<script src>` and its static imports, and gzip what you find. The current
+  measurement:
+
+  | Routes | JS shipped |
+  |---|---|
+  | The thirteen non-platform routes | **0 B** |
+  | `/platforms/[slug]/` ×4 | 2.72 KB gz |
+  | `/platforms/` | 4.71 KB gz, plus a 2.22 KB gz hero chunk fetched only when four gates pass |
+
+  All of it is hand-written. React, `motion`, GSAP, Lenis and
+  `@number-flow/react` remain uninstalled — see §16.6 for the measurement that
+  decided it.
+
+---
+
+## 16. Platform section overrides
+
+**Scope: `/platforms/` and `/platforms/[slug]/` — five routes. Nowhere else.**
+
+This section exists because the platform section was rebuilt to a different
+standard from the rest of the site, deliberately and with the owner's sign-off.
+Everything below **overrides** the section it names, for those five routes only.
+The other thirteen routes are governed by the unamended rule, and that is
+enforced mechanically, not by convention — see *How the scope is enforced*.
+
+If you are reading §5, §7, §8.7, §8.14 or §11 and building inside
+`/platforms/*`, the rule here wins. If you are building anywhere else, it does
+not apply to you at all.
+
+### 16.1 What is overridden
+
+| § | Site-wide rule | Inside `/platforms/*` | Why |
+|---|---|---|---|
+| **5** | "There are exactly two shadow tokens." Resting cards have no shadow, ever. | A real elevation scale: `--shadow-1/2/3`, plus `--lift: 4px`. Cards rest on `--shadow-1` and lift to `--shadow-2` on hover. | The section's job is comparison across four products. Elevation separates a card from a band faster than a hairline does when four are side by side. Every value is derived from `--color-ink` at low alpha, so depth never introduces a colour. |
+| **7** | Scroll-scrubbed effects forbidden. Sticky showcases forbidden. Parallax forbidden. Marquees forbidden. | All four permitted, under the constraints in 16.3. | The ban was written when the whole site had one motion vocabulary. This section now has its own. |
+| **7 / 15** | "Count-up / odometer on any figure" forbidden. | Count-up permitted **on one condition**: the server renders the final value as text. | The ban exists because a crawler reads `0%`. A count-up whose SSR output is the real number does not have that defect, so it satisfies the reasoning and not merely the letter. The condition is the rule; without it the ban stands. |
+| **8.7** | Platform Card hover: border only. "No lift, no shadow, no scale." | Border **and** surface step **and** arrow affordance **and** `--shadow-1 → --shadow-2` **and** a 4px lift. | Additive, not a replacement. A card that only lifted would have traded three signals for one. |
+| **8.14** | Comparison table has no sort affordance specified. | Sortable column headers with `aria-sort`, and a 460ms FLIP re-rank. | Headers can express column *and* direction; an injected control bar cannot. Headers ship as plain text and are upgraded into buttons, so JS off leaves a readable header rather than a dead control. |
+| **11** | "Don't put a shadow on a resting card." | Superseded by the §5 row above, for these five routes. | — |
+| **13** | Animation: none. | Zero animation *libraries*; roughly 4.7 KB gz of hand-written motion primitives on the heaviest route. | See §15. |
+
+### 16.2 What is NOT overridden, and cannot be
+
+These are absolute and site-wide. A future reader must not be able to scope them
+away by pointing at this section.
+
+- **Hover may reveal decoration, never content.** Content that appears on hover
+  must exist at rest and change *colour*, never opacity from zero. This held
+  through every pattern here: the live roster's scan steps colour, the sticky
+  showcase's pinned half is a step counter rather than an echo of the module
+  titles, and the spotlight is a radial wash under text that is fully legible
+  with no pointer at all.
+- **Mocks are built from real content and labelled illustrative.**
+- **No fabricated numbers, customers, logos or testimonials.** Every figure in
+  this section is summed from the content at build time, and `check:content`
+  asserts the totals.
+- **Mono for anything meant to be checked** — counts, IDs, citations, prices,
+  timestamps.
+- **Nothing is unreachable with JavaScript disabled.** Every pattern here was
+  verified with JS off, not reasoned about.
+
+### 16.3 Motion constraints inside the section
+
+One entrance easing: `cubic-bezier(0.16, 1, 0.3, 1)`. 200ms micro / 400ms
+element / 700ms section. Stagger 40–70ms. Hover 160–200ms. Nothing over 800ms.
+**Transform and opacity only** — and where a rule must survive alongside a
+`[data-reveal]` element, the independent `translate` property rather than
+`transform` (see §14b).
+
+Three motion patterns per page, varied so no two adjacent pages read the same:
+
+| Route | Patterns |
+|---|---|
+| `/platforms/` | bento with a live roster · sortable comparison table · stats band |
+| `medorbit` | sticky showcase · spotlight roles · magnetic CTA |
+| `edvation` | tabs with a sliding indicator · roles bento · stats band |
+| `advohub` | sticky showcase · alternating rows with parallax |
+| `trustproperty` | lockup marquee · alternating rows · magnetic CTA |
+
+`advohub` carries two, not three. Verification is a pipeline, and the showcase
+plus the alternating rows tells that story completely. A third would have been
+there to satisfy a number.
+
+**Scroll-driven CSS vs IntersectionObserver.** Both are permitted here, and they
+are not interchangeable:
+
+> **Use CSS scroll-driven animation (`animation-timeline: view()`) for
+> decorative effects where a stall is invisible. Use an `IntersectionObserver`
+> for anything that must swap content.**
+
+`animation-timeline` is unsupported in Firefox. On the alternating rows that
+costs nothing — the row sits at its resting position and a reader loses no
+information. On the sticky showcase it would freeze the reader on one step, so
+that pattern uses an observer at `-45%` rootMargin instead. §7's amendment made
+scroll-driven CSS legal; **a permission is not an instruction.**
+
+**Parallax is capped at 40px.** It ships at 28px.
+
+> **Under the cap is not the same as subtle.**
+
+40px was the first attempt and it was legal. At that distance a ~150px row
+visibly slides against its neighbours and reads as an effect rather than as
+depth, which is the failure the cap exists to prevent. Cut the distance until
+the effect stops being noticeable *as an effect*, then stop.
+
+### 16.4 How the scope is enforced
+
+Not by naming discipline. Three mechanisms, each verifiable:
+
+1. **`src/styles/platform.css` is imported by the platform pages only.** Vite
+   emits it into those routes' CSS chunk and no other. Verified by diffing every
+   emitted asset: the shared stylesheet contains **zero** rules from that file.
+2. **The motion primitives are imported by those pages' scripts only.** The
+   other thirteen routes ship **0 bytes** of JavaScript. Verified per route
+   against the built HTML, not against `package.json`.
+3. **Variants come from content, never from a branch on identity.**
+   `capabilityLayout`, `rolesLayout`, `statsPlacement` and `motion` are typed
+   unions on the platform entry. There is no `slug === 'medorbit'` anywhere in
+   the templates, and an invalid value is a build error rather than a silent
+   fallback.
+
+The one leak this arrangement permits is by design and is 136 bytes: Tailwind's
+`@theme` tree-shakes custom properties nothing references, so `--shadow-1`,
+`--shadow-2` and `--lift` appear in the shared `:root` block once this section
+uses them. Declarations, not rules — no route outside the section can be
+affected by a variable it never reads.
+
+### 16.5 The hero field
+
+`/platforms/` carries a WebGL particle field: 12,000 GLSL point sprites on four
+helical strands wound around one axis, banded by sixteen rings. Raw WebGL — no
+three.js, no R3F, no matrix library. **3,097 bytes gzipped for the entire hero
+path**, and it holds 60fps with zero dropped frames on a software rasteriser at
+4× CPU throttle.
+
+**It carries all four platform hues at once, and that is not a violation of §6.**
+§6 says platform colour identifies and never decorates. `/platforms/` is the one
+page whose subject is the *set* of four, so four hues simultaneously is the
+identification — it is the only image on the site where all four are true at the
+same time. A single hue here would be the decoration. This is section-scoped and
+is not a general licence.
+
+Four bail paths, each verified in isolation. The static gradient underneath
+**renders on every path** and the canvas crossfades on top of it, so a bail is
+the hero with one layer fewer rather than a hero with something missing:
+
+| Condition | Chunk fetched | Renders |
+|---|---|---|
+| `prefers-reduced-motion: reduce` | no | static layer, full strength |
+| `hardwareConcurrency < 4` | no | static layer, full strength |
+| viewport ≤ 768px | no | static layer, horizontal variant |
+| WebGL context or link failure | yes — it cannot be predicted | `initField` returns false, canvas stays at `opacity: 0` |
+
+`hardwareConcurrency` undefined is treated as capable. Only an explicit low
+count bails, so a browser that does not report it is not punished for that.
+
+### 16.6 Byte ceiling
+
+250 KB gzipped per route, `/platforms/*` only. Measured, not estimated:
+
+| Route | HTML | CSS | JS | Total |
+|---|---:|---:|---:|---:|
+| `/platforms/` | 6.00 | 11.45 | 4.71 | **22.17** |
+| `/platforms/medorbit/` | 12.25 | 11.47 | 2.72 | **26.44** |
+| `/platforms/edvation/` | 13.44 | 11.47 | 2.72 | **27.63** |
+| `/platforms/advohub/` | 12.84 | 11.47 | 2.72 | **27.03** |
+| `/platforms/trustproperty/` | 10.57 | 11.47 | 2.72 | **24.76** |
+
+KB gzipped. Worst route is **11% of the ceiling**. The headroom is insurance,
+not an invitation.
+
+**React was not installed.** Measured before deciding: react + react-dom is a
+58.9 KB gz floor, 122.3 KB with `motion`, against 878 B gz for the four vanilla
+primitives that deliver the same six behaviours. Two of them — `SplitHeadline`
+and `LockupMarquee` — are pure CSS at 0 B. `@number-flow/react` was dropped for
+the same reason plus a better one: the hand-rolled count-up keeps the
+SSR-final-value property that 16.1's condition depends on.
+

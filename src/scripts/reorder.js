@@ -66,40 +66,77 @@ function controls(host, options, onPick, label) {
 
 /* ── /platforms/ — the comparison table re-ranks ──────────────────────────
    The page's job is comparison, so the authored moment is the comparison
-   changing its mind. Every row stays in the DOM the whole time. */
+   changing its mind. Every row stays in the DOM the whole time.
+
+   The controls moved from an injected button bar onto the column headers,
+   which is where a reader looks for them and where `aria-sort` can say which
+   column is sorted and which way. The bar's one real virtue is kept: the
+   header ships as plain text and is UPGRADED into a button here, so JS off
+   leaves a readable header rather than a control that does nothing.
+
+   Not done: scrambling the numerals on re-sort. Four rows and a 460ms FLIP
+   already read as a re-rank; adding a digit scramble on top would be motion
+   competing with the thing it is supposed to be clarifying, and the numerals
+   are the one part of this table a reader is checking. */
 export function initTableSort(root) {
   const table = root.querySelector('table[data-sortable]');
   if (!table) return;
   const tbody = table.tBodies[0];
-  if (!tbody) return;
+  const head = table.tHead && table.tHead.rows[0];
+  if (!tbody || !head) return;
 
-  const keys = [
-    { label: 'Platform', key: 'name', dir: 1 },
-    { label: 'AI agents', key: 'agents', dir: -1 },
-    { label: 'Roles', key: 'roles', dir: -1 },
-    { label: 'Languages', key: 'languages', dir: -1 },
-  ];
+  const heads = [...head.cells].filter((th) => th.dataset.sort);
+  if (!heads.length) return;
 
-  const apply = (opt) => {
+  const value = (row, key) => row.dataset[key] ?? '';
+  const compare = (a, b, key) => {
+    const av = value(a, key);
+    const bv = value(b, key);
+    const an = Number(av);
+    const bn = Number(bv);
+    if (av !== '' && bv !== '' && !Number.isNaN(an) && !Number.isNaN(bn)) return an - bn;
+    return av.localeCompare(bv);
+  };
+
+  let active = null;
+
+  const apply = (th, dir) => {
+    const key = th.dataset.sort;
     const rows = [...tbody.rows];
     flip(rows, () => {
       rows
         .slice()
-        .sort((a, b) => {
-          const av = a.dataset[opt.key] ?? '';
-          const bv = b.dataset[opt.key] ?? '';
-          const an = Number(av);
-          const bn = Number(bv);
-          if (!Number.isNaN(an) && !Number.isNaN(bn) && av !== '' && bv !== '') {
-            return (an - bn) * opt.dir;
-          }
-          return av.localeCompare(bv) * opt.dir;
-        })
+        .sort((a, b) => compare(a, b, key) * dir)
         .forEach((r) => tbody.appendChild(r));
     });
+    for (const h of heads) h.setAttribute('aria-sort', 'none');
+    th.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+    active = th;
   };
 
-  controls(root, keys, apply, 'Sort the comparison');
+  for (const th of heads) {
+    // A count sorts biggest-first on the first press; a name sorts A-Z. Both
+    // are what someone reaches for the control expecting.
+    const first = 'num' in th.dataset ? -1 : 1;
+    let dir = first;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'p-sort';
+    const caret = document.createElement('span');
+    caret.className = 'p-caret';
+    caret.setAttribute('aria-hidden', 'true');
+    btn.append(th.textContent.trim(), caret);
+
+    th.textContent = '';
+    th.append(btn);
+    th.setAttribute('aria-sort', 'none');
+
+    btn.addEventListener('click', () => {
+      dir = active === th ? -dir : first;
+      apply(th, dir);
+    });
+  }
 }
 
 /* ── /platforms/[slug] — the roster answers "what does my seat get?" ──────
@@ -108,19 +145,59 @@ export function initTableSort(root) {
 export function initSeatFilter(root, hue) {
   const grid = root.querySelector('[data-agent-grid]');
   if (!grid) return;
+
+  /* Two shapes ship from the same template. Below twelve agents the roster is
+     one flat grid; at twelve or more it is grouped by seat, and then the cards
+     live in each group's OWN grid rather than in [data-agent-grid].
+
+     Reordering by `grid.appendChild(card)` is correct for the flat shape and
+     destroys the grouped one: it lifts every card out of its group and drops
+     it in the outer container, leaving four empty headings and twenty loose
+     cards. Measured on Edvation — the only platform with twelve or more —
+     after a single click on any seat. So the grouped shape reorders GROUPS,
+     which is the equivalent move one level up. */
+  const groups = [...grid.querySelectorAll('.agent-group')];
   const cards = [...grid.querySelectorAll('.agent-card')];
   if (cards.length < 4) return;
 
   const seats = [...new Set(cards.map((c) => c.dataset.audience))].filter(Boolean);
   const options = [{ label: 'Every seat', seat: null }, ...seats.map((s) => ({ label: s, seat: s }))];
 
+  /* Emphasis, never removal — in both shapes. A non-matching card keeps its
+     place in the reading order and its full opacity; it just stops being the
+     one with the accent border. */
+  const mark = (seat) => {
+    for (const c of cards) {
+      const hit = !seat || c.dataset.audience === seat;
+      c.style.borderColor = hit && seat ? hue : '';
+      c.dataset.match = hit ? 'true' : 'false';
+    }
+    for (const g of groups) {
+      const hit = !seat || g.dataset.audience === seat;
+      g.dataset.match = hit ? 'true' : 'false';
+    }
+  };
+
   const apply = (opt) => {
-    flip(cards, () => {
-      cards.forEach((c) => {
-        const hit = !opt.seat || c.dataset.audience === opt.seat;
-        c.style.borderColor = hit && opt.seat ? hue : '';
-        c.dataset.match = hit ? 'true' : 'false';
+    if (groups.length) {
+      // Grouped: bring the matching GROUP to the front, cards stay put.
+      flip(groups, () => {
+        mark(opt.seat);
+        if (opt.seat) {
+          groups
+            .slice()
+            .sort((a, b) => Number(b.dataset.match === 'true') - Number(a.dataset.match === 'true'))
+            .forEach((g) => grid.appendChild(g));
+        } else {
+          groups.forEach((g) => grid.appendChild(g));
+        }
       });
+      return;
+    }
+
+    // Flat: reorder the cards inside the single grid they all share.
+    flip(cards, () => {
+      mark(opt.seat);
       if (opt.seat) {
         cards
           .slice()
@@ -133,4 +210,46 @@ export function initSeatFilter(root, hue) {
   };
 
   controls(root, options, apply, 'Show agents for a seat');
+}
+
+/* ── /platforms/edvation/ — twenty agents is a long scroll ─────────────────
+   3,214px of roster, and sixteen of the twenty sit in one group. Two things
+   were missing, both navigational rather than decorative:
+
+     · which seat you are currently inside, once its heading has scrolled away
+     · a way back to the other three without scrolling to find them
+
+   The seat bar already exists and already lists all four. This pins it while
+   the roster is on screen and marks the group you are actually in, so the
+   control doubles as a position indicator. Nothing is hidden and nothing
+   moves — with JS off the bar is not injected at all and the headings are
+   still in the document in reading order. */
+export function initSeatSpy(root) {
+  const bar = root.querySelector('.reorder-bar');
+  const groups = [...root.querySelectorAll('.agent-group')];
+  if (!bar || groups.length < 2) return;
+
+  const buttons = [...bar.querySelectorAll('.reorder-btn')];
+  const byLabel = new Map(buttons.map((b) => [b.textContent.trim(), b]));
+
+  const setCurrent = (audience) => {
+    for (const b of buttons) b.removeAttribute('data-current');
+    byLabel.get(audience)?.setAttribute('data-current', '');
+  };
+
+  /* The band is the strip just under the sticky chrome. A group is "current"
+     while its box crosses that line — which is the group whose cards you are
+     actually reading, not merely the one nearest the viewport centre. */
+  const io = new IntersectionObserver(
+    (entries) => {
+      const hit = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (hit) setCurrent(hit.target.dataset.audience);
+    },
+    { rootMargin: '-136px 0px -55% 0px', threshold: 0 }
+  );
+  groups.forEach((g) => io.observe(g));
+
+  bar.setAttribute('data-spy', '');
 }

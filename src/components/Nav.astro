@@ -130,7 +130,9 @@ const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label 
     position: sticky;
     top: 0;
     z-index: 50;
-    padding: clamp(0.5rem, 1.4vw, 0.9rem) clamp(0.75rem, 3vw, 1.5rem);
+    /* --nav-pad-y is the same clamp, lifted to theme.css so --nav-h can be
+       composed from it. Identical computed value. */
+    padding: var(--nav-pad-y) clamp(0.75rem, 3vw, 1.5rem);
   }
 
   .nav-pill {

@@ -7,9 +7,18 @@ import RevealRoot from '../../components/ui/RevealRoot.astro';
 import PlatformSubnav from '../../components/PlatformSubnav.astro';
 import PlatformLockup from '../../components/PlatformLockup.astro';
 import Reveal from '../../components/ui/Reveal.astro';
+import HeroField from '../../components/HeroField.astro';
+import PlatformDeck from '../../components/PlatformDeck.astro';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
 import { markIndic } from '../../content/indic';
+/* §16's vocabulary — elevation, beam, roster scan, row hover, sort caret.
+   Imported by this page only for now ([slug].astro picks it up in unit 4), so
+   it cannot reach the other thirteen routes. Verified against the built CSS,
+   not the source: zero platform.css rules appear in the shared bundle, and its
+   only delta is 136 bytes of --lift/--shadow-1/--shadow-2, which Tailwind had
+   been tree-shaking out of @theme until something referenced them. */
+import '../../styles/platform.css';
 
 /** From the comparison table in ainexushub/platforms/index.md. MedOrbit and
  *  AdvoHub publish no language count there, so neither claims one here. */
@@ -21,6 +30,23 @@ const languages: Record<string, string> = {
 };
 
 const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
+
+/** Summed from the content, never typed. check:content asserts the same four
+ *  numbers, so a regenerated platform-detail.ts cannot leave the stats band
+ *  claiming something the pages no longer ship. */
+/** Splits a headline into words for the staggered entrance. Every word is a
+ *  text node in the HTML and the animation is `both`-filled from a rendered
+ *  state, so the copy is byte-identical and a crawler, a JS-off reader and a
+ *  reduced-motion reader all get a plain headline. */
+const words = (line: string) => line.split(' ');
+
+const maxAgents = Math.max(...platforms.map((p) => p.agentCount));
+
+const totals = {
+  agents: platforms.reduce((n, p) => n + p.agentCount, 0),
+  roles: platforms.reduce((n, p) => n + detail[p.slug].roles.length, 0),
+  modules: platforms.reduce((n, p) => n + detail[p.slug].modules.length, 0),
+};
 ---
 
 <Base
@@ -30,6 +56,14 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 >
   <RevealRoot />
 
+  {/* Above the hero, not below it. It is sticky either way, but placed after
+      the hero a reader has to scroll a full viewport before the four platforms
+      are reachable — which is the one thing this strip exists to fix. At the
+      top it is on screen from the first frame and pins from the first pixel of
+      scroll. Everything that offsets by `var(--nav-h) + var(--subnav-h)` is unaffected;
+      the strip still pins in the same place. */}
+  <PlatformSubnav />
+
   {/* ══════════════ HERO ══════════════
       eyebrow → h1 → lede → primary + secondary. Breadcrumbs sit above the
       eyebrow, per §8.5 — every page but home. The rule that used to sit between
@@ -37,17 +71,30 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 
       Entrance is CSS @keyframes staggered from --i. Nothing imperative, and it
       self-completes: CSS runs without JavaScript, so a JS-off reader still sees
-      it finish, and a crawler reads finished text out of the HTML either way. */}
+      it finish, and a crawler reads finished text out of the HTML either way.
+
+      HeroField is decorative and self-positioning; this section only has to be
+      the relative, clipping box it asks for. Prose is capped at --hero-measure,
+      a LENGTH — 68ch resolves against each element's own font-size, so the same
+      declaration produced ~833px on .t-lede against ~728px elsewhere and the
+      two disagreed by 105px. Measured, not assumed. */}
   <section class="hero section">
-    <div class="shell">
+    <HeroField />
+    <div class="shell hero-inner">
       <Breadcrumbs trail={trail} />
 
       <p class="t-label rise" style="--i: 0; color: var(--color-muted);">
         Platforms · four products, one system
       </p>
 
-      <h1 class="t-h1 rise mt-4" style="--i: 1; max-width: 22ch;">
-        Four platforms, four industries, one engineering discipline
+      <h1 class="t-h1 mt-4" style="max-width: 22ch;">
+        {
+          words('Four platforms, four industries, one engineering discipline').map((w, i) => (
+            <Fragment>
+              <span class="p-word" style={`--w: ${i};`}>{w}</span>{' '}
+            </Fragment>
+          ))
+        }
       </h1>
 
       <p class="t-lede rise mt-6" style="--i: 2;">
@@ -57,76 +104,65 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
       </p>
 
       <div class="rise mt-9 flex flex-wrap gap-3" style="--i: 3;">
-        <a href="/contact/" class="btn btn-primary tx-fast">
+        <a href="/contact/" class="btn btn-primary p-btn tx-fast" data-magnetic>
           Book a demo <Icon name="arrow-right" class="arrow" />
         </a>
-        <a href="#compare" class="btn btn-secondary tx-fast">Compare the four</a>
+        <a href="#compare" class="btn btn-secondary p-btn tx-fast">Compare the four</a>
       </div>
     </div>
   </section>
 
-  <PlatformSubnav />
 
   {/* ══════════════ THE FOUR ══════════════ */}
-  <section class="section band">
+  <section class="section band p-bloom p-grain fold">
     <div class="shell">
-      <Reveal>
-        <h2 class="t-h2" style="max-width: 20ch;">The four platforms</h2>
-      </Reveal>
-      <Reveal i={1}>
-        <p class="t-lede mt-5">
+      <div class="p-secthead">
+        <div data-reveal class="p-head">
+          <h2 class="t-h2" style="max-width: 20ch;">The four platforms</h2>
+        </div>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
           One company, one engineering discipline. Each product runs its industry end to end, and each
           carries its own agents, role catalogue and compliance surface.
         </p>
-      </Reveal>
+      </div>
 
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      {/* The four platforms as a draggable deck rather than a grid. Same four
+          cards, same copy, same links — stacked and swipeable instead of laid
+          out side by side. PlatformDeck carries the whole no-JS story: see the
+          note at the top of that file for why Swiper's class names are added
+          at runtime rather than shipped. */}
+      <div class="mt-6">
+        <PlatformDeck />
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════════ STATS ══════════════
+      Four totals, each derived from the content at build time rather than
+      typed — none of them can drift from what the pages actually ship, and
+      scripts/check-content.mjs asserts the same four numbers.
+
+      §1.1's count-up ban is lifted here on one condition, and the condition is
+      the point: the server renders the FINAL value as text. View-source shows
+      48. JS off, reduced motion, or a crawler and that text stands. The script
+      only animates a display value up to a number already in the HTML. */}
+  <section class="section stats">
+    <div class="shell">
+      <ul class="statgrid list-none m-0 p-0">
         {
-          platforms.map((p, i) => (
-            <article
-              data-reveal
-              class="pcard card hov p-6 flex flex-col gap-4"
-              style={`--i: ${i}; border-top: 3px solid ${p.hue};`}
-            >
-                <div>
-                  <PlatformLockup name={p.name} as="h3" />
-                  <p class="t-sm mt-1.5" style="color: var(--color-muted);">{p.subtitle}</p>
-                </div>
-
-                <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
-                  {p.bullets.map((b) => (
-                    <li class="t-sm flex gap-2.5">
-                      <Icon name="check" class="mt-1 shrink-0" size={14} />
-                      <span set:html={markIndic(b)} />
-                    </li>
-                  ))}
-                </ul>
-
-                {/* §11 as amended: a count is content, so it exists at rest —
-                    muted mono stepping to ink. Never opacity 0. */}
-                <p class="count mono t-cap m-0">{p.agentCount} AI agents</p>
-
-                <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-                  {/* The card is the link; this is its visible label, so the
-                      anchor text is the product name, never "read more". */}
-                  <a href={`/platforms/${p.slug}/`} class="explore link-accent stretch">
-                    Explore {p.name}
-                    <Icon name="arrow-right" class="hov-affordance" size={14} />
-                  </a>
-                  <a
-                    href={p.site}
-                    target="_blank"
-                    rel="noopener"
-                    class="site t-sm no-underline inline-flex items-center gap-1 tx-fast"
-                    style="color: var(--color-muted);"
-                  >
-                    {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-                  </a>
-                </div>
-            </article>
+          [
+            { n: totals.agents, label: 'named AI agents' },
+            { n: platforms.length, label: 'industry platforms' },
+            { n: totals.roles, label: 'documented roles' },
+            { n: totals.modules, label: 'product modules' },
+          ].map((s, i) => (
+            <li class="stat" data-reveal style={`--i: ${i};`}>
+              <span class="statnum mono" data-countup>{s.n}</span>
+              <span class="statlab t-sm">{s.label}</span>
+            </li>
           ))
         }
-      </div>
+      </ul>
     </div>
   </section>
 
@@ -135,49 +171,61 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
         Real <table>, real <caption>, scope on every header cell, no role
         overrides. The FLIP re-rank stays; its controls stay JS-injected. */}
   <section class="section">
-    <div class="shell" id="compare" style="scroll-margin-top: 128px;">
-      <Reveal>
-        <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
-      </Reveal>
-      <Reveal i={1}>
-        <p class="t-lede mt-5 mb-11">
+    <div class="shell p-table" id="compare" style="scroll-margin-top: 128px;">
+      <div class="p-secthead mb-11">
+        <div data-reveal class="p-head">
+          <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
+        </div>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
           48 named AI agents across the four. Every figure below is the count the platform actually
           ships.
         </p>
-      </Reveal>
+      </div>
 
-      <div class="tbl-wrap">
+      <div class="tbl-wrap" data-reveal data-rv="scale">
         <table data-sortable>
           <caption>
             The four AI Nexus platforms compared by industry, AI agent count, role count and languages.
           </caption>
+          {/* data-sort marks a sortable column; data-num makes it sort
+              biggest-first on the first press. Both headers ship as plain
+              text — reorder.js upgrades them into buttons, so JS off leaves a
+              readable header rather than a control that does nothing. */}
           <thead>
             <tr>
-              <th scope="col">Platform</th>
+              <th scope="col" data-sort="name">Platform</th>
               <th scope="col">Industry</th>
-              <th scope="col" class="num">AI agents</th>
-              <th scope="col" class="num">Roles</th>
-              <th scope="col" class="num">Languages</th>
+              <th scope="col" class="num" data-sort="agents" data-num>AI agents</th>
+              <th scope="col" class="num" data-sort="roles" data-num>Roles</th>
+              <th scope="col" class="num" data-sort="languages" data-num>Languages</th>
               <th scope="col">Product site</th>
             </tr>
           </thead>
           <tbody>
             {
-              platforms.map((p) => (
+              platforms.map((p, i) => (
                 <tr
+                  class="p-row"
+                  style={`--i: ${i};`}
                   data-name={p.name}
                   data-agents={String(p.agentCount)}
                   data-roles={String(detail[p.slug].roles.length)}
                   data-languages={languages[p.slug] === '—' ? '0' : languages[p.slug]}
                 >
-                  <th scope="row" class="plat-cell">
+                  <th scope="row" class="plat-cell" style={`--row-hue: ${p.hue};`}>
                     <span class="swatch" style={`background: ${p.hue};`} aria-hidden="true"></span>
                     <a href={`/platforms/${p.slug}/`}>{p.name}</a>
                   </th>
                   <td>{p.sector}</td>
-                  <td class="num">{p.agentCount}</td>
-                  <td class="num">{detail[p.slug].roles.length}</td>
-                  <td class="num">{languages[p.slug]}</td>
+                  {/* The figure is the fact; the bar is the comparison. Both
+                      come from the same number, the bar is aria-hidden, and a
+                      screen reader or a JS-off reader loses nothing. */}
+                  <td class="num">
+                    <span class="numv">{p.agentCount}</span>
+                    <span class="bar" aria-hidden="true" style={`--v: ${p.agentCount / maxAgents};`} />
+                  </td>
+                  <td class="num"><span class="numv">{detail[p.slug].roles.length}</span></td>
+                  <td class="num"><span class="numv">{languages[p.slug]}</span></td>
                   <td class="site-cell mono">
                     <a href={p.site} target="_blank" rel="noopener">
                       {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
@@ -199,21 +247,65 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
     </div>
   </section>
 
-  <CtaBand />
+  <CtaBand magnetic atmos />
 </Base>
 
 <script>
   import { initTableSort } from '../../scripts/reorder.js';
   import { initReveal } from '../../scripts/reveal.js';
+  import { initCountUp } from '../../scripts/motion/countup.js';
+  import { initMagnetic } from '../../scripts/motion/magnetic.js';
+  import { initTilt } from '../../scripts/motion/tilt.js';
   const root = document.getElementById('compare');
   if (root) initTableSort(root);
   initReveal();
+  initCountUp();
+  initMagnetic();
+  initTilt();
 </script>
 
 <style>
   /* ── Hero ─────────────────────────────────────────────────────────────── */
   .hero {
+    position: relative;
+    /* Clips the field's bleed. `isolation` keeps the whole hero one stacking
+       context, so the field's z-index cannot reach past the section. The
+       sub-nav is a SIBLING, not a child, so `overflow: hidden` cannot break its
+       sticky — verified by scrolling and measuring, not by reading the tree. */
+    overflow: hidden;
+    isolation: isolate;
+    /* 660, not §4's 720: the scrim's opaque paper plate ends at 48% of the
+       viewport, and 660 is what keeps the longest lede line inside it. Measured
+       against the darkest frame of the field — every hero line reads on
+       rgb(253-255) at worst. */
+    --hero-measure: 660px;
     padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
+    /* Room for the field to be an object rather than a stripe. Below 1100px it
+       moves under the text, which needs more height still. */
+    /* Fills the screen under the sticky chrome — see the note in
+       [slug].astro. Composed from the tokens, and svh so mobile browser chrome
+       does not push the fold off screen. */
+    --chrome: calc(var(--nav-h) + var(--subnav-h) + 1px);
+    min-height: calc(100svh - var(--chrome));
+    display: flex;
+    align-items: center;
+  }
+  @media (max-width: 1099px) {
+    .hero {
+      align-items: flex-start;
+    }
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+  /* A length, never 68ch — see the note above the markup. Paragraphs only: the
+     h1 carries its own tighter headline measure inline and is well inside this
+     one, so both are capped, just not by the same rule. */
+  .hero-inner p {
+    max-width: var(--hero-measure);
   }
 
   /* Load entrance, 60ms per step. Self-completing: if it never runs, the page
@@ -233,10 +325,198 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
     animation-delay: calc(var(--i, 0) * var(--reveal-stagger));
   }
 
+  /* ── The deck band, one screen tall ──────────────────────────────────────
+     Same --chrome arithmetic as the hero, so the two read as consecutive full
+     screens rather than one full screen and then a long scroll.
+
+     Section padding is tightened here specifically. --section-y is 120px top
+     and bottom at this width, and 240px of padding is most of the difference
+     between the content (1005px) and a screen (774px at 900) — spending it on
+     air was what pushed the deck below the fold. */
+  .fold {
+    --section-y: clamp(1.5rem, 2.75vw, 2.5rem);
+    min-height: calc(100svh - var(--chrome, 146px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .fold > .shell {
+    width: 100%;
+  }
+
+  /* ── Bento ────────────────────────────────────────────────────────────────
+     Three arrangements, one reading order.
+
+       <700    one column, plain stack.
+       700+    two columns; the lead and the LAST tile each span both, so the
+               four never leave an orphan sitting alone in a half row.
+       1024+   four columns. Lead takes two, the next two take one each, and
+               the fourth runs the full width beneath. Uneven spans are the
+               point — an even four-up would flatten the lead's extra weight
+               straight back out.
+
+     The lead deliberately does NOT span two rows, which was the first shape
+     tried. A grid row equalises to its tallest cell, and two stacked tiles
+     come to ~1280px against ~800px of lead content even with the roster in it
+     — MedOrbit has eleven agents, and listing every one still left ~480px of
+     dead space inside the tile. Measured at 1440. One row band, one wide cell
+     underneath, and every tile is close enough to its natural height that the
+     existing flex spacer absorbs the rest invisibly. */
+  .bento {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 700px) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .lead,
+    .pcard:last-child {
+      grid-column: span 2;
+    }
+  }
+  @media (min-width: 1024px) {
+    .bento {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .lead {
+      grid-column: span 2;
+    }
+    .pcard:last-child {
+      grid-column: span 4;
+    }
+  }
+
   /* ── Platform cards ───────────────────────────────────────────────────── */
   .pcard {
     position: relative;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  /* The dot sits on the lockup's baseline row, so the hue reads before the
+     name does at a glance across four cards. */
+  .cardhead :global(.lockup),
+  .cardhead > h3 {
+    display: inline;
+  }
+  .cardhead {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 0.625rem;
+    align-items: baseline;
+  }
+  .cardhead > :last-child {
+    grid-column: 2;
+  }
+  .cardfoot {
+    /* Pins the block to the bottom of a stretched cell, so a tile that is
+       taller than its content keeps its links on the baseline of the row
+       rather than floating mid-card. */
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* The full-width tile turns horizontal. Vertically it would put its three
+     bullets in the left quarter and leave the rest of a 1440px card empty —
+     measured, and it looked like a rendering fault rather than a layout. */
+  @media (min-width: 1024px) {
+    .bento > .pcard:last-child {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 2.5rem;
+    }
+    .bento > .pcard:last-child .cardhead {
+      flex: 0 0 16rem;
+    }
+    .bento > .pcard:last-child .bullets {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem 2rem;
+      align-content: start;
+    }
+    /* Fixed, and narrow. Left to size itself the links sit on one line at
+       ~430px, which starves the bullet columns down to ~100px each and wraps
+       every one of them to three lines. Stacking the two links costs a row and
+       buys the bullets back ~200px. */
+    .bento > .pcard:last-child .cardfoot {
+      margin-top: 0;
+      flex: 0 0 14rem;
+      align-items: flex-start;
+    }
+    .bento > .pcard:last-child .cardfoot > div {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+
+  /* ── The lead tile's live roster ──────────────────────────────────────── */
+  .roster {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-hairline);
+    margin-top: 0.25rem;
+  }
+  .roster-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.5rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-hairline) 55%, transparent);
+  }
+  .roster-row:last-child {
+    border-bottom: 0;
+  }
+  .roster-name {
+    font-weight: 450;
+  }
+  .roster-seat {
+    flex: none;
+  }
+
+  /* ── Stats ────────────────────────────────────────────────────────────────
+     A ledger strip between two sections rather than a third full band — the
+     page already alternates Paper and Wash, and a third treatment here would
+     be a new colour rule rather than a new object. Hairlines top and bottom do
+     the separating instead. */
+  .stats {
+    padding-block: clamp(2rem, 4vw, 3rem);
+  }
+  .statgrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+    border-block: 1px solid var(--color-hairline);
+    padding-block: clamp(1.75rem, 3.5vw, 2.5rem);
+  }
+  @media (min-width: 800px) {
+    .statgrid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  /* Tabular figures so the count-up does not jitter its own column width as
+     the digit count changes. */
+  .statnum {
+    font-size: var(--text-mono-lg);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .statlab {
+    color: var(--color-muted);
   }
   /* The visible Explore label is the link, stretched over the whole card. No
      duplicate anchor, so the card contributes one link, not two, and the
@@ -339,7 +619,7 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 
   /* The header takes the eyebrow role — a column label is exactly what eyebrow
      is for, and `caption` size read as shrunken body. Sticky with no JS: it
-     pins under the 68px main nav plus the platform sub-nav. */
+     pins under the main nav plus the platform sub-nav. */
   /* Static by default. Sticky is switched ON only at >=1024px, where the
      wrapper is `overflow: visible` and the viewport is the scroll container.
      Below that the wrapper scrolls, and a sticky thead pins to the WRAPPER —
@@ -364,7 +644,7 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
   @media (min-width: 1024px) {
     thead th {
       position: sticky;
-      top: calc(68px + var(--subnav-h));
+      top: calc(var(--nav-h) + var(--subnav-h));
     }
   }
 
