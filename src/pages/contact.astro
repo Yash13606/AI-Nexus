@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { platforms } from '../content/platforms';
-import { contact, entities } from '../content/site';
+import { contact } from '../content/site';
 ---
 
 <Base
@@ -13,15 +13,10 @@ import { contact, entities } from '../content/site';
   <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
     <div class="shell">
       <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Contact' }]} />
-      <p class="t-label mt-2" style="color: var(--color-accent);">Talk to us</p>
-      <h1 class="t-h1 mt-3" style="max-width: 18ch;">Book a demo, or just ask us something</h1>
-      <div class="sweep-rule mt-7 h-px w-full max-w-[460px]" style="background: var(--color-accent);"></div>
-      <p class="t-lede mt-7">
-        A demo of any platform takes about 30 minutes and runs on your own facility type, board, practice
-        area or city rather than a generic tour. There is no charge, and we reply within one business day.
-      </p>
+      <h1 class="t-h1 mt-3" style="max-width: 18ch;">Book a demo</h1>
 
-      <ul class="expect mt-9 list-none m-0 p-0">
+      {/* Three facts instead of a paragraph saying the same thing. */}
+      <ul class="expect mt-8 list-none m-0 p-0">
         {
           [
             { k: '~30 min', v: 'A working demo, not a slide tour' },
@@ -44,10 +39,10 @@ import { contact, entities } from '../content/site';
             the real route. Labels are always visible — never placeholder-as-
             label. Errors are announced, not just coloured. ── */}
       <div>
-        <h2 class="t-h2">Send us a message</h2>
-
-        <div class="form-card mt-8">
+        <div class="form-card">
         <form id="demo-form" novalidate class="flex flex-col gap-5" aria-describedby="form-note">
+          {/* Four fields. Organisation and phone came out — an email is enough
+              to reply, and anything else fits in the message. */}
           <div class="grid gap-5 sm:grid-cols-2">
             <p class="field">
               <label for="name">Name</label>
@@ -55,19 +50,9 @@ import { contact, entities } from '../content/site';
               <span class="err" id="name-err" hidden></span>
             </p>
             <p class="field">
-              <label for="org">Organisation</label>
-              <input id="org" name="org" type="text" autocomplete="organization" />
-              <span class="err" id="org-err" hidden></span>
-            </p>
-            <p class="field">
               <label for="email">Work email</label>
               <input id="email" name="email" type="email" autocomplete="email" required />
               <span class="err" id="email-err" hidden></span>
-            </p>
-            <p class="field">
-              <label for="phone">Phone</label>
-              <input id="phone" name="phone" type="tel" autocomplete="tel" />
-              <span class="err" id="phone-err" hidden></span>
             </p>
           </div>
 
@@ -111,7 +96,7 @@ import { contact, entities } from '../content/site';
           </div>
 
           <p id="form-note" class="t-cap" style="color: var(--color-muted);">
-            Your details are used only to reply to this enquiry. Prefer email? Write to
+            Or email
             <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
             directly.
           </p>
@@ -170,40 +155,8 @@ import { contact, entities } from '../content/site';
           </a>
         </div>
 
-        <div class="card p-6 flex flex-col gap-4">
-          <h2 class="t-h4">Legal entities</h2>
-          {
-            entities.map((e) => (
-              <div class="flex flex-col gap-1">
-                <p class="t-cap t-label" style="color: var(--color-muted);">{e.region}</p>
-                <p class="t-sm" style="color: var(--color-ink); font-weight: 500;">{e.name}</p>
-                <p class="t-cap mono" style="color: var(--color-muted);">{e.id} · {e.place}</p>
-              </div>
-            ))
-          }
-        </div>
-
-        <div class="card p-6 flex flex-col gap-4">
-          <h2 class="t-h4">Product sites</h2>
-          <ul class="list-none m-0 p-0 flex flex-col gap-3">
-            {
-              platforms.map((p) => (
-                <li class="flex flex-col">
-                  <a
-                    href={p.site}
-                    target="_blank"
-                    rel="noopener"
-                    class="t-sm no-underline inline-flex items-center gap-1.5 hover:underline"
-                    style="color: var(--color-accent);"
-                  >
-                    {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-                  </a>
-                  <span class="t-cap" style="color: var(--color-muted);">{p.subtitle}</span>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
+        {/* Legal entities and the product-site list came out — both are in
+            the footer on every page, this one included. */}
       </aside>
     </div>
   </section>

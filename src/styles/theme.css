@@ -1562,6 +1562,53 @@ a:hover > .arrow {
   }
 }
 
+/* ── Seat cards: wide and horizontal, so 2×2 fits one screen ──
+   The count sits in its own left rail; the copy takes the rest. At full
+   shell width each card is ~570px, which is what keeps the body to two
+   lines and the card to ~150px tall. */
+.seat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+.seat-card__inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+  padding: 1.5rem;
+}
+.seat-card__lead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 4.5rem;
+}
+.seat-card__num {
+  font-size: var(--text-h2);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+}
+.seat-card__unit {
+  color: var(--color-muted);
+}
+.seat-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+@media (min-width: 760px) {
+  .seat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    FEATURE CARDS — "Why institutions choose AI Nexus"
    A soft outer wash holding an elevated inner panel: one real stat plus a

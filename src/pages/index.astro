@@ -397,51 +397,61 @@ const ctaPlatform = platforms[0];
     </div>
   </section>
 
-  {/* ══════════════ ROLE FAMILIES ══════════════ */}
+  {/* ══════════════ ROLE FAMILIES ══════════════
+      Heading above, four wide cards in a 2×2 below, so the whole section
+      fits one screen. Each card runs horizontally — count on the left,
+      copy on the right — which is what keeps it short: at ~570px wide the
+      body sits on two lines instead of five.
+
+      The count used to render twice per card (once as the display figure,
+      once as a meta line underneath); it is stated once now. */}
   <section class="section band">
     <div class="shell">
-      <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
-        <div class="lg:col-span-5">
-          <h2 class="t-h2" style="max-width: 20ch;">Built for every seat</h2>
-          <p class="t-lede mt-5">
-            A doctor, a teacher, an intern and a property owner need different things from the same platform.
-            Each product ships role-specific views, and the audit log records who saw what.
-          </p>
-        </div>
+      <h2 class="t-h2" style="max-width: 20ch;">Built for every seat</h2>
+      <p class="t-lede mt-4" style="max-width: 62ch;">
+        A doctor, a teacher, an intern and a property owner need different things from the same
+        platform. Each product ships role-specific views, and the audit log records who saw what.
+      </p>
 
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-6">
-          {roleFamilies.map((r, idx) => {
-            const stat = r.meta.match(/^\d+/)?.[0] ?? '';
-            const unit = r.meta.replace(/^\d+\s*/, '');
-            return (
-              <a href={r.href} class="glow-card no-underline" style={`--glow-color: color-mix(in oklab, ${r.hue} 55%, transparent);`} data-glow-card>
-                <span
-                  class="glow-card-texture"
-                  aria-hidden="true"
-                  style={`background-image: repeating-linear-gradient(${roleAngles[idx]}deg, color-mix(in oklab, ${r.hue} 10%, transparent), color-mix(in oklab, ${r.hue} 10%, transparent) 10px, transparent 10px, transparent 22px);`}
-                />
-                <div class="glow-card-inner flex flex-col gap-5 p-6">
-                  <div class="glow-card-icon" style={`color: ${r.hue};`} aria-hidden="true">
+      <div class="seat-grid mt-10">
+        {roleFamilies.map((r, idx) => {
+          const [countPart, platformName = ''] = r.meta.split('·').map((s) => s.trim());
+          const [num, ...unitWords] = countPart.split(' ');
+          return (
+            <a
+              href={r.href}
+              class="glow-card seat-card no-underline"
+              style={`--glow-color: color-mix(in oklab, ${r.hue} 55%, transparent);`}
+              data-glow-card
+            >
+              <span
+                class="glow-card-texture"
+                aria-hidden="true"
+                style={`background-image: repeating-linear-gradient(${roleAngles[idx]}deg, color-mix(in oklab, ${r.hue} 10%, transparent), color-mix(in oklab, ${r.hue} 10%, transparent) 10px, transparent 10px, transparent 22px);`}
+              />
+              <div class="glow-card-inner seat-card__inner">
+                <div class="seat-card__lead">
+                  <span class="glow-card-icon" style={`color: ${r.hue};`} aria-hidden="true">
                     <Icon name={roleIcons[idx]} size={18} />
-                  </div>
+                  </span>
+                  <span class="seat-card__num mono">{num}</span>
+                  <span class="seat-card__unit t-cap">{unitWords.join(' ')}</span>
+                </div>
 
-                  <div>
-                    <p class="glow-card-stat mono" aria-hidden="true">
-                      {stat}<span class="glow-card-stat-unit">{unit}</span>
-                    </p>
-                    <h3 class="t-h4 mt-2">{r.title}</h3>
-                  </div>
-
-                  <p class="t-sm flex-1" style="color: var(--color-muted);">{r.body}</p>
-                  <span class="t-cap mono" style="color: var(--color-muted);">{r.meta}</span>
-                  <span class="link-accent">
-                    Explore <Icon name="arrow-right" class="arrow" size={14} />
+                <div class="seat-card__main">
+                  <h3 class="t-h4">{r.title}</h3>
+                  <p class="t-sm mt-1.5" style="color: var(--color-muted);">{r.body}</p>
+                  <span class="seat-card__foot mt-3">
+                    <span class="t-cap mono" style="color: var(--color-muted);">{platformName}</span>
+                    <span class="link-accent">
+                      Explore <Icon name="arrow-right" class="arrow" size={14} />
+                    </span>
                   </span>
                 </div>
-              </a>
-            );
-          })}
-        </div>
+              </div>
+            </a>
+          );
+        })}
       </div>
     </div>
   </section>
