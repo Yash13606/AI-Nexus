@@ -1,0 +1,2427 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All 48 AI Agents — AI Nexus</title>
+<meta name="description" content="48 named AI agents across MedOrbit, Edvation, AdvoHub and TrustProperty. Each with the input a user gives, the output it produces, and the constraint that governs it.">
+<meta name="theme-color" content="#f4f7fc">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   TOKENS — every value below is from DESIGN.md §3–§7.
+   Nothing is invented. The audit's ten contrast failures were all fixed by
+   returning to system tokens, not by picking new ones:
+     --muted  #5f6c85  5.29:1  replaces the prototype's #7a8499 at 3.60:1
+     --control #7589a6 3.57:1  replaces --line on control borders (1.25:1)
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Neutrals — DESIGN.md §3 */
+  --paper:     #ffffff;   /* card + control surfaces                        */
+  --wash:      #f4f7fc;   /* page canvas (approved surface inversion)       */
+  --mist:      #eef2f9;   /* wells nested inside a card — the Control row   */
+  --hairline:  #dde5f0;   /* card borders, dividers                        */
+  --control:   #7589a6;   /* 3.57:1 — input + control borders, non-text AA */
+  --ink:       #0b1220;   /* 18.72:1 AAA                                    */
+  --body:      #3d4a61;   /*  8.93:1 AAA                                    */
+  --muted:     #5f6c85;   /*  5.29:1 AA — do not lighten                    */
+
+  /* Accent — one hue, rationed under 5% of any viewport */
+  --accent:      #2b46d4; /* 7.17:1 AAA both ways */
+  --accent-deep: #1d31a8;
+  --accent-wash: #eaeeff;
+
+  /* Semantic — state only */
+  --verified:  #0e7c7b;
+  --withheld:  #8e1f3f;
+
+  /* Platform identity — RESTORED. Four well-separated hues, DESIGN.md §6.
+     The prototype had replaced these with cyan-700 / indigo-700 / blue-900 /
+     amber-700, which made five of six identity colours blue and gave
+     TrustProperty the colour that means Edvation everywhere else. */
+  --medorbit:      #0e7c7b;  /* Clinical Teal  5.01:1 */
+  --edvation:      #b45309;  /* Ochre          5.02:1 */
+  --advohub:       #8e1f3f;  /* Oxblood        8.69:1 */
+  --trustproperty: #6d28d9;  /* Violet         7.10:1 */
+
+  /* Type — ONE superfamily. No serif: it has no Devanagari cut, and the
+     brand is one typeface across the whole range (DESIGN.md §4). */
+  --sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /* Display only — h1 and the two section h2s. Plex Serif is the same
+     superfamily, drawn alongside Plex Sans. At 28px+ it reads institutional;
+     at 16px it would read as a second font, which is why card names stay sans.
+     The Devanagari cut is listed second so any Indic run in a heading resolves
+     to a real Devanagari face rather than a synthesised one. */
+  --serif: 'IBM Plex Serif', 'IBM Plex Sans Devanagari', Georgia, serif;
+
+  --t-h1:      clamp(2.125rem, 4.6vw, 3.25rem);
+  --t-h2:      1.25rem;      /* 20px */
+  --t-h3:      1.0625rem;    /* 17px */
+  --t-body:    1.0625rem;    /* 17px */
+  --t-sm:      0.9375rem;    /* 15px */
+  --t-cap:     0.8125rem;    /* 13px — the small-type floor */
+  --t-eyebrow: 0.75rem;      /* 12px — uppercase labels only */
+  --t-mono:    0.875rem;     /* 14px */
+
+  /* Radius — closed ladder of four. Never 4px, 10px or 20px. */
+  --r-btn: 8px; --r-card: 12px; --r-panel: 16px; --r-pill: 999px;
+
+  /* Motion — near-zero budget, DESIGN.md §7 */
+  --ease:  cubic-bezier(0.16, 1, 0.3, 1);
+  --fast:  120ms;
+  --state: 220ms;
+
+  /* Layout + sticky stack. One derivation feeds every anchor. */
+  --shell:  1200px;
+  --pad:    clamp(1.5rem, 4vw, 3rem);
+  --nav-h:  68px;
+  --bar-h:  64px;
+  --anchor: calc(var(--nav-h) + var(--bar-h) + 20px);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+body {
+  background: var(--wash);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: var(--t-body);
+  line-height: 1.62;
+  letter-spacing: -0.005em;
+}
+h1,h2,h3 { color:var(--ink); font-weight:600; text-wrap:balance; }
+p { margin:0; }
+a { color:inherit; text-decoration:none; }
+button { font:inherit; cursor:pointer; background:none; border:none; color:inherit; }
+[id] { scroll-margin-top: var(--anchor); }
+.mono { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+
+/* Focus — the system ring. Never removed without replacement. */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--accent);
+  border-radius: var(--r-btn);
+}
+
+.skip {
+  position:absolute; left:-9999px; top:0; z-index:200;
+  background:var(--ink); color:#fff;
+  padding:12px 20px; border-radius:0 0 var(--r-btn) 0;
+  font-size:var(--t-sm); font-weight:500;
+}
+.skip:focus { left:0; }
+
+.shell { max-width:var(--shell); margin-inline:auto; padding-inline:var(--pad); }
+
+/* ═══════════════════════════════ NAV ═══════════════════════════════ */
+.nav {
+  position:sticky; top:0; z-index:100;
+  height:var(--nav-h);
+  background:var(--paper);
+  border-bottom:1px solid var(--hairline);
+  transition:box-shadow var(--fast) var(--ease);
+}
+.nav.scrolled { box-shadow:0 1px 0 0 var(--hairline), 0 4px 16px -8px rgb(11 18 32 / .10); }
+.nav .shell { height:100%; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; }
+.nav-logo { display:flex; align-items:baseline; gap:.4375rem; flex-shrink:0; }
+.nav-logo-name { font-size:var(--t-h2); font-weight:600; color:var(--ink); letter-spacing:-.02em; }
+.nav-logo-sub  { font-size:var(--t-cap); color:var(--muted); }
+.nav-links { display:flex; align-items:center; gap:.25rem; list-style:none; }
+.nav-links a {
+  font-size:var(--t-sm); font-weight:400; color:var(--body);
+  padding:.4375rem .6875rem; border-radius:var(--r-btn);
+  transition:color var(--fast) var(--ease);
+}
+.nav-links a:hover { color:var(--ink); }
+.nav-links a[aria-current="page"] { color:var(--ink); font-weight:600; box-shadow:inset 0 -2px 0 0 var(--accent); border-radius:0; }
+.nav-actions { display:flex; align-items:center; gap:1rem; flex-shrink:0; }
+.nav-login { font-size:var(--t-sm); color:var(--body); transition:color var(--fast); }
+.nav-login:hover { color:var(--ink); }
+.btn {
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-size:var(--t-sm); font-weight:500;
+  padding:.75rem 1.25rem; border-radius:var(--r-btn);
+  border:1px solid transparent; white-space:nowrap;
+  transition:background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.btn-p { background:var(--accent); color:#fff; }
+.btn-p:hover { background:var(--accent-deep); }
+.btn-p:active { transform:translateY(1px); }
+.btn-s { background:var(--paper); color:var(--ink); border-color:var(--control); }
+.btn-s:hover { background:var(--mist); }
+.btn-s:active { transform:translateY(1px); }
+.nav .btn-p { padding:.5625rem 1.0625rem; }
+/* Below 768px the link list folds away, but the conversion path stays.
+   No burger: a control that opens nothing is worse than no control. */
+@media (max-width:767px) { .nav-links, .nav-login { display:none; } }
+
+/* ═══════════════════════════════ HERO ═══════════════════════════════
+   Type on paper. No gradient field — large-scale colour is a claim this
+   brand does not make (DESIGN.md §2).                                  */
+/* One soft radial at 6% accent, anchored off the top-right, over a vertical
+   paper→wash fade. This is a tonal surface, not a colour field — it gives the
+   page a horizon so the eye knows where it begins, without making a claim.
+   No second hue: the cyan that was here is not in the palette.
+
+   5%, not 6%: at 6% the darkest point of the surface took --muted text to
+   4.49:1, a hair under AA. Measured, not guessed. */
+.hero {
+  background:
+    radial-gradient(42rem 22rem at 96% -28%,
+      color-mix(in srgb, var(--accent) 5%, transparent), transparent 68%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper) 46%, var(--wash) 100%);
+  border-bottom:1px solid var(--hairline);
+  padding-block: clamp(2rem,4vw,3rem) clamp(1.75rem,3.5vw,2.5rem);
+}
+.hero-inner { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:stretch; gap:clamp(2rem,5vw,4rem); }
+.hero-copy { align-self:center; }
+.crumb { display:flex; align-items:center; gap:.5rem; font-size:var(--t-cap); color:var(--muted); margin-bottom:1.5rem; }
+.crumb a { color:var(--muted); }
+.crumb a:hover { color:var(--ink); text-decoration:underline; }
+.crumb-sep { color:var(--control); }
+.hero-h1 { font-family:var(--serif); font-size:var(--t-h1); line-height:1.08; letter-spacing:-.022em; max-width:20ch; }
+/* The brand mark under the headline. Accent → accent-deep, so the two-tone
+   gesture survives without the fifth colour it used to carry. Still the one
+   authored focal moment on the page; still animates a rule with no content
+   behind it, so nothing is hidden if it never runs. */
+.sweep {
+  display:block; width:2.75rem; height:3px;
+  background:linear-gradient(90deg, var(--accent) 0 62%, var(--accent-deep) 62% 100%);
+  border-radius:2px; margin-top:1.5rem;
+  transform-origin:left center;
+  animation:sweep 900ms var(--ease) 150ms both;
+}
+@keyframes sweep { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+.hero-lede { margin-top:1.5rem; font-size:var(--t-body); line-height:1.62; color:var(--body); max-width:62ch; }
+.hero-disc { margin-top:1rem; font-size:var(--t-cap); color:var(--muted); }
+
+/* Platform index — an editorial contents list, not a widget grid.
+   Four hairline-separated rows with the figures set in a tabular mono column,
+   the way an index or a statement of accounts is set. No boxes: the row IS the
+   control. The hue arrives as a 2px marker on the left edge, which is the same
+   device the section headers use, so the filter and its destination are
+   visibly the same system. */
+/* ── Platform console ────────────────────────────────────────────────
+   A dark instrument panel rather than four floating statistic cards. The
+   inversion does the work four boxes were failing to do: it reads as one
+   object, it gives the hero a subject to sit beside, and it makes the four
+   platform hues legible as identity rather than decoration — on white they
+   were four small coloured numerals, here they are the only colour in a dark
+   field. Every value below is derived from an existing token via color-mix;
+   no new hex literal enters the file.
+
+   Panel ground = --ink shifted 22% toward Clinical Teal. It reads as the
+   product's own surface (and rhymes with the --ink footer, so the page opens
+   and closes on the same dark), while staying a mixed token, not an invention. */
+/* Surface. Three layers, not one fill: a broad key light off the upper-right,
+   a vignette weighting the lower-left, and a diagonal teal ramp underneath.
+   That is what separates a designed panel from a coloured box — the eye reads
+   a lit surface with a near and far edge rather than a swatch. Every stop is
+   color-mix over --medorbit and --ink, so no new hex enters the file.
+   24px radius is the one deliberate step outside the 8/12/16 ladder: at this
+   size 16px reads tight, and the panel is a singular object, not a repeated
+   component, so it does not put the ladder under pressure elsewhere. */
+.pindex {
+  position:relative; overflow:hidden; isolation:isolate;
+  width:clamp(320px,46vw,620px);
+  /* Sized by its own content, not stretched to the hero's full height. The
+     stretch was what made the panel tower over the headline and forced the
+     left column to look small by comparison. */
+  align-self:center;
+  /* Two explicit columns rather than an absolutely-placed illustration: the
+     artwork cannot overlap the rows at any width, which absolute positioning
+     could not guarantee once the panel narrowed. 60/40 per the reference. */
+  display:grid;
+  grid-template-columns:60% minmax(0,40%);
+  grid-template-rows:auto 1fr auto;
+  column-gap:1rem;
+  padding:1.75rem 1.5rem 1.5rem 1.75rem;
+  border-radius:24px;
+  /* Richer than the first pass, but capped by measurement, not taste: at a
+     bolder top-right highlight or a stronger teal tint the platform figures
+     dropped as low as 3.8:1. 50% teal / 3% key light / 1% tint is the richest
+     combination that still clears 4.5:1 on every figure — solved by search
+     over the same three variables, not eyeballed. */
+  background:
+    radial-gradient(60% 50% at 100% 0%, color-mix(in srgb, #ffffff 3%, transparent), transparent 55%),
+    radial-gradient(70% 60% at 82% 8%, color-mix(in srgb, var(--medorbit) 1%, transparent), transparent 65%),
+    radial-gradient(95% 85% at 4% 105%, color-mix(in srgb, var(--ink) 62%, transparent), transparent 66%),
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--medorbit) 50%, var(--ink)) 0%,
+      color-mix(in srgb, var(--medorbit) 40%, var(--ink)) 40%,
+      color-mix(in srgb, var(--medorbit) 31%, var(--ink)) 72%,
+      color-mix(in srgb, var(--medorbit) 24%, var(--ink)) 100%);
+  /* Ambient depth, not elevation: a wide low-opacity pool plus a 1px inner
+     top highlight so the panel has a lit leading edge instead of a border. */
+  box-shadow:
+    0 24px 48px -24px color-mix(in srgb, var(--ink) 55%, transparent),
+    inset 0 1px 0 0 color-mix(in srgb, #ffffff 12%, transparent);
+}
+/* Grain. A single inline SVG turbulence at 3% — enough to break the banding a
+   large flat gradient shows on 8-bit displays, invisible as texture. */
+.pindex::before {
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+  opacity:.035; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* Isometric massing — TWO overlapping stepped stacks, matching the reference's
+   architectural-slab composition rather than a single voxel staircase.
+   A taller REAR stack (4 slabs, larger, cooler, softly defocused — depth of
+   field pushes it back) and a shorter FRONT stack (4 slabs, smaller, warmer/
+   brighter, sharp) both climb diagonally to the right and overlap in the
+   middle, where the front stack's translucency lets the rear stack read
+   through — the one place alpha is used, and it is deliberate stack-over-stack
+   layering, not a single solid's faces bleeding into each other.
+   Corner rounding comes from a wide round line-join (20 units, up from 12),
+   which is what gives the larger radius the reference shows.
+   Set through CSS custom properties rather than fill="var(--x)" attributes,
+   whose var() support is inconsistent across renderers. */
+/* Decorative object. Three-quarter view, not isometric: the top-face ratio is
+   2.38:1 rather than 1.732:1, which flattens the top plane and lets the right
+   and front faces carry the volume — that is the difference between a rendered
+   object and a stack of CSS boxes.
+   One main tower (large → medium → small, drifting right as it climbs) plus a
+   shorter second tower set lower, further left and forward, overlapping the
+   main tower by 108px so the two read as one massing rather than two
+   disconnected stacks. No animation of any kind. */
+.pindex-stack {
+  grid-column:2; grid-row:1 / 4; align-self:end; justify-self:end;
+  position:relative; z-index:0; pointer-events:none;
+  width:122%; margin:0 -1rem -.25rem 0;
+  /* Matte frosted teal. Every tone is a teal mix — no grey, no white overlay,
+     no arbitrary alpha. Faces darken as they descend, which is the depth fog. */
+  --o-top-a: color-mix(in srgb, #ffffff 30%, color-mix(in srgb, var(--medorbit) 60%, var(--ink)));
+  --o-top-b: color-mix(in srgb, #ffffff 14%, color-mix(in srgb, var(--medorbit) 50%, var(--ink)));
+  --o-rgt-a: color-mix(in srgb, var(--medorbit) 46%, var(--ink));
+  --o-rgt-b: color-mix(in srgb, var(--medorbit) 33%, var(--ink));
+  --o-lft-a: color-mix(in srgb, var(--medorbit) 33%, var(--ink));
+  --o-lft-b: color-mix(in srgb, var(--medorbit) 21%, var(--ink));
+  --o-edge:  color-mix(in srgb, #ffffff 46%, color-mix(in srgb, var(--medorbit) 62%, var(--ink)));
+  --o-bloom: color-mix(in srgb, var(--medorbit) 42%, var(--ink));
+}
+/* Sits back into the panel rather than on top of it — the object should read as
+   part of the surface, not pasted over it. */
+.pindex-stack svg { display:block; width:100%; height:auto; opacity:.93; }
+.pindex-stack .fTop  { fill:url(#oTop);  stroke:url(#oTop);  }
+.pindex-stack .fRgt  { fill:url(#oRgt);  stroke:url(#oRgt);  }
+.pindex-stack .fLft  { fill:url(#oLft);  stroke:url(#oLft);  }
+.pindex-stack .fEdge { fill:none; stroke:var(--o-edge); stroke-width:1.25; opacity:.45; }
+.pindex-stack .sh    { fill:var(--ink); }
+.pindex-stack .gt1 { stop-color:var(--o-top-a); }
+.pindex-stack .gt2 { stop-color:var(--o-top-b); }
+.pindex-stack .gr1 { stop-color:var(--o-rgt-a); }
+.pindex-stack .gr2 { stop-color:var(--o-rgt-b); }
+.pindex-stack .gl1 { stop-color:var(--o-lft-a); }
+.pindex-stack .gl2 { stop-color:var(--o-lft-b); }
+.pindex-stack .gb1 { stop-color:var(--o-bloom); stop-opacity:.55; }
+.pindex-stack .gb2 { stop-color:var(--o-bloom); stop-opacity:0; }
+
+/* The list holds the left ~62% so the illustration has room to sit rather than
+   being crowded into a corner. Dividers stop at the list edge for the same
+   reason — a rule running under the artwork would fence it off. */
+.pindex-list { grid-column:1; grid-row:1 / 3; position:relative; z-index:1; width:100%; }
+.pindex-hd { padding-bottom:.875rem; border-bottom:1px solid color-mix(in srgb, #ffffff 9%, transparent); }
+.pindex-h {
+  font-size:var(--t-eyebrow); font-weight:600; letter-spacing:.11em;
+  text-transform:uppercase; color:#fff;
+}
+/* Whole-row targets — the largest hit area the layout can offer, and far
+   better than a 44px pill. No fill at rest: a filled row inside a filled
+   panel is the "card inside a card" that made the previous pass read as
+   generated. State arrives as light, not as a new box. */
+.pindex-row {
+  position:relative; width:calc(100% + 1.25rem); margin-inline:-.625rem;
+  display:grid; grid-template-columns:auto 1fr auto auto;
+  align-items:center; column-gap:1.125rem;
+  padding:1.0625rem .625rem;
+  text-align:left; border-radius:var(--r-card);
+  transition:background var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+/* Lighter, closer to a seam than a rule — the reference's dividers barely
+   register until you look for them. */
+.pindex-row + .pindex-row::before,
+.pindex-total::before {
+  content:''; position:absolute; top:0; left:.625rem; right:.625rem;
+  height:1px; background:color-mix(in srgb, #ffffff 5%, transparent);
+}
+.pindex-row:hover,
+.pindex-row[aria-pressed="true"] { background:color-mix(in srgb, #ffffff 7%, transparent); }
+.pindex-row:hover { transform:translateY(-1px); }
+.pindex-row:active { transform:translateY(0); }
+/* Icon tile — the anchor of the row and the one place the hue runs at full
+   strength. The inner top highlight and ambient pool are the same treatment
+   the panel itself gets, one step smaller, so the two read as one system. */
+.pindex-ico {
+  width:3.25rem; height:3.25rem; border-radius:14px;
+  display:grid; place-items:center;
+  color:#fff;
+  /* The tile shades DOWNWARD from the pure hue rather than up from a tint.
+     Clinical Teal and Ochre only clear 5.0:1 against white at full strength,
+     so any lightening puts the glyph under AA — even 8% of white took them to
+     4.34:1. Shading toward --ink instead keeps the lit top edge (carried by
+     the inset highlight below) while every point of the tile is at least as
+     dark as the base hue, so the glyph can only gain contrast, never lose it. */
+  background:linear-gradient(150deg, var(--hue) 0%, color-mix(in srgb, var(--hue) 82%, var(--ink)) 100%);
+  box-shadow:
+    0 10px 22px -10px color-mix(in srgb, var(--ink) 60%, transparent),
+    inset 0 1px 0 0 color-mix(in srgb, #ffffff 22%, transparent);
+  transition:box-shadow var(--state) var(--ease), transform var(--state) var(--ease);
+}
+.pindex-row:hover .pindex-ico {
+  transform:translateY(-1px);
+  box-shadow:
+    0 14px 26px -10px color-mix(in srgb, var(--ink) 60%, transparent),
+    inset 0 1px 0 0 color-mix(in srgb, #ffffff 30%, transparent);
+}
+.pindex-name { font-size:1.1875rem; font-weight:600; color:#fff; line-height:1.2; letter-spacing:-.012em; }
+.pindex-sector { display:block; font-size:.875rem; color:#a8b4c8; margin-top:.1875rem; line-height:1.3; }
+/* Figures run at 38% hue over white. The raw hues measure 2.4–3.4:1 against
+   the lit end of this gradient — a fail, not a near-miss — and the fix is more
+   white, not less: on a dark ground a paler tint gains contrast. 38% is the
+   MOST hue that still clears 4.5:1 at the panel's lightest point, so identity
+   is held to the last legible step rather than to taste. The icon tiles carry
+   each platform at full strength, which is where the colour actually reads. */
+.pindex-n {
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:1.5rem; font-weight:700; line-height:1; letter-spacing:-.01em;
+  color:color-mix(in srgb, var(--hue) 38%, #ffffff);
+  min-width:2.5ch; text-align:right; margin-right:.375rem;
+}
+.pindex-go {
+  color:color-mix(in srgb, var(--hue) 38%, #ffffff);
+  display:grid; place-items:center; opacity:.9;
+  transition:transform var(--state) var(--ease), opacity var(--fast) var(--ease);
+}
+.pindex-row:hover .pindex-go { transform:translateX(4px); opacity:1; }
+/* Held apart from the list: it is a total, not a fifth platform. */
+.pindex-total {
+  grid-column:1; grid-row:3; position:relative; z-index:1;
+  display:flex; justify-content:space-between; align-items:center;
+  width:100%;
+  margin-top:.5rem; padding:1.0625rem .625rem 0;
+  font-size:var(--t-eyebrow); font-weight:600; letter-spacing:.11em;
+  text-transform:uppercase; color:#a8b4c8;
+}
+.pindex-total .mono {
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:2.25rem; font-weight:600; letter-spacing:-.02em; color:#fff; text-transform:none;
+}
+/* Below 1100px the panel is too narrow to give the artwork a third of its
+   width without squeezing the rows, so the artwork stands down. It is
+   decorative; the rows are the product. */
+@media (max-width:1100px) {
+  .pindex { grid-template-columns:minmax(0,1fr); column-gap:0; }
+  .pindex-stack { display:none; }
+}
+@media (max-width:560px) {
+  .pindex { padding:1.5rem 1.25rem 1.25rem; border-radius:var(--r-panel); }
+  .pindex-ico { width:2.75rem; height:2.75rem; }
+  .pindex-name { font-size:1.0625rem; }
+  .pindex-total .mono { font-size:1.875rem; }
+}
+@media (max-width:900px) {
+  .hero-inner { grid-template-columns:1fr; align-items:start; gap:2.25rem; }
+  .pindex { width:100%; }
+}
+
+/* ═══════════════════════════ CONSOLE TOOLBAR ═══════════════════════ */
+.console {
+  position:sticky; top:var(--nav-h); z-index:90;
+  min-height:var(--bar-h);
+  background:var(--paper);
+  border-bottom:1px solid var(--hairline);
+  transition:min-height var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.console .shell {
+  min-height:var(--bar-h); display:flex; align-items:center; gap:1rem;
+  flex-wrap:wrap; padding-block:.75rem;
+  transition:min-height var(--fast) var(--ease), padding-block var(--fast) var(--ease);
+}
+/* Once the toolbar reaches the nav it sheds padding — this is the primary
+   navigation for 48 agents, so it stays reachable at any scroll position, but
+   it should not keep charging full rent for it. Control heights are untouched:
+   the 44px targets are a WCAG floor, not padding. Section headers are
+   deliberately NOT sticky — a third stacked sticky would eat the viewport. */
+.console.is-stuck { min-height:52px; box-shadow:0 1px 0 0 var(--hairline), 0 4px 16px -8px rgb(11 18 32 / .10); }
+.console.is-stuck .shell { min-height:52px; padding-block:.25rem; }
+.srch-group { display:flex; align-items:center; gap:.75rem; flex-shrink:0; }
+.srch-lbl { font-size:var(--t-cap); font-weight:600; color:var(--ink); white-space:nowrap; }
+.srch-wrap { position:relative; }
+.srch-ico { position:absolute; left:.75rem; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
+.srch-input {
+  width:260px; height:44px;
+  padding:0 2.25rem 0 2.375rem;
+  /* Mist, not Paper. The toolbar is Paper, so a Paper field was white-on-white
+     with only a 1px border to define it — the primary control on a 48-item page
+     was the least visible thing in its own toolbar. Mist is the system's own
+     input fill (DESIGN.md §3), so this is a surface step, not a new colour. */
+  background:var(--mist); border:1px solid var(--control); border-radius:var(--r-btn);
+  font:inherit; font-size:var(--t-sm); color:var(--ink);
+  transition:border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.srch-input:focus-visible { background:var(--paper); }
+.srch-input::placeholder { color:var(--muted); }
+.srch-input:focus-visible { border-color:var(--accent); }
+.srch-x {
+  position:absolute; right:.375rem; top:50%; transform:translateY(-50%);
+  width:32px; height:32px; color:var(--muted); border-radius:var(--r-btn);
+  display:none; align-items:center; justify-content:center;
+  transition:color var(--fast), background var(--fast);
+}
+.srch-x:hover { color:var(--ink); background:var(--mist); }
+.srch-x.show { display:flex; }
+
+/* Filter rail — type and a rule, not a segmented control. No borders, no
+   fills, no capsules: the active platform is marked by a 2px underline in its
+   own hue, which is the identical device used under each section header below.
+   Scanning the rail and scanning the page use the same visual grammar. */
+/* Filter rail. Two ranks, not five equal buttons: "All" is the reset and reads
+   as a solid object, the four platforms are a typographic list marked by their
+   own hue. Making them the same shape was the mistake — it flattened a
+   reset and four destinations into one undifferentiated row of pills.
+   The dot is the platform's colour at its smallest legible size; the 2px
+   underline is the identical device used under each section header below, so
+   picking a filter and arriving at its section look like one motion. */
+.ptabs { display:flex; align-items:center; gap:.125rem; flex-wrap:wrap; position:relative; }
+.ptab {
+  min-height:36px; position:relative;
+  display:inline-flex; align-items:center; gap:.4375rem;
+  padding:0 .5rem;
+  background:none; border:0; border-radius:var(--r-btn);
+  font-size:var(--t-cap); font-weight:500; color:var(--muted);
+  white-space:nowrap;
+  transition:color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.ptab .dot { width:6px; height:6px; border-radius:var(--r-pill); background:var(--hue); flex:none; }
+.ptab .cnt { font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:var(--t-eyebrow); color:var(--control); }
+.ptab::after {
+  content:''; position:absolute; left:.5rem; right:.5rem; bottom:2px;
+  height:2px; border-radius:1px; background:var(--hue,var(--ink));
+  opacity:0; transform:scaleX(.4); transform-origin:center;
+  transition:opacity var(--fast) var(--ease), transform var(--state) var(--ease);
+}
+.ptab:hover { color:var(--body); }
+.ptab:hover::after { opacity:.35; transform:scaleX(1); }
+.ptab[aria-pressed="true"] { color:var(--ink); font-weight:600; }
+.ptab[aria-pressed="true"]::after { opacity:1; transform:scaleX(1); }
+.ptab[aria-pressed="true"] .cnt { color:var(--body); }
+/* "All" is the reset, so it is the one filled object in the rail — a control
+   you return to, not another destination. It carries no underline and no dot. */
+.ptab-all { padding:0 .75rem; min-height:36px; background:var(--mist); color:var(--body); }
+.ptab-all::after { display:none; }
+.ptab-all:hover { background:var(--hairline); color:var(--ink); }
+.ptab-all[aria-pressed="true"] { background:var(--ink); color:#fff; font-weight:600; }
+.ptab-all[aria-pressed="true"] .cnt { color:#a8b4c8; }
+/* A hairline seam between "find" and "narrow" — two different jobs sharing one
+   surface should be legibly two zones, not one undifferentiated row. */
+.bar-sep { width:1px; align-self:stretch; margin-block:.625rem; background:var(--hairline); flex:none; }
+@media (max-width:860px) { .bar-sep { display:none; } }
+
+.psel-wrap { display:none; flex:1; min-width:180px; }
+.psel {
+  width:100%; height:44px; padding:0 2.25rem 0 .875rem;
+  background:var(--paper); border:1px solid var(--control); border-radius:var(--r-btn);
+  font:inherit; font-size:var(--t-sm); font-weight:500; color:var(--ink);
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%233d4a61' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6.5 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right .75rem center; background-size:16px;
+}
+
+.console-end { margin-left:auto; display:flex; align-items:center; gap:1rem; flex-shrink:0; }
+.expand-all {
+  min-height:44px; display:inline-flex; align-items:center; gap:.4375rem;
+  padding:0 .875rem; border-radius:var(--r-btn); border:1px solid var(--hairline);
+  background:var(--paper); font-size:var(--t-cap); font-weight:500; color:var(--body);
+  white-space:nowrap;
+  transition:border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.expand-all:hover { border-color:var(--control); color:var(--ink); }
+.expand-all[aria-pressed="true"] { background:var(--mist); border-color:var(--control); color:var(--ink); }
+.expand-all svg { transition:transform var(--state) var(--ease); }
+.expand-all[aria-pressed="true"] svg { transform:rotate(180deg); }
+.rcnt { font-family:var(--mono); font-size:var(--t-cap); color:var(--muted); white-space:nowrap; }
+.rcnt strong { color:var(--ink); font-weight:500; }
+.rcnt:focus { outline:none; }
+
+/* Between 861px and ~1180px the five tabs no longer fit beside the search
+   group, so the toolbar genuinely occupies two rows. --bar-h is raised to match
+   rather than left understating it: it feeds --anchor, and an understated bar
+   is how deep-linked agents end up hidden under the toolbar. */
+@media (max-width:1180px) and (min-width:861px) { :root { --bar-h:128px; } }
+@media (max-width:860px) { .ptabs { display:none; } .psel-wrap { display:block; } }
+@media (max-width:640px) {
+  .srch-group { flex:1 1 100%; }
+  .srch-wrap { flex:1; }
+  .srch-input { width:100%; }
+  .console-end { width:100%; margin-left:0; justify-content:space-between; }
+  :root { --bar-h:120px; }
+}
+
+/* ═══════════════════════════ PLATFORM SECTIONS ═════════════════════ */
+.plat { padding-block: clamp(2rem,4vw,2.75rem); }
+.plat + .plat { border-top:1px solid var(--hairline); }
+.plat-hdr {
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:1.5rem; flex-wrap:wrap;
+  padding-bottom:.75rem; margin-bottom:1.5rem;
+  border-bottom:2px solid var(--hue);
+}
+.plat-l { display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap; }
+.plat-name { font-size:var(--t-h2); font-weight:600; line-height:1.3; letter-spacing:-.012em; color:var(--ink); }
+.plat-cnt  { font-family:var(--mono); font-size:var(--t-mono); color:var(--hue); }
+.plat-sub  { font-size:var(--t-cap); color:var(--muted); }
+.link-a {
+  display:inline-flex; align-items:center; gap:.375rem;
+  font-size:var(--t-sm); font-weight:500; color:var(--accent);
+  flex-shrink:0; transition:color var(--fast) var(--ease);
+}
+.link-a:hover { color:var(--accent-deep); text-decoration:underline; }
+.link-a svg { transition:transform var(--state) var(--ease); }
+.link-a:hover svg { transform:translateX(3px); }
+
+/* align-items:stretch (the default) — every card in a row takes the row's
+   height. Combined with the fixed head and summary tracks below, this makes
+   the disclosure and the Control well land on the same baseline right across
+   the row, so the grid reads as a directory rather than a masonry wall. */
+.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+@media (max-width:1023px) { .grid { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:640px)  { .grid { grid-template-columns:1fr; gap:1rem; } }
+
+/* ═════════════════════════════ AGENT CARD ══════════════════════════
+   Renders complete in the HTML. Nothing starts at opacity 0 — content
+   hidden behind a scroll reveal is content a crawler may never see
+   (DESIGN.md §1.2). Hover changes exactly one property.               */
+.acard {
+  background:var(--paper); border:1px solid var(--hairline); border-radius:var(--r-card);
+  display:flex; flex-direction:column;
+  transition:border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+/* Flat at rest — 48 resting shadows is what makes a page look templated.
+   On hover, one hairline shadow: enough to say "this responds", not enough
+   to make the grid ripple as the mouse crosses it. */
+.acard:hover { border-color:var(--control); box-shadow:0 1px 3px 0 rgb(11 18 32 / .05); }
+/* On hover the seal picks up the platform's own hue. It is the smallest
+   possible way to answer "which platform is this?" without adding a second
+   badge to a card that already names its platform in the section above it. */
+.acard .seal { transition:background var(--state) var(--ease); }
+.acard:hover .seal { background:var(--hue); }
+.acard:target { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-wash); }
+.acard.is-out { display:none; }        /* the class does the hiding, not [hidden] */
+.acard.is-folded { display:none; }     /* beyond the first six, until asked for */
+/* Cards revealed by "Show all" fade and settle in rather than snapping into
+   the grid — the one moment on the page where content newly appears, so it
+   gets the one entrance animation on the page. Staggered per row so a batch
+   of six doesn't arrive as a single flat flash. Reduced-motion strips it to
+   an instant appearance via the prefers-reduced-motion rule further down. */
+.acard.is-revealing { animation:cardIn 420ms var(--ease) both; }
+@keyframes cardIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* "Show all N" — a rule that runs the width of the grid with the control set
+   into it, so the fold reads as a seam in the page rather than a button parked
+   under a card. */
+/* Centred, with the rule running out to both margins — the control reads as a
+   seam across the grid rather than a button parked under the last card. The
+   rule is what makes it feel like part of the page's structure; centring is
+   what makes it findable without hunting a corner. */
+.more {
+  display:flex; align-items:center; gap:1.25rem;
+  width:100%; margin-top:1.75rem;
+  font-size:var(--t-cap); font-weight:500; color:var(--body);
+  transition:color var(--fast) var(--ease);
+}
+.more::before, .more::after { content:''; flex:1; height:1px; background:var(--hairline); }
+.more-t {
+  display:inline-flex; align-items:center; gap:.5rem;
+  min-height:44px; padding:0 1rem;
+  border:1px solid var(--hairline); border-radius:var(--r-pill);
+  background:var(--paper);
+  transition:border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.more svg { color:var(--control); transition:transform var(--state) var(--ease); }
+.more:hover { color:var(--ink); }
+.more:hover .more-t { border-color:var(--control); background:var(--mist); }
+.more[aria-expanded="true"] svg { transform:rotate(180deg); }
+
+/* flex:0 0 auto — the body must NOT absorb the row's spare height, or the
+   disclosure would float and alignment would break. The Control well takes it
+   instead (see .ctrl), which keeps every well's top edge on the same line. */
+.acard-body { padding:1.5rem 1.5rem 0; flex:0 0 auto; display:flex; flex-direction:column; }
+/* Reserves two lines of the agent name. 6 of the 48 names wrap to two lines;
+   without the reserve those six push their own card's disclosure 20px lower
+   than its neighbours'. Names are the primary scan key, so they are never
+   truncated — the space is reserved instead. */
+.acard-head {
+  display:flex; align-items:baseline; justify-content:space-between; gap:.75rem;
+  min-height:calc(2 * 1.3 * var(--t-h3));
+}
+.acard-name { font-size:var(--t-h3); font-weight:600; line-height:1.3; letter-spacing:-.012em; color:var(--ink); flex:1; min-width:0; }
+/* Seat, set as a label rather than a capsule. 48 bordered pills was the single
+   most component-library thing on the page; the same information reads better
+   as small caps in the platform hue, and it stops competing with the agent
+   name it sits beside. */
+.acard-seat {
+  flex:none; align-self:baseline;
+  font-size:var(--t-eyebrow); font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--hue); line-height:1.45;
+  transition:opacity var(--fast) var(--ease);
+}
+.acard:hover .acard-seat { opacity:1; }
+.acard-sum {
+  margin-top:.75rem;
+  font-size:var(--t-sm); line-height:1.55; color:var(--muted);
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3;
+  overflow:hidden;
+  min-height:calc(3 * 1.55 * var(--t-sm));
+}
+
+.acard-ev { margin-top:1rem; }
+.acard-ev > summary {
+  list-style:none; cursor:pointer;
+  display:flex; align-items:center; gap:.5rem;
+  min-height:44px; padding-block:.5rem;
+  border-top:1px solid var(--hairline);
+  font-size:var(--t-cap); font-weight:500; color:var(--body);
+  transition:color var(--fast) var(--ease);
+  user-select:none;
+}
+.acard-ev > summary::-webkit-details-marker { display:none; }
+.acard-ev > summary:hover { color:var(--ink); }
+.ev-chev { flex:none; color:var(--control); transition:transform var(--state) var(--ease); }
+.acard-ev[open] > summary .ev-chev { transform:rotate(180deg); }
+.ev-open  { display:none; }
+.acard-ev[open] .ev-shut { display:none; }
+.acard-ev[open] .ev-open { display:inline; }
+/* The worked example arrives rather than snapping in. 180ms is below the
+   threshold where a disclosure starts to feel slow, and it is the only thing
+   that moves — the card's own height change is left instant so the grid does
+   not reflow twice. Killed entirely under reduced-motion by the global rule. */
+.acard-ev[open] .ev-body { animation:evIn 180ms var(--ease) both; }
+@keyframes evIn { from { opacity:0; transform:translateY(-3px); } to { opacity:1; transform:none; } }
+.ev-body { padding-bottom:.75rem; }
+.ev-row + .ev-row { margin-top:1rem; }
+.ev-lbl {
+  font-size:var(--t-eyebrow); font-weight:600; line-height:1.3;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink); margin-bottom:.25rem;
+}
+.ev-txt { font-size:var(--t-sm); line-height:1.55; color:var(--body); }
+
+/* The constraint closes over the output. */
+.seal { height:1px; margin:0 1.5rem 0; background:var(--control); transform-origin:left center; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .seal { animation:sweep linear both; animation-timeline:view(); animation-range:entry 10% cover 30%; }
+  }
+}
+
+/* Control well — the only nested surface in the system. Flat Mist on every
+   platform: the guardrail is the shared discipline, so it must not tint. */
+/* Identical on all four platforms. The guardrail is the SHARED discipline —
+   tinting it per platform would visually contradict the governance claim
+   printed further down the page. The hairline gives it definition so it reads
+   as a deliberate inset rather than a tonal accident. */
+/* The constraint still encloses the output — the Mist fill is the enclosure —
+   but the border is gone. A bordered box inside a bordered card is a card
+   nested in a card, which the system forbids and which is what made this read
+   as generated. A 2px rule in the Withheld hue carries the identity instead,
+   the same device the governance grid uses. */
+.ctrl {
+  margin:1rem 0 0;
+  padding:1rem 1.5rem 1.5rem;
+  background:var(--mist);
+  border-top:1px solid var(--hairline);
+  box-shadow:inset 2px 0 0 0 var(--withheld);
+  flex:1 1 auto;
+}
+.ctrl-lbl {
+  font-size:var(--t-eyebrow); font-weight:600; line-height:1.3;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--withheld); margin-bottom:.25rem;
+}
+.ctrl-txt { font-size:var(--t-sm); line-height:1.55; color:var(--body); }
+
+/* ═══════════════════════════ ROADMAP ═══════════════════════════════
+   Was a grid of hairline-topped divs that read as leftover content. Now a
+   numbered ledger: mono index, name, description, and a status column — the
+   way a shipping schedule is set in a report. Same six items, same words. */
+/* Roadmap. Set on the page's own canvas rather than on Paper, so it reads as
+   a different KIND of content from the 48 live agents above it — the surface
+   change is what says "not shipped" before a single word is read. That is the
+   job the old plain list was failing: it looked exactly like the live grid. */
+.indev {
+  margin-top:3.5rem; padding:2rem 2rem 1.25rem;
+  background:var(--wash); border-radius:var(--r-panel);
+  border-top:2px solid var(--ink);
+}
+.indev-hd { display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:.75rem; }
+.indev-h {
+  font-size:var(--t-eyebrow); font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink);
+}
+.indev-note { font-size:var(--t-cap); color:var(--muted); }
+.indev-grid { display:grid; grid-template-columns:1fr 1fr; column-gap:3rem; }
+/* A single rule runs the height of each column, so the six entries read as
+   one continuous line of work rather than six unrelated stops — a spine, the
+   way a shipping schedule or a table of contents keeps its items tethered to
+   one axis. The index numbers sit on the spine rather than beside it. */
+.indev-grid { position:relative; }
+.indev-col { position:relative; }
+.indev-col::before {
+  content:''; position:absolute; left:.875rem; top:.25rem; bottom:.25rem;
+  width:1px; background:var(--hairline);
+}
+.indev-item {
+  position:relative;
+  display:grid; grid-template-columns:2.25rem 1fr;
+  column-gap:1rem; align-items:baseline;
+  padding:.875rem 0;
+}
+.indev-item + .indev-item { border-top:1px solid var(--hairline); }
+/* The index sits ON the spine, so the rule reads as continuous behind it —
+   the numbers are stations on one line rather than a left-hand gutter. */
+.indev-i {
+  position:relative; z-index:1;
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:var(--t-cap); color:var(--control);
+  background:var(--wash); padding-block:.125rem;
+  transition:color var(--fast) var(--ease);
+}
+.indev-item:hover .indev-i { color:var(--trustproperty); }
+.indev-item:hover .indev-name { color:var(--ink); }
+.indev-name { font-size:var(--t-sm); font-weight:600; color:var(--ink); line-height:1.3; }
+.indev-body { margin-top:.1875rem; font-size:var(--t-cap); color:var(--muted); line-height:1.5; }
+@media (max-width:767px) { .indev-grid { grid-template-columns:1fr; } }
+
+/* ═══════════════════════════════ EMPTY ═════════════════════════════ */
+.empty { display:none; padding:5rem 1rem; text-align:center; }
+.empty.show { display:block; }
+.empty-ico { color:var(--control); margin-bottom:1rem; }
+.empty-h { font-size:var(--t-h2); font-weight:600; color:var(--ink); }
+.empty-sub { margin-top:.5rem; font-size:var(--t-sm); color:var(--body); }
+.empty-acts { margin-top:1.5rem; display:flex; gap:.75rem; justify-content:center; flex-wrap:wrap; }
+
+/* ═══════════════════════════════ GOVERNANCE ════════════════════════ */
+.gov { background:var(--paper); border-top:1px solid var(--hairline); padding-block:clamp(3rem,6vw,4.5rem); }
+.gov-h2 { font-family:var(--serif); font-size:clamp(1.75rem,3.6vw,2.375rem); line-height:1.14; letter-spacing:-.018em; max-width:22ch; }
+.gov-lede { margin-top:1.25rem; font-size:var(--t-body); color:var(--body); max-width:62ch; line-height:1.62; }
+.gov-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2rem 2.25rem; margin-top:3rem; }
+/* Borderless with a 2px accent left rule — eight bordered cards would read
+   as a badge wall, which DESIGN.md §1.4 forbids. */
+.gov-item { padding-left:1rem; border-left:2px solid var(--accent); }
+.gov-title { font-size:var(--t-h3); font-weight:600; color:var(--ink); line-height:1.3; }
+.gov-body { margin-top:.5rem; font-size:var(--t-sm); color:var(--body); line-height:1.55; }
+.gov-lnk { margin-top:2.5rem; }
+@media (max-width:1023px) { .gov-grid { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:599px)  { .gov-grid { grid-template-columns:1fr; } }
+
+/* ═══════════════════════════════ CTA ═══════════════════════════════ */
+.cta { background:var(--wash); padding-block:clamp(3rem,6vw,4.5rem); text-align:center; }
+.cta-h2 { font-family:var(--serif); font-size:clamp(1.75rem,3.6vw,2.375rem); line-height:1.14; letter-spacing:-.018em; }
+.cta-sub { margin-top:1.25rem; font-size:var(--t-body); color:var(--body); max-width:62ch; margin-inline:auto; line-height:1.62; }
+.cta-acts { margin-top:1.75rem; display:flex; justify-content:center; gap:.75rem; flex-wrap:wrap; }
+
+/* ═══════════════════════════════ FOOTER ════════════════════════════ */
+.ftr { background:var(--ink); padding-block:5rem 2.5rem; color:#a8b4c8; }
+.ftr-inner { display:grid; grid-template-columns:1.4fr repeat(4,1fr); gap:3rem; }
+.ftr-name { font-size:var(--t-h2); font-weight:600; color:#fff; }
+.ftr-tag { margin-top:1rem; font-size:var(--t-sm); color:#a8b4c8; line-height:1.6; max-width:34ch; }
+.ftr-col-h { font-size:var(--t-eyebrow); font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#8e9cb5; margin-bottom:.75rem; }
+.ftr-links { list-style:none; display:flex; flex-direction:column; gap:.5rem; }
+.ftr-links a { font-size:var(--t-sm); color:#a8b4c8; transition:color var(--fast); }
+.ftr-links a:hover { color:#fff; }
+.ftr-bottom { margin-top:3rem; padding-top:2rem; border-top:1px solid rgb(255 255 255 / .12); display:flex; flex-direction:column; gap:.75rem; }
+.ftr-legal { font-family:var(--mono); font-size:var(--t-cap); color:#8e9cb5; line-height:1.7; }
+.ftr-legal a { color:#a8b4c8; }
+.ftr-legal a:hover { color:#fff; }
+.ftr-note { font-size:var(--t-cap); color:#8e9cb5; }
+@media (max-width:1023px) { .ftr-inner { grid-template-columns:1fr 1fr; gap:2.5rem; } }
+@media (max-width:599px)  { .ftr-inner { grid-template-columns:1fr; } }
+
+/* ═══════════════════════════ MOTION PREFS ══════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; animation-delay:0ms !important; transition-duration:.01ms !important; }
+  html { scroll-behavior:auto; }
+}
+
+/* ═══════════════════════════════ PRINT ═════════════════════════════
+   Enterprise buyers print this page to compare guardrails. Every worked
+   example opens, chrome drops away, cards never split across a page.   */
+@media print {
+  .nav, .console, .pindex, .cta, .skip, .link-a, .empty { display:none !important; }
+  body { background:#fff; font-size:11pt; }
+  .hero { border:0; padding-block:0 1rem; background:#fff; }
+  .grid { grid-template-columns:repeat(2,1fr); gap:.75rem; }
+  .acard { break-inside:avoid; border-color:#999; }
+  /* On paper there is no disclosure to open and no row to align to, so the
+     screen's fixed tracks are dropped: nothing is clipped, nothing is padded. */
+  .acard-sum { -webkit-line-clamp:unset; display:block; overflow:visible; min-height:0; }
+  .acard-head { min-height:0; }
+  .ctrl { flex:0 0 auto; }
+  .grid { align-items:start; }
+  .acard.is-out, .acard.is-folded { display:flex !important; }
+  .more { display:none !important; }
+  .acard-ev > summary { display:none; }
+  .ev-body { display:block !important; padding-bottom:.5rem; }
+  .plat { break-before:page; padding-block:1rem; }
+  .ftr { background:#fff; color:#000; padding-block:1rem; }
+  .ftr-legal, .ftr-note { color:#000; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<header>
+<nav class="nav" id="site-nav" aria-label="Primary">
+  <div class="shell">
+    <a href="https://ainexushub.ai/" class="nav-logo">
+      <span class="nav-logo-name">AI Nexus</span>
+      <span class="nav-logo-sub">Innovations Hub</span>
+    </a>
+    <ul class="nav-links" role="list">
+      <li><a href="https://ainexushub.ai/platforms/">Platforms</a></li>
+      <li><a href="https://ainexushub.ai/ai-agents/" aria-current="page">AI agents</a></li>
+      <li><a href="https://ainexushub.ai/solutions/hospitals/">Solutions</a></li>
+      <li><a href="https://ainexushub.ai/security/">Security</a></li>
+      <li><a href="https://ainexushub.ai/about/">About</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="https://ainexushub.ai/login/" class="nav-login">Log in</a>
+      <a href="https://ainexushub.ai/contact/" class="btn btn-p">Book a demo</a>
+    </div>
+  </div>
+</nav>
+</header>
+
+<main id="main">
+
+<section class="hero" aria-labelledby="h1">
+  <div class="shell">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <nav aria-label="Breadcrumb" class="crumb">
+          <a href="https://ainexushub.ai/">Home</a>
+          <span class="crumb-sep" aria-hidden="true">/</span>
+          <span aria-current="page">AI agents</span>
+        </nav>
+        <h1 class="hero-h1" id="h1">48 AI agents, each with one job and one guardrail</h1>
+        <span class="sweep" aria-hidden="true"></span>
+        <p class="hero-lede">AI Nexus builds 48 named AI agents across four platforms. Each does a single task someone would otherwise do by hand. Every agent below is listed with the input a user gives, the output it produces, and the constraint that governs it.</p>
+        <p class="hero-disc">Product examples on this site are illustrative.</p>
+      </div>
+      <div class="pindex" role="group" aria-label="Filter agents by platform">
+        <span class="pindex-stack" aria-hidden="true">
+          <svg viewBox="62 118 308 203" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- userSpaceOnUse so every face shares one light direction and
+                   one vertical fog ramp across the whole object -->
+              <linearGradient id="oTop" gradientUnits="userSpaceOnUse" x1="200" y1="130" x2="240" y2="300">
+                <stop class="gt1" offset="0"/><stop class="gt2" offset="1"/>
+              </linearGradient>
+              <linearGradient id="oRgt" gradientUnits="userSpaceOnUse" x1="200" y1="150" x2="240" y2="310">
+                <stop class="gr1" offset="0"/><stop class="gr2" offset="1"/>
+              </linearGradient>
+              <linearGradient id="oLft" gradientUnits="userSpaceOnUse" x1="200" y1="150" x2="240" y2="310">
+                <stop class="gl1" offset="0"/><stop class="gl2" offset="1"/>
+              </linearGradient>
+              <radialGradient id="oBloom" gradientUnits="userSpaceOnUse" cx="238" cy="205" r="150">
+                <stop class="gb1" offset="0"/><stop class="gb2" offset="1"/>
+              </radialGradient>
+              <!-- large-radius, low-opacity: ambient, never a hard drop shadow -->
+              <filter id="oAmb" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="18"/></filter>
+              <filter id="oAO"  x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="9"/></filter>
+            </defs>
+
+            <!-- atmospheric bloom: the object sits IN the panel, not on it -->
+            <ellipse cx="238" cy="205" rx="150" ry="110" fill="url(#oBloom)"/>
+            <!-- layered ambient shadows, teal-dark rather than black -->
+            <ellipse class="sh" cx="232" cy="292" rx="140" ry="30" opacity=".26" filter="url(#oAmb)"/>
+            <ellipse class="sh" cx="188" cy="300" rx="105" ry="22" opacity=".20" filter="url(#oAmb)"/>
+
+            <g stroke-linejoin="round" stroke-width="17">
+              <!-- MAIN TOWER · A base -->
+              <path class="fLft"  d="M150,210 L250,252 L250,286 L150,244 Z"/>
+              <path class="fRgt"  d="M350,210 L250,252 L250,286 L350,244 Z"/>
+              <path class="fTop"  d="M150,210 L250,168 L350,210 L250,252 Z"/>
+              <!-- AO where B meets A -->
+              <ellipse class="sh" cx="260" cy="188" rx="86" ry="32" opacity=".30" filter="url(#oAO)"/>
+              <!-- B medium -->
+              <path class="fLft"  d="M182,184 L260,217 L260,247 L182,214 Z"/>
+              <path class="fRgt"  d="M338,184 L260,217 L260,247 L338,214 Z"/>
+              <path class="fTop"  d="M182,184 L260,151 L338,184 L260,217 Z"/>
+              <!-- AO where C meets B -->
+              <ellipse class="sh" cx="270" cy="165" rx="64" ry="24" opacity=".30" filter="url(#oAO)"/>
+              <!-- C small -->
+              <path class="fLft"  d="M212,162 L270,186 L270,212 L212,188 Z"/>
+              <path class="fRgt"  d="M328,162 L270,186 L270,212 L328,188 Z"/>
+              <path class="fTop"  d="M212,162 L270,138 L328,162 L270,186 Z"/>
+              <path class="fEdge" d="M212,162 L270,138 L328,162"/>
+
+              <!-- SECOND TOWER · lower, left, forward — overlaps the main tower.
+                   Drawn after, so it correctly occludes what it stands in front of. -->
+              <ellipse class="sh" cx="172" cy="248" rx="100" ry="34" opacity=".26" filter="url(#oAO)"/>
+              <path class="fLft"  d="M82,232  L170,269 L170,301 L82,264  Z"/>
+              <path class="fRgt"  d="M258,232 L170,269 L170,301 L258,264 Z"/>
+              <path class="fTop"  d="M82,232  L170,195 L258,232 L170,269 Z"/>
+              <ellipse class="sh" cx="178" cy="211" rx="72" ry="26" opacity=".28" filter="url(#oAO)"/>
+              <path class="fLft"  d="M112,207 L178,235 L178,263 L112,235 Z"/>
+              <path class="fRgt"  d="M244,207 L178,235 L178,263 L244,235 Z"/>
+              <path class="fTop"  d="M112,207 L178,179 L244,207 L178,235 Z"/>
+              <path class="fEdge" d="M112,207 L178,179 L244,207"/>
+            </g>
+          </svg>
+        </span>
+        <div class="pindex-list">
+        <div class="pindex-hd">
+          <p class="pindex-h">Agents by platform</p>
+        </div>
+        <button class="pindex-row" style="--hue:var(--medorbit)" data-pf="medorbit" aria-pressed="false">
+          <span class="pindex-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.5v6c0 4.5 3 8.4 7.5 10 4.5-1.6 7.5-5.5 7.5-10v-6Z"/><path d="M12 8.5v6M9 11.5h6"/></svg></span>
+          <span><span class="pindex-name">MedOrbit</span><span class="pindex-sector">Healthcare</span></span>
+          <span class="pindex-n">11</span>
+          <span class="pindex-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></span>
+        </button>
+        <button class="pindex-row" style="--hue:var(--edvation)" data-pf="edvation" aria-pressed="false">
+          <span class="pindex-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2.5 8.5 12 13l9.5-4.5Z"/><path d="M6.5 10.8v4.4c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8v-4.4"/></svg></span>
+          <span><span class="pindex-name">Edvation</span><span class="pindex-sector">Education</span></span>
+          <span class="pindex-n">20</span>
+          <span class="pindex-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></span>
+        </button>
+        <button class="pindex-row" style="--hue:var(--advohub)" data-pf="advohub" aria-pressed="false">
+          <span class="pindex-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v17M6 20.5h12M4 8h16M4 8l-2 5.5h4Zm16 0 2 5.5h-4Z"/></svg></span>
+          <span><span class="pindex-name">AdvoHub</span><span class="pindex-sector">Legal</span></span>
+          <span class="pindex-n">10</span>
+          <span class="pindex-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></span>
+        </button>
+        <button class="pindex-row" style="--hue:var(--trustproperty)" data-pf="trustproperty" aria-pressed="false">
+          <span class="pindex-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5 12 4l8.5 5.5"/><path d="M5.5 11v8M18.5 11v8M9.5 11v8M14.5 11v8M3.5 19.5h17"/></svg></span>
+          <span><span class="pindex-name">TrustProperty</span><span class="pindex-sector">Property</span></span>
+          <span class="pindex-n">7</span>
+          <span class="pindex-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></span>
+        </button>
+        </div>
+        <p class="pindex-total"><span>Total agents</span><span class="mono">48</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="console" role="search" aria-label="Search and filter agents">
+  <div class="shell">
+    <div class="srch-group">
+      <label class="srch-lbl" for="q">Find an agent</label>
+      <div class="srch-wrap">
+        <svg class="srch-ico" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/>
+        </svg>
+        <input type="search" id="q" class="srch-input" placeholder="voice, denial, citation…" autocomplete="off" spellcheck="false" aria-describedby="rcnt">
+        <button class="srch-x" id="srch-x" aria-label="Clear search">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8"/><path d="M12 4l-8 8"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <span class="bar-sep" aria-hidden="true"></span>
+    <div class="ptabs" role="group" aria-label="Filter by platform" id="ptabs">
+      <button class="ptab ptab-all" aria-pressed="true" data-p="all">All <span class="cnt">48</span></button>
+      <button class="ptab" aria-pressed="false" data-p="medorbit" style="--hue:var(--medorbit)"><span class="dot" aria-hidden="true"></span>MedOrbit <span class="cnt">11</span></button>
+      <button class="ptab" aria-pressed="false" data-p="edvation" style="--hue:var(--edvation)"><span class="dot" aria-hidden="true"></span>Edvation <span class="cnt">20</span></button>
+      <button class="ptab" aria-pressed="false" data-p="advohub" style="--hue:var(--advohub)"><span class="dot" aria-hidden="true"></span>AdvoHub <span class="cnt">10</span></button>
+      <button class="ptab" aria-pressed="false" data-p="trustproperty" style="--hue:var(--trustproperty)"><span class="dot" aria-hidden="true"></span>TrustProperty <span class="cnt">7</span></button>
+    </div>
+
+    <div class="psel-wrap">
+      <label class="sr" for="psel">Filter by platform</label>
+      <select class="psel" id="psel">
+        <option value="all">All platforms — 48 agents</option>
+        <option value="medorbit">MedOrbit — 11</option>
+        <option value="edvation">Edvation — 20</option>
+        <option value="advohub">AdvoHub — 10</option>
+        <option value="trustproperty">TrustProperty — 7</option>
+      </select>
+    </div>
+
+    <div class="console-end">
+      <button class="expand-all" id="expand-all" aria-pressed="false">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg>
+        <span class="ea-shut">Expand all</span><span class="ea-open sr">Collapse all</span>
+      </button>
+      <p class="rcnt" id="rcnt" role="status" aria-atomic="true" tabindex="-1"><strong>48</strong> of 48<span class="sr"> agents</span></p>
+    </div>
+  </div>
+</div>
+
+<div id="agents">
+
+  <div class="shell">
+    <div class="empty" id="empty">
+      <svg class="empty-ico" width="32" height="32" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/>
+      </svg>
+      <p class="empty-h" id="empty-h">No agents match your search</p>
+      <p class="empty-sub" id="empty-sub">Try a shorter phrase, or search across all platforms.</p>
+      <div class="empty-acts">
+        <button class="btn btn-p" id="empty-clr">Clear search</button>
+        <button class="btn btn-s" id="empty-all">Search all 48 agents</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="plat" id="medorbit" data-platform="medorbit" aria-labelledby="medorbit-lbl" style="--hue:var(--medorbit)">
+    <div class="shell">
+      <div class="plat-hdr">
+        <div class="plat-l">
+          <h2 id="medorbit-lbl" class="plat-name">MedOrbit</h2>
+          <span class="plat-cnt mono">11 agents</span>
+          <span class="plat-sub">Hospital operating system</span>
+        </div>
+        <a href="https://ainexushub.ai/platforms/medorbit/" class="link-a">The MedOrbit platform
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10"/><path d="M9 4l4 4-4 4"/></svg></a>
+      </div>
+      <div class="grid" id="g-medorbit">
+          <article class="acard" id="front-desk-voice" data-txt="front-desk voice agent answers every call in your hospital’s name, resolves faqs, and books appointments straight into your schedule. reception a patient calls at 20:40, after the front desk has closed. the agent answers in the hospital’s name, offers the next three orthopaedics slots, and writes the booking into the live schedule. booking tools are cryptographically signed; every call is logged." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Front-Desk Voice Agent</h3>
+              <span class="acard-seat">Reception</span>
+            </div>
+            <p class="acard-sum">Answers every call in your hospital’s name, resolves FAQs, and books appointments straight into your schedule.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A patient calls at 20:40, after the front desk has closed.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">The agent answers in the hospital’s name, offers the next three orthopaedics slots, and writes the booking into the live schedule.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Booking tools are cryptographically signed; every call is logged.</p>
+          </div>
+        </article>
+          <article class="acard" id="aftercare-voice" data-txt="aftercare voice agent calls every discharged patient on day 2 and day 7, checks recovery, and records structured outcomes. nursing a discharge event fires in the his at 14:22. a structured outcome is recorded against the patient. one answer indicates deterioration, and that finding escalates to nursing. deterioration escalates to your staff — the agent never advises." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Aftercare Voice Agent</h3>
+              <span class="acard-seat">Nursing</span>
+            </div>
+            <p class="acard-sum">Calls every discharged patient on day 2 and day 7, checks recovery, and records structured outcomes.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A discharge event fires in the HIS at 14:22.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A structured outcome is recorded against the patient. One answer indicates deterioration, and that finding escalates to nursing.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Deterioration escalates to your staff — the agent never advises.</p>
+          </div>
+        </article>
+          <article class="acard" id="ai-scribe" data-txt="ai scribe turns a recorded consultation into a structured clinical note, ready for the doctor to edit. doctors a nine-minute consultation, recorded in the room. a structured note with history, examination, assessment and plan. the doctor edits two lines and signs. nothing enters the chart without a clinician’s signature." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">AI Scribe</h3>
+              <span class="acard-seat">Doctors</span>
+            </div>
+            <p class="acard-sum">Turns a recorded consultation into a structured clinical note, ready for the doctor to edit.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A nine-minute consultation, recorded in the room.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A structured note with history, examination, assessment and plan. The doctor edits two lines and signs.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Nothing enters the chart without a clinician’s signature.</p>
+          </div>
+        </article>
+          <article class="acard" id="pre-consult-brief" data-txt="pre-consult brief builds a patient-360 brief — visits, labs, meds, allergies, vitals trend — before the doctor walks in. doctors the appointment is confirmed for 09:30. the doctor opens the queue at 09:15. a one-page brief: last three visits, active medications, outstanding results, allergy flags, vitals trend. reads the record; cannot write to it." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Pre-Consult Brief</h3>
+              <span class="acard-seat">Doctors</span>
+            </div>
+            <p class="acard-sum">Builds a Patient-360 brief — visits, labs, meds, allergies, vitals trend — before the doctor walks in.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">The appointment is confirmed for 09:30. The doctor opens the queue at 09:15.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A one-page brief: last three visits, active medications, outstanding results, allergy flags, vitals trend.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Reads the record; cannot write to it.</p>
+          </div>
+        </article>
+          <article class="acard" id="consult-summary" data-txt="consult summary + draft-rx drafts doctor and patient summaries plus a draft prescription, checked against drug interactions and telemedicine schedules. doctors the consultation note is signed. a doctor summary, a patient-facing summary in plain language, and a draft prescription with interaction flags. drug interaction check runs against rxnorm and openfda. draft only — the doctor confirms before anything prints." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Consult Summary + Draft-Rx</h3>
+              <span class="acard-seat">Doctors</span>
+            </div>
+            <p class="acard-sum">Drafts doctor and patient summaries plus a draft prescription, checked against drug interactions and telemedicine schedules.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">The consultation note is signed.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A doctor summary, a patient-facing summary in plain language, and a draft prescription with interaction flags.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Drug interaction check runs against RxNorm and openFDA. Draft only — the doctor confirms before anything prints.</p>
+          </div>
+        </article>
+          <article class="acard" id="result-explainer" data-txt="result explainer explains lab and imaging results in plain language in the patient portal, the moment they release. patients a cbc result releases in the his at 11:04. a plain-language explanation: what was measured, what the values mean, and what the patient should do next. only releases to the patient portal after a clinician marks the result as released. cannot modify values." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Result Explainer</h3>
+              <span class="acard-seat">Patients</span>
+            </div>
+            <p class="acard-sum">Explains lab and imaging results in plain language in the patient portal, the moment they release.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A CBC result releases in the HIS at 11:04.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A plain-language explanation: what was measured, what the values mean, and what the patient should do next.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Only releases to the patient portal after a clinician marks the result as released. Cannot modify values.</p>
+          </div>
+        </article>
+          <article class="acard" id="referral-triage" data-txt="referral triage router reads inbound referrals, drafts urgency and specialty, and chases missing information before the patient travels. front desk an inbound referral letter, scanned at the front desk. a triage card: suggested urgency level, recommended specialty, missing information flagged, and a draft acknowledgement to the referring doctor. urgency assignment requires a clinician to confirm before the slot is booked." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Referral Triage Router</h3>
+              <span class="acard-seat">Front desk</span>
+            </div>
+            <p class="acard-sum">Reads inbound referrals, drafts urgency and specialty, and chases missing information before the patient travels.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">An inbound referral letter, scanned at the front desk.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A triage card: suggested urgency level, recommended specialty, missing information flagged, and a draft acknowledgement to the referring doctor.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Urgency assignment requires a clinician to confirm before the slot is booked.</p>
+          </div>
+        </article>
+          <article class="acard" id="denial-guard" data-txt="denial guard classifies why a claim was denied and drafts the appeal, within value and review thresholds you set. billing a denial eob arrives from the insurer. a denial classification, the likely root cause, a draft appeal letter, and a suggested resubmission timeline. appeals above your configured value threshold require billing manager approval before submission." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Denial Guard</h3>
+              <span class="acard-seat">Billing</span>
+            </div>
+            <p class="acard-sum">Classifies why a claim was denied and drafts the appeal, within value and review thresholds you set.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A denial EOB arrives from the insurer.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A denial classification, the likely root cause, a draft appeal letter, and a suggested resubmission timeline.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Appeals above your configured value threshold require billing manager approval before submission.</p>
+          </div>
+        </article>
+          <article class="acard" id="queue-concierge" data-txt="queue concierge predicts wait times and proactively updates waiting patients on whatsapp, rescuing slots before they walk. patients the opd queue shows a 40-minute delay building from 10:30. whatsapp messages to patients queued after 10:30, with updated wait times and the option to reschedule. cannot cancel or reschedule without patient confirmation. slot release requires front-desk approval." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Queue Concierge</h3>
+              <span class="acard-seat">Patients</span>
+            </div>
+            <p class="acard-sum">Predicts wait times and proactively updates waiting patients on WhatsApp, rescuing slots before they walk.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">The OPD queue shows a 40-minute delay building from 10:30.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">WhatsApp messages to patients queued after 10:30, with updated wait times and the option to reschedule.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Cannot cancel or reschedule without patient confirmation. Slot release requires front-desk approval.</p>
+          </div>
+        </article>
+          <article class="acard" id="med-reconciliation" data-txt="med reconciliation cross-checks medications against rxnorm and openfda at every admission and discharge, and flags discrepancies. pharmacy a discharge medication list, drawn from the his. a reconciliation report: confirmed drugs, flagged interactions, doses outside reference range, and a pharmacist sign-off checklist. flags are advisory. the pharmacist confirms each item before the list is finalised." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Med Reconciliation</h3>
+              <span class="acard-seat">Pharmacy</span>
+            </div>
+            <p class="acard-sum">Cross-checks medications against RxNorm and openFDA at every admission and discharge, and flags discrepancies.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A discharge medication list, drawn from the HIS.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A reconciliation report: confirmed drugs, flagged interactions, doses outside reference range, and a pharmacist sign-off checklist.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Flags are advisory. The pharmacist confirms each item before the list is finalised.</p>
+          </div>
+        </article>
+          <article class="acard" id="sahayak" data-txt="sahayak renders patient communication into hindi, marathi, kannada and more — and falls back to english rather than guess. all staff a discharge summary in english. the same summary in the patient’s preferred language, with medical terms transliterated rather than translated where precision matters. falls back to english if confidence is below threshold. no machine translation of drug names — those stay in english." style="--hue:var(--medorbit)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Sahayak</h3>
+              <span class="acard-seat">All staff</span>
+            </div>
+            <p class="acard-sum">Renders patient communication into Hindi, Marathi, Kannada and more — and falls back to English rather than guess.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A discharge summary in English.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">The same summary in the patient’s preferred language, with medical terms transliterated rather than translated where precision matters.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Falls back to English if confidence is below threshold. No machine translation of drug names — those stay in English.</p>
+          </div>
+        </article>
+      </div>
+      <button class="more" data-more="medorbit" aria-expanded="false" aria-controls="g-medorbit" hidden><span class="more-t"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="more-l">Show all 11 MedOrbit agents</span></span></button>
+    </div>
+  </section>
+
+  <section class="plat" id="edvation" data-platform="edvation" aria-labelledby="edvation-lbl" style="--hue:var(--edvation)">
+    <div class="shell">
+      <div class="plat-hdr">
+        <div class="plat-l">
+          <h2 id="edvation-lbl" class="plat-name">Edvation</h2>
+          <span class="plat-cnt mono">20 agents</span>
+          <span class="plat-sub">Complete school platform</span>
+        </div>
+        <a href="https://ainexushub.ai/platforms/edvation/" class="link-a">The Edvation platform
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10"/><path d="M9 4l4 4-4 4"/></svg></a>
+      </div>
+      <div class="grid" id="g-edvation">
+          <article class="acard" id="study-mentor" data-txt="study mentor answers any question from the school’s own textbook, with the page number attached. students a class 10 student asks: “what is newton’s third law?” an explanation grounded in the school’s class 10 physics textbook, chapter 9, page 142 — with the exact passage cited. cannot answer from sources outside the school’s uploaded textbooks. cites the page or declines." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Study Mentor</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Answers any question from the school’s own textbook, with the page number attached.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A Class 10 student asks: “What is Newton’s third law?”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">An explanation grounded in the school’s Class 10 Physics textbook, Chapter 9, page 142 — with the exact passage cited.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Cannot answer from sources outside the school’s uploaded textbooks. Cites the page or declines.</p>
+          </div>
+        </article>
+          <article class="acard" id="voice-tutor" data-txt="voice tutor takes spoken questions and answers aloud, grounded in the chapter, in the student’s own language. students a student speaks into the app in hindi. a spoken answer in hindi, grounded in the textbook chapter, with the key term repeated in english. voice answers cite chapter and page. the agent declines to answer questions outside the current chapter." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Voice Tutor</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Takes spoken questions and answers aloud, grounded in the chapter, in the student’s own language.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student speaks into the app in Hindi.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A spoken answer in Hindi, grounded in the textbook chapter, with the key term repeated in English.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Voice answers cite chapter and page. The agent declines to answer questions outside the current chapter.</p>
+          </div>
+        </article>
+          <article class="acard" id="listen-learn" data-txt="listen &amp; learn turns every chapter into narrated audio or a two-host podcast. students a teacher uploads chapter 5: “the age of industrialisation.” a 12-minute narrated audio summary and an 18-minute two-host podcast episode. audio is generated from the uploaded chapter only. no external content is introduced." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Listen &amp; Learn</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Turns every chapter into narrated audio or a two-host podcast.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A teacher uploads Chapter 5: “The Age of Industrialisation.”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A 12-minute narrated audio summary and an 18-minute two-host podcast episode.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Audio is generated from the uploaded chapter only. No external content is introduced.</p>
+          </div>
+        </article>
+          <article class="acard" id="chapter-song" data-txt="chapter song composes a song from the chapter, after a teacher approves the lyrics. students chapter 3, class 8 geography: “agriculture.” a set of lyrics grounded in the chapter’s key concepts, ready for teacher review. lyrics require teacher approval before students can see or hear the song." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Chapter Song</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Composes a song from the chapter, after a teacher approves the lyrics.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">Chapter 3, Class 8 Geography: “Agriculture.”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A set of lyrics grounded in the chapter’s key concepts, ready for teacher review.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Lyrics require teacher approval before students can see or hear the song.</p>
+          </div>
+        </article>
+          <article class="acard" id="teacher-lesson-kit" data-txt="teacher lesson kit builds a five-artifact lesson kit from one sentence, grounded in the chapter. teachers a teacher types: “lesson on photosynthesis, class 6, chapter 1.” a lesson plan, a slide deck outline, a class activity, a formative quiz and a parent digest. all artifacts cite the chapter. the teacher reviews before sharing with students." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Teacher Lesson Kit</h3>
+              <span class="acard-seat">Teachers</span>
+            </div>
+            <p class="acard-sum">Builds a five-artifact lesson kit from one sentence, grounded in the chapter.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A teacher types: “Lesson on photosynthesis, Class 6, Chapter 1.”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A lesson plan, a slide deck outline, a class activity, a formative quiz and a parent digest.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">All artifacts cite the chapter. The teacher reviews before sharing with students.</p>
+          </div>
+        </article>
+          <article class="acard" id="quiz-generator" data-txt="ai quiz generator generates board-ready questions tagged by board pattern and bloom level. teachers chapter 4, class 10 science, cbse pattern. twenty questions: 5 mcq, 5 short answer, 5 long answer, 5 application — each tagged with bloom level. questions are drawn from the chapter. the teacher reviews and edits before the quiz is assigned." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">AI Quiz Generator</h3>
+              <span class="acard-seat">Teachers</span>
+            </div>
+            <p class="acard-sum">Generates board-ready questions tagged by board pattern and Bloom level.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">Chapter 4, Class 10 Science, CBSE pattern.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">Twenty questions: 5 MCQ, 5 short answer, 5 long answer, 5 application — each tagged with Bloom level.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Questions are drawn from the chapter. The teacher reviews and edits before the quiz is assigned.</p>
+          </div>
+        </article>
+          <article class="acard" id="socratic-practice" data-txt="socratic practice gives hints, never answers — and flags the teacher when a student is genuinely stuck. students a student submits the wrong answer to a maths problem three times in a row. a socratic hint that points to the step where the student went wrong, without revealing the answer. after five failed attempts, the teacher receives a flag. the agent never provides the answer directly." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Socratic Practice</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Gives hints, never answers — and flags the teacher when a student is genuinely stuck.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student submits the wrong answer to a maths problem three times in a row.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A Socratic hint that points to the step where the student went wrong, without revealing the answer.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">After five failed attempts, the teacher receives a flag. The agent never provides the answer directly.</p>
+          </div>
+        </article>
+          <article class="acard" id="writing-coach" data-txt="writing coach coaches writing with anchored comments, and declines to write it for you. students a student submits a draft essay. inline comments on structure, clarity and argument, with each comment anchored to the textbook chapter. the agent annotates; it does not rewrite. it will not produce a substitute essay." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Writing Coach</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Coaches writing with anchored comments, and declines to write it for you.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student submits a draft essay.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">Inline comments on structure, clarity and argument, with each comment anchored to the textbook chapter.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">The agent annotates; it does not rewrite. It will not produce a substitute essay.</p>
+          </div>
+        </article>
+          <article class="acard" id="school-copilot" data-txt="ask school copilot answers questions about the school from live operational data, with citation chips. everyone a parent asks: “what is the fee structure for class 8 next year?” the fee structure for class 8, pulled from the school’s live fee records, with a timestamp. reads from live data; cannot write to any record. all answers carry a data-source citation chip." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Ask School Copilot</h3>
+              <span class="acard-seat">Everyone</span>
+            </div>
+            <p class="acard-sum">Answers questions about the school from live operational data, with citation chips.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A parent asks: “What is the fee structure for Class 8 next year?”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">The fee structure for Class 8, pulled from the school’s live fee records, with a timestamp.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Reads from live data; cannot write to any record. All answers carry a data-source citation chip.</p>
+          </div>
+        </article>
+          <article class="acard" id="in-app-assistant" data-txt="in-app assistant gives role-aware help on every screen, plus a spoken daily briefing. everyone a teacher opens the attendance screen at 08:55. a spoken briefing: “you have 3 absent students from yesterday. your first period starts in 5 minutes.” briefings are role-scoped. a teacher’s briefing cannot surface student-private data." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">In-app Assistant</h3>
+              <span class="acard-seat">Everyone</span>
+            </div>
+            <p class="acard-sum">Gives role-aware help on every screen, plus a spoken daily briefing.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A teacher opens the attendance screen at 08:55.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A spoken briefing: “You have 3 absent students from yesterday. Your first period starts in 5 minutes.”</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Briefings are role-scoped. A teacher’s briefing cannot surface student-private data.</p>
+          </div>
+        </article>
+          <article class="acard" id="memory-coach" data-txt="memory coach schedules spaced repetition, compressed to the days remaining before the exam. students a student has 14 days until the term exam and 6 chapters to revise. a day-by-day revision schedule with spaced repetition intervals optimised for exam date. schedule is advisory. the student can adjust; the agent does not lock the plan." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Memory Coach</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Schedules spaced repetition, compressed to the days remaining before the exam.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student has 14 days until the term exam and 6 chapters to revise.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A day-by-day revision schedule with spaced repetition intervals optimised for exam date.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Schedule is advisory. The student can adjust; the agent does not lock the plan.</p>
+          </div>
+        </article>
+          <article class="acard" id="teach-it-back" data-txt="teach it back grades a student’s own explanation against the book, quoting the pages they missed. students a student records a voice explanation of “how does photosynthesis work?” a score out of 10, with the concepts the student got right and the pages they missed. grading is against the school’s uploaded textbook only. no external rubric is applied." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Teach It Back</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Grades a student’s own explanation against the book, quoting the pages they missed.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student records a voice explanation of “How does photosynthesis work?”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A score out of 10, with the concepts the student got right and the pages they missed.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Grading is against the school’s uploaded textbook only. No external rubric is applied.</p>
+          </div>
+        </article>
+          <article class="acard" id="memory-maps" data-txt="memory maps turns a chapter into a mind-map where every node carries a page citation. students chapter 2, class 9 history: “socialism in europe.” a visual mind-map with six first-level nodes and 24 sub-nodes, each carrying a page citation. nodes cite the textbook. the agent cannot add content that is not in the chapter." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Memory Maps</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Turns a chapter into a mind-map where every node carries a page citation.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">Chapter 2, Class 9 History: “Socialism in Europe.”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A visual mind-map with six first-level nodes and 24 sub-nodes, each carrying a page citation.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Nodes cite the textbook. The agent cannot add content that is not in the chapter.</p>
+          </div>
+        </article>
+          <article class="acard" id="exam-readiness" data-txt="exam readiness sets board-pattern papers and marks them the way an examiner would, step by step. students a class 10 student requests a cbse practice paper for science. a full-length board-pattern paper with marking scheme and step-wise marks breakdown. papers are generated from the syllabus. step marks are awarded by the marking scheme." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Exam Readiness</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Sets board-pattern papers and marks them the way an examiner would, step by step.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A Class 10 student requests a CBSE practice paper for Science.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A full-length board-pattern paper with marking scheme and step-wise marks breakdown.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Papers are generated from the syllabus. Step marks are awarded by the marking scheme.</p>
+          </div>
+        </article>
+          <article class="acard" id="daily-sprint" data-txt="daily sprint runs a three-minute daily practice ritual, with streaks and a weekly parent digest. students a student opens the app at 07:15. three questions from yesterday’s weak areas, a streak update, and a weekly parent digest. parent digest is limited to performance summary. it does not include message or chat content." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Daily Sprint</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Runs a three-minute daily practice ritual, with streaks and a weekly parent digest.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student opens the app at 07:15.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">Three questions from yesterday’s weak areas, a streak update, and a weekly parent digest.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Parent digest is limited to performance summary. It does not include message or chat content.</p>
+          </div>
+        </article>
+          <article class="acard" id="maths-mentor" data-txt="maths mentor works through maths step by step and finds the first wrong step, not just the wrong answer. students a student submits a worked solution to a quadratic equation problem. a step-by-step trace of the student’s working, with the first incorrect step identified. the agent identifies the error; it does not solve the problem for the student." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Maths Mentor</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Works through maths step by step and finds the first wrong step, not just the wrong answer.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student submits a worked solution to a quadratic equation problem.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A step-by-step trace of the student’s working, with the first incorrect step identified.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">The agent identifies the error; it does not solve the problem for the student.</p>
+          </div>
+        </article>
+          <article class="acard" id="speak-coach" data-txt="speak coach scores pronunciation in the browser, so a child’s recording never leaves the device. students a student reads aloud a paragraph from the english textbook. a pronunciation score with word-level highlights and a suggested sentence to re-practise. audio is processed in-browser. the recording never leaves the device. only the score is transmitted." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Speak Coach</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Scores pronunciation in the browser, so a child’s recording never leaves the device.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student reads aloud a paragraph from the English textbook.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A pronunciation score with word-level highlights and a suggested sentence to re-practise.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Audio is processed in-browser. The recording never leaves the device. Only the score is transmitted.</p>
+          </div>
+        </article>
+          <article class="acard" id="abacus-trainer" data-txt="abacus trainer trains mental maths with spoken-answer grading, handwriting ocr and a hard screen-time cap. students a student starts a level 3 abacus session. a timed drill with spoken answers graded in real time and a session report for the teacher. session ends after the configured time cap regardless of completion. the cap cannot be overridden by the student." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Abacus Trainer</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Trains mental maths with spoken-answer grading, handwriting OCR and a hard screen-time cap.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student starts a Level 3 abacus session.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A timed drill with spoken answers graded in real time and a session report for the teacher.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Session ends after the configured time cap regardless of completion. The cap cannot be overridden by the student.</p>
+          </div>
+        </article>
+          <article class="acard" id="career-compass" data-txt="career compass runs scenario interviews and produces a discussion kit for parents in 13 languages. students a class 11 student completes a 20-minute career scenario interview. a career interest profile, three suggested pathways with subject recommendations, and a parent discussion kit. output is a discussion starter, not a career verdict. the summary reminds the parent that it is one data point." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Career Compass</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Runs scenario interviews and produces a discussion kit for parents in 13 languages.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A Class 11 student completes a 20-minute career scenario interview.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A career interest profile, three suggested pathways with subject recommendations, and a parent discussion kit.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Output is a discussion starter, not a career verdict. The summary reminds the parent that it is one data point.</p>
+          </div>
+        </article>
+          <article class="acard" id="science-lab" data-txt="science lab runs predict-observe-explain against page-cited concept boards and simulations. students a student starts the “ohm’s law” virtual lab. a predict-observe-explain sequence with a circuit simulator, guided by the textbook concept board. concept boards cite the textbook page. the simulation cannot contradict the textbook model." style="--hue:var(--edvation)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Science Lab</h3>
+              <span class="acard-seat">Students</span>
+            </div>
+            <p class="acard-sum">Runs predict-observe-explain against page-cited concept boards and simulations.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A student starts the “Ohm’s Law” virtual lab.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A predict-observe-explain sequence with a circuit simulator, guided by the textbook concept board.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Concept boards cite the textbook page. The simulation cannot contradict the textbook model.</p>
+          </div>
+        </article>
+      </div>
+      <button class="more" data-more="edvation" aria-expanded="false" aria-controls="g-edvation" hidden><span class="more-t"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="more-l">Show all 20 Edvation agents</span></span></button>
+    </div>
+  </section>
+
+  <section class="plat" id="advohub" data-platform="advohub" aria-labelledby="advohub-lbl" style="--hue:var(--advohub)">
+    <div class="shell">
+      <div class="plat-hdr">
+        <div class="plat-l">
+          <h2 id="advohub-lbl" class="plat-name">AdvoHub</h2>
+          <span class="plat-cnt mono">10 agents</span>
+          <span class="plat-sub">AI legal practice platform</span>
+        </div>
+        <a href="https://ainexushub.ai/platforms/advohub/" class="link-a">The AdvoHub platform
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10"/><path d="M9 4l4 4-4 4"/></svg></a>
+      </div>
+      <div class="grid" id="g-advohub">
+          <article class="acard" id="research-agent" data-txt="citation-grounded research answers any indian-law question with every citation verified against indian kanoon first. associates an associate asks about the limitation period for recovery of money. a research memo with the applicable provision, three leading cases with verified indian kanoon citations. every citation is verified against indian kanoon before it reaches the advocate. unverified citations are not shown." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Citation-Grounded Research</h3>
+              <span class="acard-seat">Associates</span>
+            </div>
+            <p class="acard-sum">Answers any Indian-law question with every citation verified against Indian Kanoon first.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">An associate asks about the limitation period for recovery of money.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A research memo with the applicable provision, three leading cases with verified Indian Kanoon citations.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Every citation is verified against Indian Kanoon before it reaches the advocate. Unverified citations are not shown.</p>
+          </div>
+        </article>
+          <article class="acard" id="matter-copilot" data-txt="matter copilot chat with any case file — and let it take the action you approve. litigators an advocate asks: “what documents are still missing for the next hearing?” a list of missing documents drawn from the matter checklist, with the cnr number and next hearing date. actions require advocate approval before execution." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Matter Copilot</h3>
+              <span class="acard-seat">Litigators</span>
+            </div>
+            <p class="acard-sum">Chat with any case file — and let it take the action you approve.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">An advocate asks: “What documents are still missing for the next hearing?”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A list of missing documents drawn from the matter checklist, with the CNR number and next hearing date.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Actions require advocate approval before execution.</p>
+          </div>
+        </article>
+          <article class="acard" id="hearing-prep-agent" data-txt="ecourts hearing-prep the evening before a listing: chronology, issues and the questions likely to come. litigators a matter is listed for hearing tomorrow. the advocate opens hearing-prep at 20:00. a chronology of events, the framed issues, the last three orders summarised, and five likely bench questions. output is drawn from the matter file and ecourts data only. no external legal opinion is introduced." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">eCourts Hearing-Prep</h3>
+              <span class="acard-seat">Litigators</span>
+            </div>
+            <p class="acard-sum">The evening before a listing: chronology, issues and the questions likely to come.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A matter is listed for hearing tomorrow. The advocate opens Hearing-Prep at 20:00.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A chronology of events, the framed issues, the last three orders summarised, and five likely bench questions.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Output is drawn from the matter file and eCourts data only. No external legal opinion is introduced.</p>
+          </div>
+        </article>
+          <article class="acard" id="drafting-agent" data-txt="drafting agent court-ready first drafts of petitions, written statements, replies and notices. associates an associate selects “writ petition — fundamental rights” and fills the fact sheet. a complete first draft with the appropriate form, prayer clauses, and a checklist of supporting documents. draft only — the advocate reviews and approves before the document is filed or sent." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Drafting Agent</h3>
+              <span class="acard-seat">Associates</span>
+            </div>
+            <p class="acard-sum">Court-ready first drafts of petitions, written statements, replies and notices.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">An associate selects “Writ Petition — Fundamental Rights” and fills the fact sheet.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A complete first draft with the appropriate form, prayer clauses, and a checklist of supporting documents.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Draft only — the advocate reviews and approves before the document is filed or sent.</p>
+          </div>
+        </article>
+          <article class="acard" id="voice-intake-agent" data-txt="vernacular voice &amp; whatsapp intake takes client intake and status calls 24×7, in the language the client speaks. front office a client calls at 22:15 and speaks in tamil. a structured intake form in english and a tamil-language acknowledgement sent to the client. cannot commit to fee quotes, hearing dates or legal advice. escalates to the advocate the next morning." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Vernacular Voice &amp; WhatsApp Intake</h3>
+              <span class="acard-seat">Front office</span>
+            </div>
+            <p class="acard-sum">Takes client intake and status calls 24×7, in the language the client speaks.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A client calls at 22:15 and speaks in Tamil.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A structured intake form in English and a Tamil-language acknowledgement sent to the client.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Cannot commit to fee quotes, hearing dates or legal advice. Escalates to the advocate the next morning.</p>
+          </div>
+        </article>
+          <article class="acard" id="contract-review-agent" data-txt="contract review &amp; redlining clause-by-clause review and redlines against your firm’s own playbook. corporate practice a 40-page saas agreement is uploaded for review. a redlined document with clause-level comments, a risk summary, and a deviation report. redlines are proposals. the advocate accepts or rejects each redline before sharing." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Contract Review &amp; Redlining</h3>
+              <span class="acard-seat">Corporate practice</span>
+            </div>
+            <p class="acard-sum">Clause-by-clause review and redlines against your firm’s own playbook.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A 40-page SaaS agreement is uploaded for review.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A redlined document with clause-level comments, a risk summary, and a deviation report.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Redlines are proposals. The advocate accepts or rejects each redline before sharing.</p>
+          </div>
+        </article>
+          <article class="acard" id="matter-action-agent" data-txt="proactive matter action watches every matter and surfaces what it needs today, as cards you accept. senior associates monday morning. the advocate opens the dashboard. five action cards: limitation deadlines, client payment reminders, hearing prep status. action cards require one-tap acceptance before any action fires. no automated sending without approval." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Proactive Matter Action</h3>
+              <span class="acard-seat">Senior associates</span>
+            </div>
+            <p class="acard-sum">Watches every matter and surfaces what it needs today, as cards you accept.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">Monday morning. The advocate opens the dashboard.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">Five action cards: limitation deadlines, client payment reminders, hearing prep status.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Action cards require one-tap acceptance before any action fires. No automated sending without approval.</p>
+          </div>
+        </article>
+          <article class="acard" id="billing-agent" data-txt="billing &amp; timekeeping ai writes billing narrations and catches the billable time you forgot to record. billing the advocate closes a 90-minute research session without logging time. a draft time entry with narration tied to the matter reference. draft entries require advocate confirmation before they appear on the invoice." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Billing &amp; Timekeeping AI</h3>
+              <span class="acard-seat">Billing</span>
+            </div>
+            <p class="acard-sum">Writes billing narrations and catches the billable time you forgot to record.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">The advocate closes a 90-minute research session without logging time.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A draft time entry with narration tied to the matter reference.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Draft entries require advocate confirmation before they appear on the invoice.</p>
+          </div>
+        </article>
+          <article class="acard" id="evidence-review-agent" data-txt="bulk evidence review reads, tags and summarises evidence sets of 50 to 500 files at a time. associates a folder of 200 documents is uploaded for a commercial dispute matter. a tagged index with document type, date, party, relevance score and a one-sentence summary per document. relevance scores are indicative. the associate reviews flagged documents before use in court." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Bulk Evidence Review</h3>
+              <span class="acard-seat">Associates</span>
+            </div>
+            <p class="acard-sum">Reads, tags and summarises evidence sets of 50 to 500 files at a time.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A folder of 200 documents is uploaded for a commercial dispute matter.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A tagged index with document type, date, party, relevance score and a one-sentence summary per document.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Relevance scores are indicative. The associate reviews flagged documents before use in court.</p>
+          </div>
+        </article>
+          <article class="acard" id="firm-knowledge-agent" data-txt="firm knowledge &amp; precedent “have we argued this before?” — answered from your own firm’s history. associates an associate asks about precedent on tortious interference in supply chain contracts. three matters from the firm’s own history with the relevant argument and outcome. search is limited to the firm’s own files. no external precedent introduced without request." style="--hue:var(--advohub)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Firm Knowledge &amp; Precedent</h3>
+              <span class="acard-seat">Associates</span>
+            </div>
+            <p class="acard-sum">“Have we argued this before?” — answered from your own firm’s history.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">An associate asks about precedent on tortious interference in supply chain contracts.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">Three matters from the firm’s own history with the relevant argument and outcome.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Search is limited to the firm’s own files. No external precedent introduced without request.</p>
+          </div>
+        </article>
+      </div>
+      <button class="more" data-more="advohub" aria-expanded="false" aria-controls="g-advohub" hidden><span class="more-t"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="more-l">Show all 10 AdvoHub agents</span></span></button>
+    </div>
+  </section>
+
+  <section class="plat" id="trustproperty" data-platform="trustproperty" aria-labelledby="trustprop-lbl" style="--hue:var(--trustproperty)">
+    <div class="shell">
+      <div class="plat-hdr">
+        <div class="plat-l">
+          <h2 id="trustprop-lbl" class="plat-name">TrustProperty</h2>
+          <span class="plat-cnt mono">7 agents</span>
+          <span class="plat-sub">AI-native property platform</span>
+        </div>
+        <a href="https://ainexushub.ai/platforms/trustproperty/" class="link-a">The TrustProperty platform
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10"/><path d="M9 4l4 4-4 4"/></svg></a>
+      </div>
+      <div class="grid" id="g-trustproperty">
+          <article class="acard" id="trustline-concierge" data-txt="trustline concierge answers questions on every listing 24×7, in text or voice, and books the site visit. tenants, buyers &amp; owners a buyer messages at 23:10: “is the society maintenance included in the rent?” an answer drawn from the listing details and an offer to book a site visit. cannot negotiate price, override agent instructions, or confirm anything not in the listing." style="--hue:var(--trustprop)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">TrustLine Concierge</h3>
+              <span class="acard-seat">Tenants, buyers &amp; owners</span>
+            </div>
+            <p class="acard-sum">Answers questions on every listing 24×7, in text or voice, and books the site visit.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A buyer messages at 23:10: “Is the society maintenance included in the rent?”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">An answer drawn from the listing details and an offer to book a site visit.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Cannot negotiate price, override agent instructions, or confirm anything not in the listing.</p>
+          </div>
+        </article>
+          <article class="acard" id="lead-intelligence" data-txt="lead intelligence scores every enquiry and shows the reasoning behind the score. agents twelve new enquiries arrive on monday morning. a ranked list with a score and three reasons per enquiry. score is a recommendation, not a decision. the agent reviews before acting on any lead." style="--hue:var(--trustprop)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Lead Intelligence</h3>
+              <span class="acard-seat">Agents</span>
+            </div>
+            <p class="acard-sum">Scores every enquiry and shows the reasoning behind the score.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">Twelve new enquiries arrive on Monday morning.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A ranked list with a score and three reasons per enquiry.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Score is a recommendation, not a decision. The agent reviews before acting on any lead.</p>
+          </div>
+        </article>
+          <article class="acard" id="listing-intake" data-txt="listing intake turns spoken description into a filled listing form, and names what is still missing. agents an agent records a voice note describing a property on a site visit. a pre-filled listing form and a checklist of the seven fields that are still missing. missing fields are listed explicitly. the listing cannot go live until required fields are complete." style="--hue:var(--trustprop)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Listing Intake</h3>
+              <span class="acard-seat">Agents</span>
+            </div>
+            <p class="acard-sum">Turns spoken description into a filled listing form, and names what is still missing.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">An agent records a voice note describing a property on a site visit.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A pre-filled listing form and a checklist of the seven fields that are still missing.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Missing fields are listed explicitly. The listing cannot go live until required fields are complete.</p>
+          </div>
+        </article>
+          <article class="acard" id="property-enrichment" data-txt="property enrichment ranks listing photos, picks the cover, and tells you which shot is missing. agents an agent uploads 14 photos for a 3bhk listing. a ranked order, a suggested cover image, and a note on which shot is missing. photo ranking is advisory. the agent sets the final cover. cannot publish without agent confirmation." style="--hue:var(--trustprop)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Property Enrichment</h3>
+              <span class="acard-seat">Agents</span>
+            </div>
+            <p class="acard-sum">Ranks listing photos, picks the cover, and tells you which shot is missing.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">An agent uploads 14 photos for a 3BHK listing.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A ranked order, a suggested cover image, and a note on which shot is missing.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Photo ranking is advisory. The agent sets the final cover. Cannot publish without agent confirmation.</p>
+          </div>
+        </article>
+          <article class="acard" id="retro-correction" data-txt="retro-correction notices when one person appears as two leads, merges them, and re-scores. owners the same buyer contacts via whatsapp and the website form with slightly different phone numbers. a merge proposal with the re-scored lead. merge is proposed, not automatic. the owner confirms before records are combined." style="--hue:var(--trustprop)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Retro-Correction</h3>
+              <span class="acard-seat">Owners</span>
+            </div>
+            <p class="acard-sum">Notices when one person appears as two leads, merges them, and re-scores.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">The same buyer contacts via WhatsApp and the website form with slightly different phone numbers.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A merge proposal with the re-scored lead.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Merge is proposed, not automatic. The owner confirms before records are combined.</p>
+          </div>
+        </article>
+          <article class="acard" id="pipeline-watchdog" data-txt="pipeline watchdog flags stalled deals and suggests the nudge that restarts them. agents a deal has had no activity for 11 days. a flag card with a suggested action to restart the deal. nudge is a suggestion. the agent sends it or dismisses it. no automated outreach without approval." style="--hue:var(--trustprop)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Pipeline Watchdog</h3>
+              <span class="acard-seat">Agents</span>
+            </div>
+            <p class="acard-sum">Flags stalled deals and suggests the nudge that restarts them.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">A deal has had no activity for 11 days.</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">A flag card with a suggested action to restart the deal.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Nudge is a suggestion. The agent sends it or dismisses it. No automated outreach without approval.</p>
+          </div>
+        </article>
+          <article class="acard" id="ad-factory" data-txt="ad factory writes, launches and optimises listing advertising in english and hindi. agents an agent selects a listing and chooses “run ad campaign.” three ad variants in english and three in hindi, plus a launch-ready campaign in meta ads. campaign budget requires agent approval before spending. ad copy is reviewed before launch." style="--hue:var(--trustprop)">
+          <div class="acard-body">
+            <div class="acard-head">
+              <h3 class="acard-name">Ad Factory</h3>
+              <span class="acard-seat">Agents</span>
+            </div>
+            <p class="acard-sum">Writes, launches and optimises listing advertising in English and Hindi.</p>
+            <details class="acard-ev">
+              <summary><svg class="ev-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="ev-shut">Worked example</span><span class="ev-open">Hide example</span></summary>
+              <div class="ev-body">
+                <div class="ev-row"><p class="ev-lbl">Input</p><p class="ev-txt">An agent selects a listing and chooses “Run ad campaign.”</p></div>
+                <div class="ev-row"><p class="ev-lbl">Output</p><p class="ev-txt">Three ad variants in English and three in Hindi, plus a launch-ready campaign in Meta Ads.</p></div>
+              </div>
+            </details>
+          </div>
+          <div class="seal" aria-hidden="true"></div>
+          <div class="ctrl">
+            <p class="ctrl-lbl">Control</p>
+            <p class="ctrl-txt">Campaign budget requires agent approval before spending. Ad copy is reviewed before launch.</p>
+          </div>
+        </article>
+      </div>
+      <button class="more" data-more="trustproperty" aria-expanded="false" aria-controls="g-trustproperty" hidden><span class="more-t"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 4 4 4-4"/></svg><span class="more-l">Show all 7 TrustProperty agents</span></span></button>
+      <div class="indev">
+        <div class="indev-hd">
+          <h3 class="indev-h">Roadmap · TrustProperty</h3>
+          <p class="indev-note">Six further agents in development — none are live today.</p>
+        </div>
+        <div class="indev-grid">
+          <div class="indev-col">
+            <div class="indev-item"><span class="indev-i">01</span><span><p class="indev-name">GharGPT</p><p class="indev-body">Conversational property discovery across the whole marketplace.</p></span></div>
+            <div class="indev-item"><span class="indev-i">02</span><span><p class="indev-name">Negotiation</p><p class="indev-body">Assists both sides through offer and counter-offer.</p></span></div>
+            <div class="indev-item"><span class="indev-i">03</span><span><p class="indev-name">Visit Concierge</p><p class="indev-body">Plans and coordinates multi-property site visits.</p></span></div>
+          </div>
+          <div class="indev-col">
+            <div class="indev-item"><span class="indev-i">04</span><span><p class="indev-name">Agreement Explainer</p><p class="indev-body">Explains a rental or sale agreement clause by clause.</p></span></div>
+            <div class="indev-item"><span class="indev-i">05</span><span><p class="indev-name">Society Copilot</p><p class="indev-body">Answers resident questions from the society&#39;s own records.</p></span></div>
+            <div class="indev-item"><span class="indev-i">06</span><span><p class="indev-name">NRI Advisor</p><p class="indev-body">Guides non-resident buyers through remote purchase and compliance.</p></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="gov" aria-labelledby="gov-h2">
+  <div class="shell">
+    <h2 class="gov-h2" id="gov-h2">How the AI is governed</h2>
+    <p class="gov-lede">The same discipline runs through all four platforms. These are controls implemented in the software, not commitments in a policy document.</p>
+    <div class="gov-grid">
+      <div class="gov-item"><h3 class="gov-title">No hallucinated citations</h3><p class="gov-body">Every citation in AdvoHub is verified against Indian Kanoon before it reaches the advocate. The agent declines to cite rather than guess.</p></div>
+      <div class="gov-item"><h3 class="gov-title">Clinician sign-off required</h3><p class="gov-body">Nothing enters the clinical record without a licensed professional's signature. The AI Scribe drafts; the doctor signs. No exceptions.</p></div>
+      <div class="gov-item"><h3 class="gov-title">No advice, only evidence</h3><p class="gov-body">Agents in Edvation give hints and citations, never conclusions. The Writing Coach annotates; it does not write. The Socratic agent questions; it does not answer.</p></div>
+      <div class="gov-item"><h3 class="gov-title">Tools are signed, calls are logged</h3><p class="gov-body">Every booking tool in MedOrbit is cryptographically signed. Every outbound call is logged. No agent can act outside its signed tool set.</p></div>
+      <div class="gov-item"><h3 class="gov-title">Data stays in jurisdiction</h3><p class="gov-body">Clinical data stays in AWS Mumbai. Legal files never leave the advocate's instance. School data is scoped to the school. TrustProperty data is India-only.</p></div>
+      <div class="gov-item"><h3 class="gov-title">Scores show their reasoning</h3><p class="gov-body">The Lead Intelligence score in TrustProperty shows the reasoning behind every score. No black-box ranking. The agent's logic is the agent's output.</p></div>
+      <div class="gov-item"><h3 class="gov-title">Escalation, not advice</h3><p class="gov-body">The Aftercare Voice Agent notices deterioration and escalates to nursing staff. It does not advise the patient. The clinical decision remains with the clinician.</p></div>
+      <div class="gov-item"><h3 class="gov-title">No voice recording leaves the device</h3><p class="gov-body">Speak Coach scores pronunciation in the browser. The child's audio never leaves the device. The score is the only thing that reaches the teacher's dashboard.</p></div>
+    </div>
+    <div class="gov-lnk">
+      <a href="https://ainexushub.ai/security/" class="link-a">Security, data residency and compliance
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10"/><path d="M9 4l4 4-4 4"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<section class="cta" aria-labelledby="cta-h2">
+  <div class="shell">
+    <h2 class="cta-h2" id="cta-h2">See a platform in action.</h2>
+    <p class="cta-sub">A 30-minute demo of any platform, run on your own facility type, board, practice area or city — or a conversation about partnership. We reply within one business day.</p>
+    <div class="cta-acts">
+      <a href="https://ainexushub.ai/contact/" class="btn btn-p">Book a demo</a>
+      <a href="https://www.linkedin.com/company/110654999" target="_blank" rel="noopener" class="btn btn-s">Connect on LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="ftr">
+  <div class="shell">
+    <div class="ftr-inner">
+      <div>
+        <p class="ftr-name">AI Nexus Innovations Hub</p>
+        <p class="ftr-tag">An AI product company in Bengaluru and Singapore, building four AI-native platforms for regulated Indian industries.</p>
+      </div>
+      <div><p class="ftr-col-h">Platforms</p><ul class="ftr-links"><li><a href="https://ainexushub.ai/platforms/medorbit/">MedOrbit</a></li><li><a href="https://ainexushub.ai/platforms/edvation/">Edvation</a></li><li><a href="https://ainexushub.ai/platforms/advohub/">AdvoHub</a></li><li><a href="https://ainexushub.ai/platforms/trustproperty/">TrustProperty</a></li></ul></div>
+      <div><p class="ftr-col-h">AI agents</p><ul class="ftr-links"><li><a href="https://ainexushub.ai/ai-agents/">All 48 agents</a></li><li><a href="#medorbit">MedOrbit (11)</a></li><li><a href="#edvation">Edvation (20)</a></li><li><a href="#advohub">AdvoHub (10)</a></li><li><a href="#trustproperty">TrustProperty (7)</a></li></ul></div>
+      <div><p class="ftr-col-h">Company</p><ul class="ftr-links"><li><a href="https://ainexushub.ai/about/">About</a></li><li><a href="https://ainexushub.ai/security/">Security</a></li><li><a href="https://ainexushub.ai/contact/">Contact</a></li><li><a href="https://ainexushub.ai/sitemap/">Sitemap</a></li></ul></div>
+      <div><p class="ftr-col-h">Legal</p><ul class="ftr-links"><li><a href="https://ainexushub.ai/privacy/">Privacy</a></li><li><a href="https://ainexushub.ai/terms/">Terms</a></li></ul></div>
+    </div>
+    <div class="ftr-bottom">
+      <p class="ftr-legal">
+        <a href="mailto:raju@ainexushub.ai">raju@ainexushub.ai</a> · <a href="tel:+919538522221">+91 95385 22221</a> · Mon–Sat, 9:00–19:00 IST<br>
+        AI Nexus Innovations Hub Pvt. Ltd. · CIN U47413KA2025PTC210603 · Bengaluru<br>
+        AI Nexus Innovations Hub Pte. Ltd. · UEN 202550378W · Singapore
+      </p>
+      <p class="ftr-note">Product examples on this site are illustrative.</p>
+      <p class="ftr-note">© 2026 AI Nexus Innovations Hub. Connecting Intelligence. Transforming Lives.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   All 48 agents are SERVER-RENDERED in the HTML above. Nothing in this
+   script creates content — it only filters what is already in the document.
+   With JavaScript disabled the page is complete: 48 agents, every worked
+   example, every anchor. DESIGN.md §1.2.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Filter engine ────────────────────────────────────────────────────
+   Cards hide via a CLASS, not the [hidden] attribute. `.acard` declares
+   display:flex, and an author rule beats the UA `[hidden]{display:none}`
+   default — which is why the previous build reported "1 of 48" while
+   showing all 48. `hidden` is still set so assistive tech agrees with
+   what is on screen.                                                     */
+const inp   = document.getElementById('q');
+const xBtn  = document.getElementById('srch-x');
+const tabs  = document.getElementById('ptabs');
+const sel   = document.getElementById('psel');
+const rcnt  = document.getElementById('rcnt');
+const empty = document.getElementById('empty');
+const emH   = document.getElementById('empty-h');
+const emSub = document.getElementById('empty-sub');
+const cards = [...document.querySelectorAll('.acard')];
+const secs  = [...document.querySelectorAll('.plat')];
+const PNAME = { medorbit:'MedOrbit', edvation:'Edvation', advohub:'AdvoHub', trustproperty:'TrustProperty' };
+const FOLD_AT = 6;   /* six is two full rows at 3-up and three at 2-up */
+let query = '', plat = 'all', timer;
+
+function filter(){
+  const q = query.trim().toLowerCase();
+  const focusWasInACard = document.activeElement?.closest?.('.acard');
+  let n = 0;
+
+  cards.forEach(c => {
+    const cp = c.closest('.plat').dataset.platform;
+    const ok = (plat === 'all' || cp === plat) && (!q || c.dataset.txt.includes(q));
+    c.classList.toggle('is-out', !ok);
+    c.hidden = !ok;
+    if (ok) n++;
+  });
+  secs.forEach(s => {
+    const any = [...s.querySelectorAll('.acard')].some(c => !c.classList.contains('is-out'));
+    s.hidden = !any;
+    s.classList.toggle('is-out', !any);
+  });
+
+  /* Visually "12 of 48" — the word "agents" is redundant beside a search box
+     labelled "Find an agent", and it cost 55px on a row that had none to give.
+     The full sentence is preserved for the live region, so a screen reader
+     still hears "12 of 48 agents match". */
+  rcnt.innerHTML = n === 48
+    ? `<strong>48</strong> of 48<span class="sr"> agents</span>`
+    : `<strong>${n}</strong> of 48<span class="sr"> agents match</span>`;
+
+  if (n === 0) {
+    empty.classList.add('show');
+    if (q && plat !== 'all')      { emH.textContent = `No agents match “${query}” in ${PNAME[plat]}`; emSub.textContent = 'Try a shorter phrase, or search across all platforms.'; }
+    else if (q)                   { emH.textContent = `No agents match “${query}”`;                    emSub.textContent = 'Try a shorter phrase — search covers names, summaries, seats and guardrails.'; }
+    else                          { emH.textContent = `No agents in ${PNAME[plat] || 'this platform'}`; emSub.textContent = ''; }
+  } else {
+    empty.classList.remove('show');
+  }
+
+  applyFold();
+
+  /* Never strand keyboard focus on a card that just left the page. */
+  if (focusWasInACard && (focusWasInACard.classList.contains('is-out') ||
+      focusWasInACard.classList.contains('is-folded'))) rcnt.focus();
+}
+
+/* ─── Progressive disclosure ───────────────────────────────────────────
+   Each platform shows its first six agents; the rest are one control away.
+   All 48 stay in the HTML, so search, crawlers and deep links are unaffected
+   — this only governs what is painted. The fold lifts automatically whenever
+   the user has expressed intent: a platform filter, a search, or a deep link.
+   Folding a result set the user explicitly asked for would be obstruction. */
+function applyFold(){
+  /* Only a SEARCH lifts the fold. Selecting a platform does NOT: the previous
+     build treated "filtered to MedOrbit" as intent to see all 11, which made
+     the control vanish the moment you used it — the fold worked on All and
+     nowhere else. Every platform now folds identically, so the page has one
+     rule instead of two. A search is different in kind: the user has named
+     what they want, and hiding matches behind a control would be obstruction. */
+  const searching = query.trim() !== '';
+  secs.forEach(sec => {
+    const isOpen = sec.classList.contains('is-open');
+    const open = searching || isOpen;
+    const shown = [...sec.querySelectorAll('.acard')].filter(c => !c.classList.contains('is-out'));
+    shown.forEach((c,i) => c.classList.toggle('is-folded', !open && i >= FOLD_AT));
+    const btn = sec.querySelector('.more');
+    if (!btn) return;
+    const rest = shown.length - FOLD_AT;
+    btn.hidden = searching || rest <= 0;
+    btn.setAttribute('aria-expanded', String(isOpen));
+    /* The collapsed label names the reward ("Show all 11 MedOrbit agents");
+       the expanded label names the count being given back, so the control
+       always states its own consequence rather than just its direction. */
+    btn.querySelector('.more-l').textContent = isOpen
+      ? `Show fewer — hide ${rest} of ${shown.length}`
+      : `Show all ${shown.length} ${PNAME[sec.dataset.platform]} agents`;
+  });
+}
+
+document.querySelectorAll('.more').forEach(btn => btn.addEventListener('click', () => {
+  const sec = btn.closest('.plat');
+  const wasFolded = new Set([...sec.querySelectorAll('.acard.is-folded')]);
+  const wasOpen = sec.classList.toggle('is-open');
+  applyFold();
+  /* Cards that just left .is-folded get a staggered entrance; collapsing
+     needs no animation of its own — display:none is instant either way. */
+  if (wasOpen) {
+    const revealed = [...sec.querySelectorAll('.acard')].filter(c => wasFolded.has(c) && !c.classList.contains('is-folded'));
+    revealed.forEach((c, i) => {
+      c.classList.add('is-revealing');
+      c.style.animationDelay = `${Math.min(i, 8) * 35}ms`;
+      c.addEventListener('animationend', () => { c.classList.remove('is-revealing'); c.style.animationDelay = ''; }, { once:true });
+    });
+  }
+  /* Collapsing from the bottom of a long list would leave the user stranded
+     mid-page; return them to the seam they clicked. */
+  if (!wasOpen) btn.scrollIntoView({ block:'center' });
+  btn.focus();
+}));
+function dFilter(){ clearTimeout(timer); timer = setTimeout(filter, 90); }
+
+inp.addEventListener('input', () => { query = inp.value; xBtn.classList.toggle('show', !!query); dFilter(); });
+inp.addEventListener('keydown', e => { if (e.key === 'Escape') clearSearch(); });
+xBtn.addEventListener('click', () => { clearSearch(); inp.focus(); });
+function clearSearch(){ inp.value = ''; query = ''; xBtn.classList.remove('show'); filter(); }
+
+function setPlat(p){
+  plat = p;
+  tabs.querySelectorAll('.ptab').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.p === p)));
+  document.querySelectorAll('[data-pf]').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.pf === p)));
+  sel.value = p;
+  filter();
+}
+tabs.querySelectorAll('.ptab').forEach(t => t.addEventListener('click', () => setPlat(t.dataset.p)));
+sel.addEventListener('change', () => setPlat(sel.value));
+document.querySelectorAll('[data-pf]').forEach(tile => tile.addEventListener('click', () => {
+  setPlat(tile.dataset.pf === plat ? 'all' : tile.dataset.pf);   /* second press clears */
+  document.querySelector('.console').scrollIntoView({ block:'start' });
+}));
+document.getElementById('empty-clr').addEventListener('click', () => { clearSearch(); inp.focus(); });
+document.getElementById('empty-all').addEventListener('click', () => { clearSearch(); setPlat('all'); inp.focus(); });
+
+/* ─── Expand all ───────────────────────────────────────────────────────
+   48 collapsed disclosures make guardrail comparison a 48-click job.
+   One control turns the page into a comparison instrument.               */
+const eaBtn = document.getElementById('expand-all');
+eaBtn.addEventListener('click', () => {
+  const open = eaBtn.getAttribute('aria-pressed') !== 'true';
+  eaBtn.setAttribute('aria-pressed', String(open));
+  eaBtn.querySelector('.ea-shut').classList.toggle('sr', open);
+  eaBtn.querySelector('.ea-open').classList.toggle('sr', !open);
+  document.querySelectorAll('.acard-ev').forEach(d => { d.open = open; });
+});
+
+/* ─── Deep links ───────────────────────────────────────────────────────
+   A deep link is an explicit request for one agent, so it clears any
+   active filter rather than fighting it.                                 */
+function handleHash(){
+  const h = location.hash.slice(1);
+  if (!h) return;
+  const t = document.getElementById(h);
+  if (!t) return;
+  if (t.classList.contains('acard')) {
+    inp.value = ''; query = ''; xBtn.classList.remove('show');
+    setPlat('all');
+    t.querySelector('.acard-ev')?.setAttribute('open', '');
+    t.closest('.plat')?.classList.add('is-open');   /* never deep-link into a folded card */
+    applyFold();
+  }
+  requestAnimationFrame(() => t.scrollIntoView({ block:'start' }));
+}
+window.addEventListener('hashchange', handleHash);
+handleHash();
+
+/* ─── Scroll state ─────────────────────────────────────────────────────
+   One passive listener drives both: the nav shadow, and compacting the
+   toolbar once it actually reaches the nav. There is no :stuck selector in
+   CSS, and a sentinel + IntersectionObserver would be a second observer for
+   a value we can read directly. offsetTop is measured once and on resize,
+   never per frame. */
+const nav = document.getElementById('site-nav');
+const bar = document.querySelector('.console');
+let stickAt = 0;
+const measure = () => { stickAt = bar.offsetTop - nav.offsetHeight; };
+const onScroll = () => {
+  nav.classList.toggle('scrolled', scrollY > 8);
+  bar.classList.toggle('is-stuck', scrollY >= stickAt);
+};
+measure();
+onScroll();
+addEventListener('resize', () => { measure(); onScroll(); }, { passive:true });
+addEventListener('scroll', onScroll, { passive:true });
+</script>
+</body>
+</html>
