@@ -57,7 +57,20 @@
   --radius-panel: 16px;
   --radius-pill: 999px;
 
-  /* Elevation — exactly two */
+  /* Elevation.
+     Was "exactly two". §16 adds a real scale for /platforms/*, where cards rest
+     on elevation rather than on a hairline alone.
+
+     Every value is derived from --color-ink at low alpha, so depth never
+     introduces a grey the palette does not contain. Tight offsets and negative
+     spread keep the register documentary — this is paper lifting off paper, not
+     a card floating in a room.
+
+     The tokens are declared site-wide because tokens are; USE is scoped to
+     /platforms/* by §16. The other 13 routes stay hairline-only. */
+  --shadow-1: 0 1px 2px -1px rgb(11 18 32 / 0.06), 0 2px 4px -2px rgb(11 18 32 / 0.04);
+  --shadow-2: 0 4px 8px -4px rgb(11 18 32 / 0.1), 0 8px 20px -8px rgb(11 18 32 / 0.08);
+  --shadow-3: 0 12px 24px -10px rgb(11 18 32 / 0.14), 0 24px 48px -20px rgb(11 18 32 / 0.12);
   --shadow-sticky: 0 1px 0 0 #dde5f0, 0 4px 16px -8px rgb(11 18 32 / 0.1);
 
   /* Section rhythm — DESIGN.md §5.
@@ -76,8 +89,10 @@
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --dur-micro: 200ms; /* hover, focus, colour */
   --dur-element: 400ms; /* one element arriving */
-  --dur-section: 600ms; /* a group arriving */
+  --dur-section: 700ms; /* a group arriving */
   --reveal-stagger: 60ms;
+  /* Hover lift, capped. §16 permits <=4px, transform-only. */
+  --lift: 4px;
 
   /* Legacy names, kept so existing components keep resolving. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
