@@ -2,6 +2,7 @@
 /** One agent, with its full Evidence triad inline.
  *  Worked example (Input/Output) collapses behind <details> for scannability.
  *  Control guardrail is always visible at the bottom. */
+import { markIndic } from '../content/indic';
 import type { AgentDetail } from '../content/platform-detail';
 interface Props {
   agent: AgentDetail;
@@ -42,7 +43,7 @@ const { agent, hue } = Astro.props;
         </div>
         <div>
           <p class="t-cap font-semibold mb-0.5 mono text-[0.6875rem] uppercase tracking-wider text-accent">Output</p>
-          <p class="text-xs leading-relaxed" style="color: var(--color-ink);">{agent.output}</p>
+          <p class="text-xs leading-relaxed" style="color: var(--color-ink);" set:html={markIndic(agent.output)} />
         </div>
       </div>
     </details>

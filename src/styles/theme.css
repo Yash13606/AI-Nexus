@@ -90,7 +90,12 @@ body {
   margin: 0;
   background: var(--color-paper);
   color: var(--color-body);
-  font-family: var(--font-sans), var(--font-deva);
+  /* --font-sans ends in the `sans-serif` generic, which always matches, so any
+     family listed after it is unreachable — the Devanagari cut had never been
+     used. It has to sit inside the stack, before the generic. The unicode-range
+     on the Plex Sans face means Devanagari codepoints skip it and land here.
+     The §14 tokens are unchanged; this is the consumer, not the token. */
+  font-family: 'IBM Plex Sans', 'IBM Plex Sans Devanagari', ui-sans-serif, system-ui, sans-serif;
   font-size: var(--text-body);
   line-height: 1.62;
   letter-spacing: -0.005em;

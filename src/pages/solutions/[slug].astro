@@ -5,7 +5,8 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import { solutions } from '../../content/solutions';
 import { platforms } from '../../content/platforms';
-import { detail } from '../../content/platform-detail';
+import { detail } from '../../content/platform-detail-fixed';
+import { markIndic } from '../../content/indic';
 
 export function getStaticPaths() {
   return solutions.map((s) => ({ params: { slug: s.slug }, props: { solution: s } }));
@@ -37,7 +38,7 @@ const rows = d.roles.map((r) => ({
       <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style={`background: ${p.hue};`}></div>
 
       <p class="t-lede mt-7" style="color: var(--color-ink);">{s.seats}</p>
-      <p class="t-body mt-5 prose">{p.body}</p>
+      <p class="t-body mt-5 prose" set:html={markIndic(p.body)} />
 
       <div class="mt-9 flex flex-wrap gap-3">
         <a href="/contact/" class="btn btn-primary tx-fast">
@@ -81,7 +82,7 @@ const rows = d.roles.map((r) => ({
 
                   <div>
                     <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Output</p>
-                    <p class="t-sm">{r.agent.output}</p>
+                    <p class="t-sm" set:html={markIndic(r.agent.output)} />
                   </div>
 
                   <div class="seal-rule h-px w-full" style="background: var(--color-control);" />

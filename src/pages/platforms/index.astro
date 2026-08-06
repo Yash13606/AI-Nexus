@@ -4,23 +4,29 @@ import Icon from '../../components/Icon.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import { platforms } from '../../content/platforms';
-import { detail } from '../../content/platform-detail';
+import { detail } from '../../content/platform-detail-fixed';
+import { markIndic } from '../../content/indic';
 
+/** From the comparison table in ainexushub/platforms/index.md. MedOrbit and
+ *  AdvoHub publish no language count there, so neither claims one here. */
 const languages: Record<string, string> = {
   medorbit: '—',
   edvation: '13',
-  advohub: '22',
+  advohub: '—',
   trustproperty: '3',
 };
+
+const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 ---
 
 <Base
   title="Four AI Platforms for Indian Institutions | AI Nexus"
   description="MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices and TrustProperty for property — four AI platforms, 48 agents, one engineering discipline."
+  trail={trail}
 >
   <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);">
     <div class="shell">
-      <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Platforms' }]} />
+      <Breadcrumbs trail={trail} />
       <h1 class="t-h1" style="max-width: 20ch;">Four platforms, four industries, one engineering discipline</h1>
       <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
       <p class="t-lede mt-7">
@@ -48,7 +54,7 @@ const languages: Record<string, string> = {
                 {p.bullets.map((b) => (
                   <li class="t-sm flex gap-2.5">
                     <Icon name="check" class="mt-1 shrink-0" size={14} />
-                    <span>{b}</span>
+                    <span set:html={markIndic(b)} />
                   </li>
                 ))}
               </ul>
@@ -143,8 +149,11 @@ const languages: Record<string, string> = {
       </div>
 
       <p class="t-sm mt-6" style="color: var(--color-muted);">
-        Every agent is listed with a worked example on its platform page.
+        48 named AI agents across the four platforms.
       </p>
+      <a href="/ai-agents/" class="link-accent mt-3 group/link">
+        See every one with a worked example <Icon name="arrow-right" class="arrow" size={14} />
+      </a>
     </div>
   </section>
 

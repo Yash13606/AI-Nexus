@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { markIndic } from '../content/indic';
 import type { Faq } from '../content/platform-detail';
 interface Props {
   items: Faq[];
@@ -16,7 +17,10 @@ const { items, openFirst = false } = Astro.props;
           {f.q}
           <Icon name="chevron-down" class="chev" size={18} />
         </summary>
-        <p class="answer">{f.a}</p>
+        {/* Indic runs carry their real lang so screen readers switch voice and
+            :lang() routes them to the Devanagari cut. JSON-LD keeps the plain
+            string — structured data takes text, not markup. */}
+        <p class="answer" set:html={markIndic(f.a)} />
       </details>
     ))
   }
