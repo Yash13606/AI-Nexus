@@ -357,14 +357,20 @@ const groups = grouped
        partly under the browser's own chrome until it retracts. */
     --chrome: calc(var(--nav-h) + var(--subnav-h) + 1px);
     min-height: calc(100svh - var(--chrome));
+    /* Column, and centred on the main axis — see the note in
+       /platforms/index.astro. Row direction made `.shell` shrink-to-fit and
+       cost the page its left edge there. It did not show here only because
+       this hero's grid is wide enough to hit the 1200px cap anyway, which is
+       luck rather than correctness. */
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
     /* A length, never 68ch — see the note in /platforms/index.astro. */
     --hero-measure: 660px;
   }
   @media (max-width: 1099px) {
     .hero {
-      align-items: flex-start;
+      justify-content: flex-start;
     }
   }
 
