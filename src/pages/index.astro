@@ -5,6 +5,7 @@ import EvidenceCard from '../components/EvidenceCard.astro';
 import ScrollExpand from '../components/react/ScrollExpand';
 import GradualBlur from '../components/react/GradualBlur';
 import MagicBento from '../components/react/MagicBento';
+import ScrollSpread from '../components/react/ScrollSpread';
 import { platforms } from '../content/platforms';
 import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
@@ -97,6 +98,32 @@ const agentsPlanned = isPlanned('/ai-agents/');
     </p>
   </section>
 
+  {/* ══════════════ SEE IT WORK — four platforms, scroll-spread ══════════════
+      ScrollSpread: GSAP ScrollTrigger pins the section and spreads four
+      paper cards from a centre stack as the user scrolls. Minimal card
+      content per brief: name, sector, agent count, headline. Evidence triad
+      stays in the HTML (sr-only list) so crawlers still see it. */}
+  <section id="see-it-work" style="background: var(--color-wash);">
+    <div class="shell pt-16 pb-4">
+      <p class="t-label" style="color: var(--color-accent);">{showcase.kicker}</p>
+      <h2 class="t-h2 mt-4" style="max-width: 30ch;">{showcase.heading}</h2>
+    </div>
+
+    <ScrollSpread client:load />
+
+    {/* Evidence triad for crawlers — hidden visually, always in DOM */}
+    <ul class="sr-only">
+      {platforms.map((p) => (
+        <li>
+          {p.name} ({p.sector}): {p.headline}.
+          Input: {p.evidence.input}
+          Output: {p.evidence.output}
+          Control: {p.evidence.control}
+        </li>
+      ))}
+    </ul>
+  </section>
+
   {/* ══════════════ PROOF — React Bits MagicBento ══════════════
       Upstream logic, retinted: paper cards, hairline borders, ink text and a
       Nexus Indigo glow in place of the stock #120F17 / #8400ff purple. The
@@ -128,87 +155,19 @@ const agentsPlanned = isPlanned('/ai-agents/');
         {proof.tiles.map((t) => <li>{t.figure} — {t.label}</li>)}
       </ul>
 
+      {/* Compliance Chip Row — DESIGN.md §8.15 exactly: a flat wrapping row
+          of pills with the mandatory disclaimer above. Not a bordered
+          panel — the badge-wall anti-reference this line exists to refute
+          shouldn't itself arrive with more chrome than a paragraph gets. */}
       <div class="mt-8">
-        <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
-          {standards.map((s, i) => (
-            <li
-              class="chip-verify pill mono tx-fast"
-              style={`--i:${i}; border: 1px solid var(--color-hairline); background: var(--color-paper);`}
-            >
-              {s}
-            </li>
-          ))}
-        </ul>
-        <p class="t-cap mt-4" style="color: var(--color-muted);">
+        <p class="t-cap" style="color: var(--color-muted);">
           Capability statements, not certification logos. Certificates are published only when they exist.
         </p>
-      </div>
-    </div>
-  </section>
-
-  {/* ══════════════ SEE IT WORK — four platforms, one screen ══════════════
-      Radio-driven tabs: arrow keys move between them for free, all four
-      panels stay in the DOM for crawlers, and with CSS off they render
-      stacked rather than vanishing. No JavaScript reaches the browser. */}
-  <section class="section band" id="see-it-work">
-    <div class="shell">
-      <div class="text-center">
-        <p class="t-label" style="color: var(--color-accent);">{showcase.kicker}</p>
-        <h2 class="t-h2 mt-4" style="max-width: 30ch; margin-inline: auto;">{showcase.heading}</h2>
-      </div>
-
-      <div class="tabs mt-10">
-        {platforms.map((p, i) => (
-          <input type="radio" name="platform-tab" id={`pf-${p.slug}`} checked={i === 0} />
-        ))}
-
-        <div class="tablist">
-          {platforms.map((p) => <label for={`pf-${p.slug}`}>{p.name}</label>)}
-        </div>
-
-        <div class="panels mt-12">
-          {platforms.map((p) => (
-            <div class="panel" id={`panel-${p.slug}`}>
-              <div class="grid gap-10 lg:gap-14 lg:grid-cols-2 lg:items-center">
-                <div>
-                  <p class="t-label" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
-                  <h3 class="t-h2 mt-4">{p.headline}</h3>
-                  <p class="t-body mt-5 prose">{p.evidence.input}</p>
-                  <p class="t-body mt-3 prose" style="color: var(--color-ink); font-weight: 500;">
-                    {p.evidence.output}
-                  </p>
-
-                  <ul class="mt-8 grid gap-x-8 gap-y-3 sm:grid-cols-2 list-none m-0 p-0">
-                    {p.bullets.map((b) => (
-                      <li class="t-sm flex gap-2.5">
-                        <Icon name="check" class="mt-1 shrink-0" size={14} />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <p
-                    class="t-sm mt-8 p-4"
-                    style="background: var(--color-mist); border-radius: var(--radius-card);"
-                  >
-                    <span class="t-label block mb-1.5" style="color: var(--color-muted);">The control</span>
-                    {p.evidence.control}
-                  </p>
-
-                  <a href={`/platforms/${p.slug}/`} class="link-accent mt-8 group/link">
-                    Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
-                  </a>
-                </div>
-
-                <div class="screen-glow">
-                  <div class="screen">
-                    <p class="screen-empty m-0">{p.name} screen — capture pending</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <ul class="mt-3 flex flex-wrap gap-2 list-none m-0 p-0">
+          {standards.map((s) => (
+            <li class="standards-chip mono tx-fast">{s}</li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   </section>

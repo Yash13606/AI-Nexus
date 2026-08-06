@@ -86,6 +86,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Same-page anchor jumps (e.g. hero "Watch it work" -> #see-it-work) land
+   the target flush under the sticky nav without this — the nav's height
+   varies with viewport width since it wraps instead of using a hamburger,
+   so this stays generous rather than matched to one exact pixel value. */
+section[id] {
+  scroll-margin-top: 96px;
+}
+
 body {
   margin: 0;
   background: var(--color-paper);
@@ -407,6 +415,25 @@ a:hover > .arrow {
   font-weight: 500;
 }
 
+/* Compliance Chip Row — DESIGN.md §8.15, verbatim: a flat pill row, no
+   panel chrome around it. The point of this line is that these are not
+   badges; giving it a bordered card with its own header contradicted
+   that on sight, regardless of what the copy said. */
+.standards-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-mist);
+  color: var(--color-body);
+  font-size: var(--text-caption);
+}
+
+.standards-chip:hover {
+  border-color: var(--color-control);
+}
+
 /* Reorder controls — injected by script, so they never render as dead
    controls when JavaScript is unavailable. See src/scripts/reorder.js. */
 .reorder-bar {
@@ -668,3 +695,438 @@ a:hover > .arrow {
   position: relative;
   z-index: 1;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD SWAP — four institutions stack (React Bits, Nexus retint)
+   ═══════════════════════════════════════════════════════════════ */
+.platform-swap {
+  position: relative;
+  height: 600px;
+  margin-top: 2.5rem;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.card-swap-stage {
+  position: relative;
+  transform-origin: center center;
+  perspective: 900px;
+  overflow: visible;
+}
+
+.card-swap-card {
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-paper);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.8) inset,
+    0 18px 48px -28px rgb(11 18 32 / 0.28);
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--color-body);
+}
+
+.platform-swap-card__inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.35rem 1.35rem;
+  box-sizing: border-box;
+}
+
+.platform-swap-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.platform-swap-card__eyebrow {
+  margin: 0;
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.platform-swap-card__agents {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.platform-swap-card__title {
+  margin: 1rem 0 0;
+  font-size: var(--text-h3);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-ink);
+  max-width: 16ch;
+}
+
+.platform-swap-card__evidence {
+  margin-top: 1.1rem;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-card);
+  background: var(--color-wash);
+  padding: 0.85rem 0.95rem;
+  overflow: hidden;
+}
+
+.platform-swap-card__tag {
+  margin: 0 0 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.platform-swap-card__rows {
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.platform-swap-card__rows > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.platform-swap-card__rows dt {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.platform-swap-card__rows dd {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--color-body);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.platform-swap-card__control {
+  margin-top: 0.15rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--color-hairline);
+  background: transparent;
+}
+
+.platform-swap-card__control dd {
+  color: var(--color-ink);
+  -webkit-line-clamp: 2;
+}
+
+.platform-swap-card__link {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.platform-swap-card__link:hover {
+  text-decoration: underline;
+}
+
+.platform-swap-card--medorbit {
+  border-top: 3px solid var(--color-medorbit);
+}
+.platform-swap-card--edvation {
+  border-top: 3px solid var(--color-edvation);
+}
+.platform-swap-card--advohub {
+  border-top: 3px solid var(--color-advohub);
+}
+.platform-swap-card--trustproperty {
+  border-top: 3px solid var(--color-trustproperty);
+}
+
+.platform-swap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.platform-swap-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-button);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-paper);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.platform-swap-legend__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .platform-swap {
+    height: 520px;
+  }
+  .card-swap-stage {
+    transform: scale(0.82);
+  }
+}
+
+@media (max-width: 480px) {
+  .platform-swap {
+    height: 460px;
+  }
+  .card-swap-stage {
+    transform: scale(0.68);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL SPREAD — "One screen, four institutions"
+   Exact port of code.zip structure + dimensions into DESIGN.md tokens.
+   Card: 300 × 450 px  |  Positions: [14,38,62,86]%
+   Rotations: [-15,-7.5,7.5,15]°  |  Pin: 3 × 100vh
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Stage — the element GSAP pins (mirrors .cards in the zip) ── */
+.ssc-stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  /* Wash background matches the outer section */
+  background: var(--color-wash);
+}
+
+/* ── Individual card — exact .card from styles.css ── */
+.ssc-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* EXACT dimensions from code.zip/styles.css */
+  width: 300px;
+  height: 450px;
+  perspective: 1000px;
+}
+
+/* The 3px hue top rule comes from .platform-swap-card--{slug} classes */
+
+/* ── .card-wrapper — the floating layer (positions the inner) ── */
+.ssc-card-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+}
+
+/* ── .flip-card-inner — preserve-3d, exact match ── */
+.ssc-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* ── Both faces — exact .flip-card-front / .flip-card-back ── */
+.ssc-flip-front,
+.ssc-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;   /* = var(--radius-card), matches 0.8em at 15px base */
+  overflow: hidden;
+  /* Paper surface — DESIGN.md §5 Level-2 card */
+  background: var(--color-paper);
+  border: 1px solid var(--color-hairline);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* Subtle depth shadow so the stacked pile reads correctly */
+  box-shadow: 0 12px 40px -16px rgb(11 18 32 / 0.22);
+}
+
+/* Back starts rotated away — exact transform from styles.css */
+.ssc-flip-back {
+  transform: rotateY(180deg);
+  /* Mist well for the back — like the Control row in EvidenceCard */
+  background: var(--color-mist);
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ── Front face content ── */
+.ssc-front__eyebrow {
+  margin: 0;
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  /* colour set inline from platform.hue */
+}
+
+.ssc-front__headline {
+  margin: 0;
+  font-size: var(--text-h4);
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+  color: var(--color-ink);
+  /* Allow 3 lines at this large card size */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: auto;
+}
+
+/* ── Back face content ── */
+.ssc-back__eyebrow {
+  margin: 0;
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  /* colour set inline from platform.hue */
+}
+
+/* The big mono number — agent count */
+.ssc-back__count {
+  margin: 0.5rem 0 0;
+  font-size: 5rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+.ssc-back__label {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  color: var(--color-muted);
+}
+
+.ssc-back__link {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.ssc-back__link:hover {
+  text-decoration: underline;
+}
+
+
+
+/* ── reduced-motion — static 2×2 grid, no animation ── */
+@media (prefers-reduced-motion: reduce) {
+  .ssc-stage {
+    position: static;
+    height: auto;
+    width: 100%;
+    overflow: visible;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .ssc-card {
+    position: static;
+    width: 100%;
+    height: auto;
+    transform: none;
+    animation: none;
+    perspective: none;
+  }
+
+  .ssc-card-wrapper {
+    position: static;
+    transform: none;
+    width: 100%;
+    height: auto;
+  }
+
+  .ssc-flip-inner {
+    transform-style: flat;
+    height: auto;
+  }
+
+  .ssc-flip-back {
+    display: none;
+  }
+
+  .ssc-flip-front {
+    position: static;
+    height: auto;
+    box-shadow: none;
+  }
+}
+
+/* ── Mobile — scale down the 300px cards slightly on narrow viewports ── */
+@media (max-width: 1024px) {
+  .ssc-stage {
+    transform-origin: center center;
+  }
+
+  .ssc-card {
+    width: 240px;
+    height: 360px;
+  }
+
+  .ssc-back__count {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ssc-card {
+    width: 180px;
+    height: 280px;
+  }
+
+  .ssc-flip-front,
+  .ssc-flip-back {
+    padding: 1rem;
+  }
+
+  .ssc-back__count {
+    font-size: 2.5rem;
+  }
+}
+

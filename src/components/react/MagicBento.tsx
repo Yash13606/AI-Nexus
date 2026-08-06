@@ -57,9 +57,9 @@ const cardData: BentoCardProps[] = [
   },
   {
     color: CARD_SURFACE,
-    title: 'ap-south-1',
-    description: 'AWS Mumbai — your data never leaves India, under the DPDP Act 2023.',
-    label: 'Residency'
+    title: 'Humans approve',
+    description: 'No agent files, prescribes, sends or bills alone',
+    label: 'Control'
   },
   {
     color: CARD_SURFACE,
@@ -85,9 +85,9 @@ const cardData: BentoCardProps[] = [
   },
   {
     color: CARD_SURFACE,
-    title: 'Humans approve',
-    description: 'No agent files, prescribes, sends or bills alone',
-    label: 'Control'
+    title: 'ap-south-1',
+    description: 'AWS Mumbai — your data never leaves India, under the DPDP Act 2023.',
+    label: 'Residency'
   }
 ];
 
@@ -699,7 +699,10 @@ const MagicBento: React.FC<BentoProps> = ({
       <BentoCardGrid gridRef={gridRef}>
         <div className="card-responsive grid gap-4">
           {cardData.map((card, index) => {
-            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full p-5 rounded-[16px] border border-solid font-light overflow-hidden transition-colors duration-300 ease-in-out ${
+            // The lift is plain CSS :hover — it works the instant the page
+            // paints, independent of whether the GSAP island (particles,
+            // spotlight-tracked border glow) has hydrated yet.
+            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full p-5 rounded-[16px] border border-solid font-light overflow-hidden transition duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(11,18,32,0.10)] ${
               enableBorderGlow ? 'card--border-glow' : ''
             }`;
 

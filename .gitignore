@@ -25,3 +25,11 @@ refencer image for ui/
 # input when writing DESIGN.md. The conclusions live in DESIGN.md; the
 # source analyses stay local.
 refrence design md files/
+
+# Screen recordings and code dumps used while porting the React Bits
+# components — ~51 MB of local scratch, not build inputs.
+*.mp4
+*.zip
+code-extracted/
+dev.bat
+skills-lock.json
