@@ -723,14 +723,20 @@ The Ink surface (`#0b1220`) already provides tonal contrast where it earns its p
 | Content | **Typed TS modules** (`content/agents.ts`, `platforms.ts`, `faqs.ts`) | 48 agents appear on 3+ pages each. One source, or they drift. Also feeds JSON-LD. |
 | SEO | **Static JSON-LD** — `Organization`, `SoftwareApplication` ×4, `FAQPage`, `BreadcrumbList` | The site is built for retrieval; structured data is the point, not an add-on. |
 
-> **Two rows above are stale and were not rewritten here — flagged for the
-> owner, since they are decisions rather than errors of fact about this branch.**
-> The repository is **Astro 5** with static output and Tailwind v4 via
-> `@tailwindcss/vite`, not Next.js App Router. There is **no React on any
-> route**; the components are `.astro` files, and §16.6 records the measurement
-> that kept React out. The *reasoning* in both rows still holds — static export
-> per route, no component library — but the named technologies do not match what
-> ships.
+> **Three rows above no longer describe what ships.** Corrected here rather than
+> in the table, because the table records decisions and this is a record of what
+> those decisions became.
+>
+> - **Framework.** The repository is **Astro 5** with static output and Tailwind
+>   v4 via `@tailwindcss/vite`, not Next.js App Router. The reasoning holds —
+>   real HTML per route — but the named technology never shipped.
+> - **Components.** "Plain React" is now literally true on `/`, which uses React
+>   islands, and false everywhere else: every other route is `.astro` files.
+>   `/platforms/*` ships no React at all, on purpose and by measurement (§16.6).
+> - **Fonts / no third-party request.** The fonts are self-hosted and that row
+>   still stands. The *claim* attached to it does not: `/platforms/` fetches
+>   Swiper from jsDelivr. See **§16.7**, which records it as a decision with its
+>   costs, rather than leaving it to be found.
 
 ### Structure
 
@@ -866,6 +872,12 @@ reconciliation so the file is actually a source of truth rather than a claim.
 | **11** | `.band .hov:hover` stepped the surface to Paper | Deleted; the step runs one direction everywhere — Paper at rest, Mist on hover | The card is *already* Paper on a band, so the override changed nothing and one of the vocabulary's four signals was inert. Worse, every `.hov` on the site sits inside a band, so the override fired 100% of the time and the general rule fired never. |
 | **5, 7, 8.7, 8.14, 11, 13** | Site-wide rules | **§16** overrides them for `/platforms/*` only | The platform section was rebuilt to a different standard with sign-off. Recorded as a scoped section rather than by loosening the site-wide rules, so the other thirteen routes are unaffected and can be shown to be. |
 | **15** | "Zero animation libraries in `package.json`" | "No animation library is loaded on any route outside `/platforms/*`", verified per route | A dependency list cannot express a per-route fact, and the original phrasing would have gone false the moment anything was installed — including things that ship to no route at all. |
+| **13** | "No third-party request" | One, on `/platforms/` only — Swiper 11 from jsDelivr | The weakest override in §16, recorded in **16.7** with its cost and with what removing it would take. Not discovered later: written down while it was still a choice. |
+| **16.3** | "Three motion patterns per page" | Furniture and *distinguishing* patterns counted separately; the rule is the variety, never the number | The count was satisfiable by moving one pattern onto every page, which is exactly the thing it existed to prevent. It nearly happened: the stats band became furniture on all five routes and edvation silently dropped to two. |
+| **16.4** | "The other thirteen routes ship 0 bytes of JavaScript" | "This section's motion code reaches no route outside it", verified by searching every asset each route actually fetches | The first was a fact about the whole site and expired without warning when main shipped a React landing page. The second is a fact about this section's own artefacts, and stays testable. |
+| **16.5** | The field is `/platforms/` only | All five routes — four hues on the index, four **tones** of `--page-accent` on each detail page | The detail-page hero mocks were four rectangles doing worse what one object does well. The tone variant is what keeps §6 intact on a page about one product. |
+| **16.6** | "React was not installed" | "No React on these five routes" | Installed by someone else, for a page outside this section. The decision was always about what a route ships, not about what the repo contains. |
+| **5** | — | `--nav-h: calc(60px + 2 * var(--nav-pad-y))`, `--nav-pad-y` | The nav's height stopped being a constant when it became a floating pill with clamped padding. Six offsets had `68px` typed into them and all six went wrong in one merge. See the second failure class below. |
 
 ### Fragilities recorded, not defended against
 
@@ -898,8 +910,10 @@ visible in review, in a diff, or in the source. All three were found by reading
 | **Scoped class passed to a child component** | `<Reveal class="bento-lead">`, with `.bento-lead { grid-column: span 2 }` scoped to the parent | Nothing. Astro does not put the parent's `data-astro-cid` on a child component's root, so the selector never matched anything. | `grid-column` computed to `auto`, and two `display: flex` rules to `block`. Shipped, and was approved, before anyone measured it. |
 | **A higher-specificity rule elsewhere** | `.card.p-elev:hover { transform: translateY(-4px) }` — specificity (0,3,0) | `html[data-reveal-ready] [data-reveal][data-revealed] { transform: none }` — specificity (0,3,1). Every card is also a reveal target, so the lift died the moment the card finished revealing. | Hover computed `matrix(1,0,0,1,0,0.0004)` instead of `-4px`. |
 | **Cascade layers beating specificity outright** | `.tabs .tablist[data-indicator] .tab[aria-selected='true'] { border-bottom-color: transparent }` — specificity (0,4,0), inside `@layer components` | The component's own scoped `.tab[aria-selected='true']` at (0,3,0) — because **Astro scoped styles are unlayered, and unlayered CSS beats layered CSS at any specificity.** | Both markers painted at once: the per-tab border still computed `rgb(180,83,9)` underneath the sliding bar. |
+| **A rule tying with itself** | `.p-tilt { transform: perspective(…) rotateX(var(--rx)) }` at (0,4,1) | `html[data-reveal-ready] [data-reveal][data-rv]` at (0,4,1) — an exact tie, resolved by source order, which the later rule won. The cards wrote `--rx`/`--ry` correctly the whole time. | Tilt computed `transform: none` while the custom properties held the right values. Fixed by moving every reveal variant onto `translate`/`scale`/`filter`, so the two rules no longer contend for one property. |
+| **Two states resolving to the same colour** | `.reorder-btn[data-current] { color: ink }` for the current seat | `.reorder-btn[aria-pressed='true'] { color: paper }` — the pressed *and* current button matched both at equal specificity, landing on ink text over an ink fill. | The active seat button rendered as a solid dark blob at 1:1 contrast. Neither rule was wrong alone; the bug lived in the state they share. Fixed with `:not([aria-pressed='true'])`, which names the overlap instead of out-ranking it. |
 
-**What generalises.** Three different mechanisms, one lesson: matching an element
+**What generalises.** Five different mechanisms, one lesson: matching an element
 is necessary and nowhere near sufficient. Before believing a rule is in effect,
 read the computed value of the property it sets, on the element it targets, in
 the state it applies to.
@@ -908,15 +922,38 @@ Two corollaries earned the hard way:
 
 - **Raising specificity is the wrong reflex.** It was the instinct in the third
   case and it cannot work across layers at all. The fix was to move the rule so
-  both sides are scoped — not to weaken either.
+  both sides are scoped — not to weaken either. In the fourth and fifth cases
+  the fix was the same shape: take the two rules off the same property, or name
+  the overlapping state. Never out-rank.
 - **A systemic bug deserves a sweep, not a patch.** After the layers case, every
   other block in `platform.css` was checked against the scoped rules it could
   collide with. None do; that is now a measured fact rather than an assumption.
 
+### A second failure class: a property that silently disables another
+
+Not a cascade problem. These rules win — and break something structurally
+unrelated, in a different element, with no error anywhere.
+
+| What was set | What it silently killed | How it surfaced |
+|---|---|---|
+| `overflow: hidden` on the atmosphere wrapper | **Every `position: sticky` inside it.** `hidden` makes the element a scroll container, so a descendant sticks to *it* rather than to the viewport. `overflow: clip` does not, and was the whole fix. | The showcase pin measured at `top: -471px` — scrolled far off screen while its CSS was, in isolation, perfect. |
+| `68px` typed into six sticky offsets and the hero's `--chrome` | Nothing, until the nav changed. Main replaced the 68px bar with a floating pill occupying 89px, and all six were wrong the same instant — heroes overhanging the fold, sub-nav and pins sitting too high. | Only visible by measuring the built page after the merge. Git reported no conflict; there was nothing textual to conflict with. Fixed at the root with `--nav-h: calc(60px + 2 * var(--nav-pad-y))`. |
+
+> **A number you measured once is not a token.** It is a snapshot of somebody
+> else's component, copied into yours, with no link back. Compose from the
+> source or it will go stale silently — and the failure will look like your bug,
+> in your file, long after the change that caused it.
+
 ### Verification methods that produce false passes
 
-Eight, all of which produced a confident and wrong result during this work. Each
-was caught only because a second measurement disagreed with the first.
+Eleven, all of which produced a confident and wrong result during this work.
+Each was caught only because a second measurement disagreed with the first.
+
+Four of them share one shape and it is worth naming: **a probe that measures the
+wrong element, or the right element at the wrong moment, does not fail — it
+returns a plausible number.** There is no exception, no empty result, nothing to
+notice. That is why every one of these was caught by a *disagreement* rather
+than by an error.
 
 **1. Detecting which variant rendered by searching the document.** Grepping the
 page for a variant's class name matches the **inlined stylesheet**, which
@@ -966,13 +1003,19 @@ as that text's background. This reported the breadcrumbs failing contrast at
 2.18 against a particle roughly 900px to the right of the last glyph. Use
 `Range.getClientRects()` over the text node for tight per-line boxes.
 
-**7. Synthetic pointer probes: viewport coordinates, and the scroll must have
-landed.** Two independent traps, and they compounded into reporting a working
+**7. Page coordinates and viewport coordinates, and the scroll must have
+landed.** Three traps in one family — Puppeteer mixes both coordinate spaces
+with no type to tell them apart — and they compounded into reporting a working
 feature as broken twice:
 
 - `elementHandle.boundingBox()` returns **page** coordinates;
   `page.mouse.move()` takes **viewport** coordinates. After scrolling ~2000px
   the pointer lands nowhere near the element and no `pointermove` ever fires.
+- `page.screenshot({ clip })` also takes **page** coordinates, while
+  `getBoundingClientRect()` returns viewport ones. This one survived three
+  separate occurrences, because a wrong clip produces a *plausible* screenshot —
+  a slice of the page, just not the element — and nothing in the output says so.
+  Add `scrollY`, or capture the element handle.
 - `html { scroll-behavior: smooth }` is set site-wide outside the reduced-motion
   block, so `scrollIntoView()` is **animated**. A `getBoundingClientRect()` read
   in the same `evaluate()` returns the pre-scroll position. Scroll with
@@ -987,6 +1030,25 @@ custom properties nothing references, so a token can be declared in
 stylesheet**. `--shadow-1/2/3` and `--lift` were reported as landed in one unit
 and did not appear in any shipped byte until a rule read them a unit later.
 Verify a token against the built CSS, never against the source.
+
+**9. Measuring a flex child's `scrollHeight` cannot see its overflow.** A card
+body at `flex: 1; min-height: 0` clips its content without growing, so the
+card's own `scrollHeight` equals its `clientHeight` and a probe reads a perfect
+fit. Content was being cut by 6px at 390 while the check reported zero clipping
+on every card. **Measure the element that actually overflows**, not its
+container.
+
+**10. Reading `document.scrollWidth` before a reveal has fired.** Entrance
+variants that translate horizontally push past the viewport *while hidden*. The
+page had 2px of horizontal scroll until the section revealed, and any check run
+after `scrollIntoView()` — which is most of them — reports a clean page. Check
+at rest, at the top, before anything has entered.
+
+**11. A shared browser cache flattens a per-route byte measurement.** Reusing
+one page across routes reports the second route's CSS and JS as **0.00 KB**,
+because the browser served them from cache and no transfer happened. The 16.6
+table was briefly wrong in exactly this way. Fresh page per route,
+`setCacheEnabled(false)`, and scroll to the bottom so deferred chunks load.
 
 ---
 
@@ -1018,19 +1080,28 @@ Ship gate. All must pass.
   behaviour is hand-written into every page. And the phrasing became false the
   moment anything was installed, whether or not a single byte reached a user.
 
-  Verify by measuring **per route**, against the built HTML: follow each page's
-  `<script src>` and its static imports, and gzip what you find. The current
-  measurement:
+  Verify **in a browser, per route**, with the cache disabled and the page
+  scrolled to the bottom — not by walking `<script src>` in the built HTML. That
+  walk under-reports: a `client:visible` island's chunk is not in the markup,
+  and it once read 4.95 KB where the browser actually downloaded 354.7 KB. The
+  current measurement:
 
   | Routes | JS shipped |
   |---|---|
-  | The thirteen non-platform routes | **0 B** |
-  | `/platforms/[slug]/` ×4 | 2.72 KB gz |
-  | `/platforms/` | 4.71 KB gz, plus a 2.22 KB gz hero chunk fetched only when four gates pass |
+  | `/platforms/[slug]/` ×4 | 6.52 KB gz |
+  | `/platforms/` | 5.53 KB gz self-hosted — plus **46.81 KB gz of Swiper from jsDelivr**, §16.7 |
+  | `/` | 119.64 KB gz — React, and outside this section entirely |
+  | The other twelve non-platform routes | 0–0.33 KB gz |
 
-  All of it is hand-written. React, `motion`, GSAP, Lenis and
-  `@number-flow/react` remain uninstalled — see §16.6 for the measurement that
-  decided it.
+  All of the platform section's is hand-written; GSAP, Lenis and
+  `@number-flow/react` are not used on any route — see §16.6 for the measurement
+  that decided it. **React is now installed** and ships on `/`, which is why
+  this checklist item is phrased per route: the rule was never about
+  `package.json`.
+
+- [ ] **Every third-party request is one somebody chose.** There is exactly one
+  — Swiper on `/platforms/`, §16.7. A second appearing without a §16-style
+  record is a regression regardless of its size.
 
 ---
 
@@ -1058,7 +1129,8 @@ not apply to you at all.
 | **8.7** | Platform Card hover: border only. "No lift, no shadow, no scale." | Border **and** surface step **and** arrow affordance **and** `--shadow-1 → --shadow-2` **and** a 4px lift. | Additive, not a replacement. A card that only lifted would have traded three signals for one. |
 | **8.14** | Comparison table has no sort affordance specified. | Sortable column headers with `aria-sort`, and a 460ms FLIP re-rank. | Headers can express column *and* direction; an injected control bar cannot. Headers ship as plain text and are upgraded into buttons, so JS off leaves a readable header rather than a dead control. |
 | **11** | "Don't put a shadow on a resting card." | Superseded by the §5 row above, for these five routes. | — |
-| **13** | Animation: none. | Zero animation *libraries*; roughly 4.7 KB gz of hand-written motion primitives on the heaviest route. | See §15. |
+| **13** | Animation: none. | Zero animation *libraries*; 5.5–6.5 KB gz of hand-written motion primitives per route. | See §15. |
+| **13** | "No third-party request." | **One**, on `/platforms/` only: Swiper 11 from jsDelivr, 46.81 KB gz, fetched at runtime. | The weakest override in this section, and the only one that costs a reader something on a bad network. Recorded in full — including what it would take to remove — in **16.7**. |
 
 ### 16.2 What is NOT overridden, and cannot be
 
@@ -1088,19 +1160,37 @@ element / 700ms section. Stagger 40–70ms. Hover 160–200ms. Nothing over 800m
 `[data-reveal]` element, the independent `translate` property rather than
 `transform` (see §14b).
 
-Three motion patterns per page, varied so no two adjacent pages read the same:
+Patterns are of two kinds, and the distinction matters more than the count.
 
-| Route | Patterns |
+**Shared furniture — on all five routes, identical by design.** The hero field
+(16.5), the stats band, the reveal vocabulary, pointer tilt on cards, and the
+worked-example illustration. These are *supposed* to be the same everywhere: a
+reader moving between platforms should feel the page change, not the site.
+
+**Distinguishing patterns — what makes one route not read like its neighbour:**
+
+| Route | Distinguishing patterns |
 |---|---|
-| `/platforms/` | bento with a live roster · sortable comparison table · stats band |
+| `/platforms/` | Swiper card deck · bento with a live roster · sortable comparison table |
 | `medorbit` | sticky showcase · spotlight roles · magnetic CTA |
-| `edvation` | tabs with a sliding indicator · roles bento · stats band |
+| `edvation` | tabs with a sliding indicator · roles bento |
 | `advohub` | sticky showcase · alternating rows with parallax |
 | `trustproperty` | lockup marquee · alternating rows · magnetic CTA |
 
-`advohub` carries two, not three. Verification is a pipeline, and the showcase
-plus the alternating rows tells that story completely. A third would have been
-there to satisfy a number.
+Two routes carry two rather than three, and neither is padded to reach it.
+
+- `advohub` — verification is a pipeline, and the showcase plus the alternating
+  rows tells that story completely.
+- `edvation` — this one is a **consequence, not a choice.** The stats band used
+  to be one of its three; when it became furniture on all five routes, edvation
+  was left with two. Recorded rather than papered over: if this section is
+  extended, edvation is the route with the least of its own.
+
+> The original rule read *"three motion patterns per page, varied so no two
+> adjacent pages read the same."* That was written when nothing was shared. It
+> counted furniture and distinguishing patterns as the same thing, so moving one
+> pattern onto every page would have satisfied the count while destroying what
+> the count was protecting. The rule is the variety, never the number.
 
 **Scroll-driven CSS vs IntersectionObserver.** Both are permitted here, and they
 are not interchangeable:
@@ -1129,37 +1219,79 @@ the effect stops being noticeable *as an effect*, then stop.
 Not by naming discipline. Three mechanisms, each verifiable:
 
 1. **`src/styles/platform.css` is imported by the platform pages only.** Vite
-   emits it into those routes' CSS chunk and no other. Verified by diffing every
-   emitted asset: the shared stylesheet contains **zero** rules from that file.
-2. **The motion primitives are imported by those pages' scripts only.** The
-   other thirteen routes ship **0 bytes** of JavaScript. Verified per route
-   against the built HTML, not against `package.json`.
+   emits it into those routes' CSS chunk and no other. Verified by loading all
+   thirteen other routes in a browser and searching every stylesheet they
+   actually fetch for markers that exist only in that file (`.p-elev`,
+   `.p-bloom`, `.p-tilt`, `.deck-card`): **zero rules**, on every one.
+2. **The motion primitives are imported by those pages' scripts only.** Same
+   method, searching every script each route fetches for `initField`,
+   `initTilt`, `initTableSort`, `initMagnetic`, `initShowcase`,
+   `initSeatFilter`: **zero**, on all thirteen.
 3. **Variants come from content, never from a branch on identity.**
-   `capabilityLayout`, `rolesLayout`, `statsPlacement` and `motion` are typed
-   unions on the platform entry. There is no `slug === 'medorbit'` anywhere in
-   the templates, and an invalid value is a build error rather than a silent
-   fallback.
+   `capabilityLayout`, `rolesLayout`, `heroLayout` and `motion` are typed unions
+   on the platform entry. There is no `slug === 'medorbit'` anywhere in the
+   templates, and an invalid value is a build error rather than a silent
+   fallback. *(`statsPlacement` was one of these and is gone — there is one
+   placement now, so the union had a single member and was decoration.)*
 
-The one leak this arrangement permits is by design and is 136 bytes: Tailwind's
-`@theme` tree-shakes custom properties nothing references, so `--shadow-1`,
-`--shadow-2` and `--lift` appear in the shared `:root` block once this section
-uses them. Declarations, not rules — no route outside the section can be
-affected by a variable it never reads.
+> **Mechanism 2 used to read "the other thirteen routes ship 0 bytes of
+> JavaScript." That is no longer true and the rewrite is not a weakening.** Main
+> now ships a React landing page — 119.64 KB gz of JS on `/` alone. The
+> zero-bytes phrasing was never the actual guarantee; it was a *coincidence* of
+> the site at the time, and it went false through work that had nothing to do
+> with this section. The guarantee that matters is that **this section's motion
+> code reaches no route outside it**, which is testable forever and is tested
+> above. Prefer a claim about your own artefact over a claim about the whole
+> site: the second kind expires without warning.
+
+The one leak this arrangement permits is by design and is **204 bytes**:
+Tailwind's `@theme` tree-shakes custom properties nothing references, so
+`--shadow-1`, `--shadow-2`, `--shadow-3` and `--lift` appear in the shared
+`:root` block once this section uses them. Declarations, not rules — no route
+outside the section can be affected by a variable it never reads. *(Was 136
+bytes when only `--shadow-1/2` were referenced; `--shadow-3` earned its place
+later and brought 68 bytes with it.)*
 
 ### 16.5 The hero field
 
-`/platforms/` carries a WebGL particle field: 12,000 GLSL point sprites on four
-helical strands wound around one axis, banded by sixteen rings. Raw WebGL — no
-three.js, no R3F, no matrix library. **3,097 bytes gzipped for the entire hero
-path**, and it holds 60fps with zero dropped frames on a software rasteriser at
-4× CPU throttle.
+**All five routes** carry a WebGL particle field: 12,000 GLSL point sprites on
+four helical strands wound around one axis, banded by sixteen rings. Raw WebGL —
+no three.js, no R3F, no matrix library. **3,251 bytes gzipped for the entire
+hero path** — 2,376 for the field module and 875 for the loader that decides
+whether to fetch it — and it holds 60fps with zero dropped frames on a software
+rasteriser at 4× CPU throttle.
 
-**It carries all four platform hues at once, and that is not a violation of §6.**
-§6 says platform colour identifies and never decorates. `/platforms/` is the one
-page whose subject is the *set* of four, so four hues simultaneously is the
-identification — it is the only image on the site where all four are true at the
-same time. A single hue here would be the decoration. This is section-scoped and
-is not a general licence.
+*(It began as `/platforms/` only. It replaced the mock cards in the detail-page
+heroes later, on the owner's instruction — the mocks were four different
+rectangles doing the job one object does better.)*
+
+**Two colour modes, and the difference is §6, not taste.** §6 says platform
+colour identifies and never decorates.
+
+| Route | Mode | Why |
+|---|---|---|
+| `/platforms/` | four platform hues at once | This is the one page whose subject is the *set* of four, so four hues simultaneously **is** the identification. It is the only image on the site where all four are true at the same time; a single hue here would be the decoration. |
+| the four detail pages | four **tones** of `--page-accent` | A page about one product must not show three hues it is not about. Same structure, same four strands, one identity — the strands separate by lightness instead of by hue. |
+
+Section-scoped, and not a general licence.
+
+**The form must not move between routes.** A reader clicking through four
+platforms sees the same object four times; if it changes size or height, that
+reads as the object jumping rather than the page changing. Three things hold it
+still, and each was a bug first:
+
+- The field box is a **fixed** `40rem`, not `min(100%, 40rem)`. With the min, a
+  shorter hero shrank the canvas — and the shader scales from the canvas — so
+  the form came out smaller *and* higher on those pages. Measured: the top edge
+  drifted 19px across the five.
+- It is **centred** in the hero rather than top-anchored, because since the
+  heroes were made to fill the screen they are all the same height, and a
+  top-anchored form left the bottom third of a tall hero empty.
+- The shader scales from a **constant reference height** (`u_fit`), never from
+  the canvas, so the form is one size on a 720px screen and a 1080px one.
+
+Verified: field 640px at an identical offset on all five routes, at 800, 900
+and 1080.
 
 Four bail paths, each verified in isolation. The static gradient underneath
 **renders on every path** and the canvas crossfades on top of it, so a bail is
@@ -1177,23 +1309,75 @@ count bails, so a browser that does not report it is not punished for that.
 
 ### 16.6 Byte ceiling
 
-250 KB gzipped per route, `/platforms/*` only. Measured, not estimated:
+250 KB gzipped per route, `/platforms/*` only. Measured, not estimated — in a
+browser with the cache disabled, scrolling each page to the bottom so deferred
+chunks and the deck's runtime imports are actually counted:
 
-| Route | HTML | CSS | JS | Total |
-|---|---:|---:|---:|---:|
-| `/platforms/` | 6.00 | 11.45 | 4.71 | **22.17** |
-| `/platforms/medorbit/` | 12.25 | 11.47 | 2.72 | **26.44** |
-| `/platforms/edvation/` | 13.44 | 11.47 | 2.72 | **27.63** |
-| `/platforms/advohub/` | 12.84 | 11.47 | 2.72 | **27.03** |
-| `/platforms/trustproperty/` | 10.57 | 11.47 | 2.72 | **24.76** |
+| Route | HTML | CSS | JS | Total | + third-party |
+|---|---:|---:|---:|---:|---:|
+| `/platforms/` | 7.79 | 19.06 | 5.53 | **32.39** | 46.81 |
+| `/platforms/medorbit/` | 13.58 | 19.41 | 6.52 | **39.51** | — |
+| `/platforms/edvation/` | 14.84 | 19.41 | 6.52 | **40.77** | — |
+| `/platforms/advohub/` | 14.17 | 19.41 | 6.52 | **40.10** | — |
+| `/platforms/trustproperty/` | 12.07 | 19.41 | 6.52 | **38.00** | — |
 
-KB gzipped. Worst route is **11% of the ceiling**. The headroom is insurance,
-not an invitation.
+KB gzipped, HTML + CSS + JS. Fonts are excluded on both sides of the comparison,
+as they were in the original table. Worst self-hosted route is **16% of the
+ceiling**; `/platforms/` with Swiper is **32%**. The headroom is insurance, not
+an invitation.
 
-**React was not installed.** Measured before deciding: react + react-dom is a
-58.9 KB gz floor, 122.3 KB with `motion`, against 878 B gz for the four vanilla
-primitives that deliver the same six behaviours. Two of them — `SplitHeadline`
-and `LockupMarquee` — are pure CSS at 0 B. `@number-flow/react` was dropped for
-the same reason plus a better one: the hand-rolled count-up keeps the
-SSR-final-value property that 16.1's condition depends on.
+*(The earlier table read 22–28 KB. Roughly half the growth is the deck, the tilt
+module, the evidence illustrations and the richer card system; the rest is that
+`/platforms/` now inlines more CSS than it did. Nothing here regressed —
+it was spent.)*
+
+**Do not compare these to `/`.** Main's landing page ships 119.64 KB gz of
+JavaScript, and that is outside this section's scope entirely. The ceiling in
+this subsection governs `/platforms/*` and makes no claim about any other route.
+
+**No React on these five routes.** Measured before deciding: react + react-dom
+is a 58.9 KB gz floor, 122.3 KB with `motion`, against 878 B gz for the four
+vanilla primitives that deliver the same six behaviours. Two of them —
+`SplitHeadline` and `LockupMarquee` — are pure CSS at 0 B. `@number-flow/react`
+was dropped for the same reason plus a better one: the hand-rolled count-up
+keeps the SSR-final-value property that 16.1's condition depends on. A React
+island *was* built during this work and reverted after measurement put it at
+107.1 KB gz delivered.
+
+> This paragraph used to say **"React was not installed."** It is installed
+> now — main's landing page uses it — so the sentence was rewritten to say what
+> was actually decided. The decision was never "the repo must not contain
+> React"; it was "these five routes must not pay for it," and that still holds:
+> the JS column above is 5.53–6.52 KB. A claim about `package.json` expires as
+> soon as anyone else commits. A claim about what a route ships does not.
+
+### 16.7 The one third-party request
+
+`/platforms/` loads Swiper 11 from jsDelivr — a script and a stylesheet,
+**46.81 KB gzipped**, injected at runtime by `PlatformDeck.astro`'s own script.
+
+**This is against §13**, whose Fonts row states the site makes *no third-party
+request*, and it is recorded here as a decision rather than left to be
+discovered. What it costs, stated plainly:
+
+- A dependency on a host nobody here controls. If jsDelivr is slow, blocked, or
+  gone, the deck does not initialise.
+- An origin the site does not otherwise contact, which is a privacy fact as well
+  as a performance one.
+- 46.81 KB to a route that carries 32.39 KB of its own — the deck is **59%** of
+  that page's weight.
+
+**What makes it survivable rather than reckless:** the deck ships as plain,
+readable cards in the HTML and is *upgraded* into a Swiper at runtime. The
+component emits its own `deck-card` class names and renames them to Swiper's
+only once the library has loaded. If the request fails — offline, blocked,
+CDN down — the four cards are still there, still readable, still linked. Nothing
+is behind the library.
+
+**If this section is touched again, the honest options are:** vendor Swiper into
+the bundle and lose the exception, or replace it with a CSS scroll-snap deck and
+lose the library. Leaving it as a runtime CDN fetch is the option that trades a
+site-wide rule for a single interaction, and that trade should be re-argued, not
+inherited.
+
 

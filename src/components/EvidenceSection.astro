@@ -52,27 +52,27 @@ const { evidence, name, slug } = Astro.props;
             <circle cx="76" cy="158" r="15" class="a-body" />
             <path d="M46 224v-16c0-16.6 13.4-30 30-30s30 13.4 30 30v16z" class="a-body" />
             <rect x="92" y="140" width="14" height="24" rx="4" class="a-node" transform="rotate(-14 99 152)" />
-            <path d="M118 142c7 8 7 20 0 28M128 134c12 13 12 31 0 44" class="a-wave" />
+            <path d="M118 142c7 8 7 20 0 28M128 134c12 13 12 31 0 44" class="a-wave" pathLength="1" />
 
             {/* Into the agent. */}
-            <path d="M146 158h24" class="a-flow" />
+            <path d="M146 158h24" class="a-flow" pathLength="1" />
             <circle cx="158" cy="158" r="2.5" class="a-dot" />
             <rect x="170" y="130" width="56" height="56" rx="15" class="a-node" />
             <path d="M198 140l6.5 11.5 11.5 6.5-11.5 6.5-6.5 11.5-6.5-11.5-11.5-6.5 11.5-6.5z" class="a-spark" />
 
             {/* And out into the schedule: three slots offered, one taken. */}
-            <path d="M226 158h22" class="a-flow" />
+            <path d="M226 158h22" class="a-flow" pathLength="1" />
             <rect x="248" y="84" width="140" height="176" rx="14" class="a-node" />
             <rect x="264" y="100" width="108" height="30" rx="9" class="a-slot" />
-            <path d="M278 115h56" class="a-rule" />
+            <path d="M278 115h56" class="a-rule" pathLength="1" />
             <rect x="264" y="138" width="108" height="30" rx="9" class="a-gate" />
-            <path d="M278 153h40" class="a-rule" />
-            <path d="M340 152l5 5 9-9" class="a-check" />
+            <path d="M278 153h40" class="a-rule" pathLength="1" />
+            <path d="M340 152l5 5 9-9" class="a-check" pathLength="1" />
             <rect x="264" y="176" width="108" height="30" rx="9" class="a-slot" />
-            <path d="M278 191h48" class="a-rule" />
+            <path d="M278 191h48" class="a-rule" pathLength="1" />
 
             {/* Every call logged. */}
-            <path d="M264 226h108M264 242h72" class="a-rule" />
+            <path d="M264 226h108M264 242h72" class="a-rule" pathLength="1" />
             <circle cx="256" cy="226" r="3" class="a-dot" />
             <circle cx="256" cy="242" r="3" class="a-dot" />
           </svg>
@@ -94,7 +94,7 @@ const { evidence, name, slug } = Astro.props;
             {/* The school's own book, open. */}
             <path d="M44 228c12-5 26-5 34 3v34c-8-8-22-8-34-3z" class="a-book" />
             <path d="M112 228c-12-5-26-5-34 3v34c8-8 22-8 34-3z" class="a-book" />
-            <path d="M78 231v34" class="a-line" />
+            <path d="M78 231v34" class="a-line" pathLength="1" />
             <path d="M94 224v20l7-6 7 6v-20z" class="a-mark" />
 
             {/* The question. */}
@@ -102,25 +102,25 @@ const { evidence, name, slug } = Astro.props;
               d="M120 96h50a12 12 0 0 1 12 12v22a12 12 0 0 1-12 12h-34l-16 14 2-14h-2a12 12 0 0 1-12-12v-22a12 12 0 0 1 12-12z"
               class="a-node"
             />
-            <path d="M124 114h44M124 126h26" class="a-rule" />
+            <path d="M124 114h44M124 126h26" class="a-rule" pathLength="1" />
 
             {/* Into the agent. */}
-            <path d="M182 130h6v18h8" class="a-flow" />
+            <path d="M182 130h6v18h8" class="a-flow" pathLength="1" />
             <circle cx="190" cy="148" r="2.5" class="a-dot" />
             <rect x="196" y="120" width="56" height="56" rx="15" class="a-node" />
             <path d="M224 130l6.5 11.5 11.5 6.5-11.5 6.5-6.5 11.5-6.5-11.5-11.5-6.5 11.5-6.5z" class="a-spark" />
 
             {/* The answer, with the page it came from. */}
-            <path d="M252 148h10v-18h10" class="a-flow" />
+            <path d="M252 148h10v-18h10" class="a-flow" pathLength="1" />
             <circle cx="267" cy="130" r="2.5" class="a-dot" />
             <rect x="272" y="78" width="118" height="152" rx="14" class="a-node" />
-            <path d="M288 100h86M288 118h86M288 136h54" class="a-rule" />
+            <path d="M288 100h86M288 118h86M288 136h54" class="a-rule" pathLength="1" />
             <rect x="288" y="158" width="86" height="28" rx="9" class="a-gate" />
             <circle cx="302" cy="172" r="3.5" class="a-dot" />
-            <path d="M314 172h44" class="a-rule" />
+            <path d="M314 172h44" class="a-rule" pathLength="1" />
 
             {/* Straight back to the book. Nothing else feeds the answer. */}
-            <path d="M112 250h206v-20" class="a-trace" />
+            <path d="M112 250h206v-20" class="a-trace" pathLength="1" />
             <circle cx="212" cy="250" r="2.5" class="a-dot" />
           </svg>
         )
@@ -138,29 +138,29 @@ const { evidence, name, slug } = Astro.props;
             <path d="M46 206v-16c0-16.6 13.4-30 30-30s30 13.4 30 30v16z" class="a-body" />
             <g transform="rotate(9 117 209)">
               <rect x="94" y="180" width="46" height="58" rx="6" class="a-node" />
-              <path d="M104 196h26M104 208h26M104 220h16" class="a-rule" />
+              <path d="M104 196h26M104 208h26M104 220h16" class="a-rule" pathLength="1" />
             </g>
 
             {/* Into the agent. */}
-            <path d="M146 190h12v-50h14" class="a-flow" />
+            <path d="M146 190h12v-50h14" class="a-flow" pathLength="1" />
             <circle cx="158" cy="164" r="2.5" class="a-dot" />
             <rect x="172" y="112" width="56" height="56" rx="15" class="a-node" />
             <path d="M200 122l6.5 11.5 11.5 6.5-11.5 6.5-6.5 11.5-6.5-11.5-11.5-6.5 11.5-6.5z" class="a-spark" />
 
             {/* Through verification. Nothing reaches the answer around it. */}
-            <path d="M200 168v24" class="a-flow" />
+            <path d="M200 168v24" class="a-flow" pathLength="1" />
             <rect x="170" y="192" width="60" height="32" rx="10" class="a-gate" />
-            <path d="M190 208l6 6 12-12" class="a-check" />
+            <path d="M190 208l6 6 12-12" class="a-check" pathLength="1" />
 
             {/* The answer: cited, cited, cited — and one gap that says so. */}
-            <path d="M230 208h16v-70h8" class="a-flow" />
+            <path d="M230 208h16v-70h8" class="a-flow" pathLength="1" />
             <circle cx="246" cy="170" r="2.5" class="a-dot" />
             <rect x="254" y="72" width="136" height="176" rx="14" class="a-node" />
-            <path d="M268 100l5 5 10-10M268 134l5 5 10-10M268 168l5 5 10-10" class="a-check" />
-            <path d="M292 100h80M292 134h80M292 168h58" class="a-rule" />
-            <path d="M266 198l8 8M274 198l-8 8" class="a-cross" />
+            <path d="M268 100l5 5 10-10M268 134l5 5 10-10M268 168l5 5 10-10" class="a-check" pathLength="1" />
+            <path d="M292 100h80M292 134h80M292 168h58" class="a-rule" pathLength="1" />
+            <path d="M266 198l8 8M274 198l-8 8" class="a-cross" pathLength="1" />
             <rect x="290" y="192" width="76" height="20" rx="6" class="a-void" />
-            <path d="M292 228h66" class="a-rule" />
+            <path d="M292 228h66" class="a-rule" pathLength="1" />
           </svg>
         )
       }
@@ -181,31 +181,31 @@ const { evidence, name, slug } = Astro.props;
             <path d="M46 218v-16c0-16.6 13.4-30 30-30s30 13.4 30 30v16z" class="a-body" />
             <rect x="100" y="134" width="28" height="46" rx="7" class="a-node" />
             <rect x="106" y="141" width="16" height="26" rx="3" class="a-slot" />
-            <path d="M110 172h8" class="a-rule" />
-            <path d="M138 140c7 9 7 22 0 31M148 132c12 14 12 33 0 47" class="a-wave" />
+            <path d="M110 172h8" class="a-rule" pathLength="1" />
+            <path d="M138 140c7 9 7 22 0 31M148 132c12 14 12 33 0 47" class="a-wave" pathLength="1" />
 
             {/* Into the concierge. */}
-            <path d="M162 152h14" class="a-flow" />
+            <path d="M162 152h14" class="a-flow" pathLength="1" />
             <circle cx="168" cy="152" r="2.5" class="a-dot" />
             <rect x="176" y="124" width="56" height="56" rx="15" class="a-node" />
             <path d="M204 134l6.5 11.5 11.5 6.5-11.5 6.5-6.5 11.5-6.5-11.5-11.5-6.5 11.5-6.5z" class="a-spark" />
 
             {/* Which answers only from this listing, and it is a verified one. */}
-            <path d="M256 250h-42v-70" class="a-flow" />
+            <path d="M256 250h-42v-70" class="a-flow" pathLength="1" />
             <circle cx="214" cy="216" r="2.5" class="a-dot" />
-            <path d="M256 232l32-26 32 26" class="a-line" />
+            <path d="M256 232l32-26 32 26" class="a-line" pathLength="1" />
             <rect x="264" y="232" width="48" height="44" rx="4" class="a-node" />
             <rect x="280" y="252" width="16" height="24" rx="3" class="a-fill" />
             <circle cx="322" cy="222" r="11" class="a-fill" />
-            <circle cx="322" cy="222" r="11" class="a-line" />
-            <path d="M317 222l4 4 7-7" class="a-check" />
+            <circle cx="322" cy="222" r="11" class="a-line" pathLength="1" />
+            <path d="M317 222l4 4 7-7" class="a-check" pathLength="1" />
 
             {/* And books the slot. */}
-            <path d="M232 152h8v-24h12" class="a-flow" />
+            <path d="M232 152h8v-24h12" class="a-flow" pathLength="1" />
             <circle cx="246" cy="128" r="2.5" class="a-dot" />
             <rect x="252" y="76" width="134" height="110" rx="13" class="a-node" />
-            <path d="M252 102h134" class="a-line" />
-            <path d="M268 90h28" class="a-rule" />
+            <path d="M252 102h134" class="a-line" pathLength="1" />
+            <path d="M268 90h28" class="a-rule" pathLength="1" />
             <circle cx="356" cy="90" r="3.5" class="a-slot" />
             <circle cx="370" cy="90" r="3.5" class="a-slot" />
             <circle cx="276" cy="126" r="3.5" class="a-dot" />
@@ -216,7 +216,7 @@ const { evidence, name, slug } = Astro.props;
             <circle cx="306" cy="152" r="3.5" class="a-dot" />
             <circle cx="366" cy="152" r="3.5" class="a-dot" />
             <rect x="324" y="140" width="24" height="24" rx="7" class="a-gate" />
-            <path d="M330 152l4 4 8-8" class="a-check" />
+            <path d="M330 152l4 4 8-8" class="a-check" pathLength="1" />
           </svg>
         )
       }
@@ -404,18 +404,145 @@ const { evidence, name, slug } = Astro.props;
     fill: var(--page-accent);
   }
 
-  /* The dots along the flow lines pulse, so the drawing reads as something
-     happening rather than a diagram. Decoration only: it is aria-hidden and
-     says the same thing standing still. */
+  /* ── The drawing builds itself, in the order the example happens ──────────
+     The illustration is a sequence — a call arrives, an agent takes it, a
+     control passes it, an answer comes out — and it now plays in that order
+     instead of appearing all at once. Six stages, each 300–600ms, the whole
+     thing done in about 1.6s.
+
+     GATED ON `html[data-reveal-ready]`, exactly like the reveal variants in
+     platform.css. That attribute is set by an inline script, so with JS off,
+     with the script broken, or for a crawler, none of the hidden states below
+     ever apply and the finished drawing is what renders. The resting state is
+     the finished state — there is no path where a stage fails to arrive and
+     leaves something invisible.
+
+     The lines draw with `pathLength="1"` on every stroked path, so one
+     `stroke-dasharray: 1` covers paths from 9px to 300px long without a single
+     measured length in this file. Change a path's geometry and its draw still
+     works. */
   @media (prefers-reduced-motion: no-preference) {
-    .a-dot {
+    html[data-reveal-ready] .evi-art .a-plate,
+    html[data-reveal-ready] .evi-art .a-body,
+    html[data-reveal-ready] .evi-art .a-moon,
+    html[data-reveal-ready] .evi-art .a-book,
+    html[data-reveal-ready] .evi-art .a-mark,
+    html[data-reveal-ready] .evi-art .a-node,
+    html[data-reveal-ready] .evi-art .a-gate,
+    html[data-reveal-ready] .evi-art .a-slot,
+    html[data-reveal-ready] .evi-art .a-void,
+    html[data-reveal-ready] .evi-art .a-fill,
+    html[data-reveal-ready] .evi-art .a-spark,
+    html[data-reveal-ready] .evi-art .a-dot {
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    html[data-reveal-ready] .evi-art .a-flow,
+    html[data-reveal-ready] .evi-art .a-wave,
+    html[data-reveal-ready] .evi-art .a-trace,
+    html[data-reveal-ready] .evi-art .a-check,
+    html[data-reveal-ready] .evi-art .a-cross,
+    html[data-reveal-ready] .evi-art .a-rule,
+    html[data-reveal-ready] .evi-art .a-line {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+    }
+
+    /* `forwards`, so every stage holds its finished value and the drawing is
+       complete and static from 1.6s onward. It plays once per page load. */
+    html[data-reveal-ready] .evi-art[data-revealed] .a-plate {
+      animation: evi-in 0.5s var(--ease-entrance) forwards;
+    }
+    html[data-reveal-ready] .evi-art[data-revealed] .a-body,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-moon,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-book,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-mark {
+      animation: evi-rise 0.5s var(--ease-entrance) 0.12s forwards;
+    }
+    html[data-reveal-ready] .evi-art[data-revealed] .a-node,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-slot,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-fill {
+      animation: evi-pop 0.45s var(--ease-entrance) 0.3s forwards;
+    }
+    html[data-reveal-ready] .evi-art[data-revealed] .a-wave,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-flow {
+      animation: evi-draw 0.6s var(--ease-entrance) 0.45s forwards;
+    }
+    html[data-reveal-ready] .evi-art[data-revealed] .a-spark {
+      animation: evi-pop 0.45s var(--ease-entrance) 0.7s forwards;
+    }
+    html[data-reveal-ready] .evi-art[data-revealed] .a-gate,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-void {
+      animation: evi-pop 0.45s var(--ease-entrance) 0.85s forwards;
+    }
+    html[data-reveal-ready] .evi-art[data-revealed] .a-check,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-cross {
+      animation: evi-draw 0.4s var(--ease-entrance) 1.05s forwards;
+    }
+    html[data-reveal-ready] .evi-art[data-revealed] .a-rule,
+    html[data-reveal-ready] .evi-art[data-revealed] .a-line {
+      animation: evi-draw 0.5s var(--ease-entrance) 1.15s forwards;
+    }
+    /* Provenance last — the dashed line back to the source reads as a
+       conclusion, so it arrives after the answer it explains. */
+    html[data-reveal-ready] .evi-art[data-revealed] .a-trace {
+      animation: evi-draw 0.7s var(--ease-entrance) 1.3s forwards;
+    }
+
+    /* The dots fade in at the end and then keep their slow pulse, so the
+       drawing settles into something alive rather than stopping dead. Two
+       animations on one element: the first fills forwards, the second is
+       infinite and starts after it. */
+    html[data-reveal-ready] .evi-art[data-revealed] .a-dot {
+      animation:
+        evi-pop 0.4s var(--ease-entrance) 1.4s forwards,
+        evi-pulse 3.2s var(--ease-entrance) 1.9s infinite;
+    }
+    /* No reveal system, no sequence — but the resting pulse still runs. */
+    html:not([data-reveal-ready]) .evi-art .a-dot {
       animation: evi-pulse 3.2s var(--ease-entrance) infinite;
     }
-    .a-dot:nth-of-type(2n) {
-      animation-delay: 0.8s;
+    /* The old `.a-dot:nth-of-type(2n) { animation-delay: 0.8s }` is gone. It set
+       a single delay against a two-animation list, which resets BOTH — the pop
+       and the pulse — and would have desynchronised half the dots from the
+       sequence they now belong to. */
+  }
+
+  @keyframes evi-in {
+    from {
+      opacity: 0;
     }
-    .a-spark {
-      animation: evi-pulse 3.2s var(--ease-entrance) infinite 0.4s;
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes evi-rise {
+    from {
+      opacity: 0;
+      translate: 0 10px;
+    }
+    to {
+      opacity: 1;
+      translate: none;
+    }
+  }
+  @keyframes evi-pop {
+    from {
+      opacity: 0;
+      scale: 0.86;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+  @keyframes evi-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
     }
   }
   @keyframes evi-pulse {

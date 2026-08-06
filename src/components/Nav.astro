@@ -14,7 +14,19 @@ import { nav, footerCols, isPlanned } from '../content/site';
 import { platforms } from '../content/platforms';
 
 const solutionLinks = footerCols.find((c) => c.title === 'Solutions')!.links;
-const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label !== 'Solutions');
+/** The three links that are rendered from content, in content order.
+ *
+ *  Platforms and Solutions are excluded because they are written out by hand
+ *  above, with their panels. AI agents is excluded for the same reason and was
+ *  missing from this list — it is hard-coded between Platforms and Solutions to
+ *  hold that position, and then this map rendered it a second time. Both menus
+ *  listed it twice on all 19 routes.
+ *
+ *  Matched on href, not label: a label is copy and copy gets edited, at which
+ *  point a filter keyed to it silently stops matching and the duplicate comes
+ *  back. The href is the identity. */
+const handWritten = new Set(['/platforms/', '/ai-agents/', '/solutions/hospitals/']);
+const flatLinks = nav.filter((item) => !handWritten.has(item.href));
 ---
 
 <div class="nav-wrap" id="site-nav">
@@ -30,33 +42,14 @@ const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label 
 
     {/* ── Desktop menu ── */}
     <nav class="nav-menu" aria-label="Primary">
-      <div class="nav-item nav-has-menu">
-        <a href="/platforms/" class="nav-link">
-          Platforms <Icon name="chevron-down" size={12} class="nav-chevron" />
-        </a>
-        <div class="nav-panel nav-panel--wide">
-          <div class="nav-card nav-mega">
-            <div class="nav-mega-grid">
-              {platforms.map((p) => (
-                <a href={`/platforms/${p.slug}/`} class="mega-item" style={`--hue: ${p.hue};`}>
-                  <span class="mega-item-dot" aria-hidden="true"></span>
-                  <span class="mega-item-body">
-                    <span class="mega-item-name">{p.name}</span>
-                    <span class="mega-item-sub">{p.subtitle}</span>
-                  </span>
-                </a>
-              ))}
-            </div>
-            <a href="/contact/" class="mega-feature">
-              <span class="mega-feature-eyebrow">Book a demo</span>
-              <span class="mega-feature-title">See a platform run on your own institution</span>
-              <span class="mega-feature-cta">
-                30-minute demo <Icon name="arrow-right" class="arrow" size={14} />
-              </span>
-            </a>
-          </div>
-        </div>
-      </div>
+      {/* A plain link, no panel. The mega-menu that was here listed the four
+          platforms with their subtitles — which is exactly what the sub-nav on
+          /platforms/* does, permanently and without a hover. Two controls for
+          one job, and the hover one was the worse of the two: it needs a
+          pointer, it closes when you leave it, and it duplicated a strip that
+          is already on screen. The sub-nav now carries the platform hues the
+          mega-menu had, so nothing it showed was lost — see PlatformSubnav. */}
+      <a href="/platforms/" class="nav-link">Platforms</a>
 
       <a href="/ai-agents/" class="nav-link">AI agents</a>
 
@@ -218,12 +211,22 @@ const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label 
     color: var(--color-muted);
     cursor: default;
   }
-  .nav-chevron {
+  /* :global on the icon's own class, because it is a class passed to a CHILD
+     COMPONENT. Astro does not put this file's `data-astro-cid` on a child
+     component's root element, so `.nav-chevron { … }` compiles to
+     `.nav-chevron[data-astro-cid-…]` and matches nothing — the rule is in the
+     stylesheet, is syntactically valid, and has never had any effect. The
+     ancestor (`.nav-item`, `.nav-link`) is in this file and is scoped
+     normally, so the pair is still confined to this component.
+
+     DESIGN.md §14b records this as fragility 2 and as the first instance of
+     the failure class. It was live in three more places here. */
+  .nav-link :global(.nav-chevron) {
     color: var(--color-control);
     transition: transform var(--dur-state) var(--ease-out);
   }
-  .nav-item:hover .nav-chevron,
-  .nav-item:focus-within .nav-chevron {
+  .nav-item:hover .nav-link :global(.nav-chevron),
+  .nav-item:focus-within .nav-link :global(.nav-chevron) {
     transform: rotate(180deg);
   }
 
@@ -286,32 +289,9 @@ const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label 
     color: var(--color-ink);
   }
 
-  /* Platforms — a mega panel: a 2-up product grid beside a featured card. */
-  .nav-mega {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 0.75rem;
-    width: 640px;
-    padding: 0.85rem;
-  }
-  .nav-mega-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2px;
-  }
-  .mega-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.65rem;
-    padding: 0.7rem 0.8rem;
-    border-radius: var(--radius-card);
-    text-decoration: none;
-    transition: background-color var(--dur-feedback) var(--ease-out);
-  }
-  .mega-item:hover,
-  .mega-item:focus-visible {
-    background: var(--color-wash);
-  }
+  /* The mobile sheet's platform links keep the hue dot the mega panel used.
+     Everything else that panel needed — its grid, its two-line items, its
+     featured card — went with it. */
   .mega-item-dot {
     flex: none;
     width: 0.6rem;
@@ -319,65 +299,6 @@ const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label 
     margin-top: 0.35rem;
     border-radius: var(--radius-pill);
     background: var(--hue);
-  }
-  .mega-item-body {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-  .mega-item-name {
-    font-size: var(--text-body-sm);
-    font-weight: 500;
-    color: var(--color-ink);
-  }
-  .mega-item-sub {
-    font-size: var(--text-caption);
-    color: var(--color-muted);
-    line-height: 1.35;
-  }
-  .mega-feature {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 1rem;
-    border-radius: var(--radius-card);
-    background: var(--color-ink);
-    text-decoration: none;
-    overflow: hidden;
-    position: relative;
-    isolation: isolate;
-  }
-  .mega-feature::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(120% 100% at 100% 0%, rgb(43 70 212 / 0.55), transparent 60%);
-  }
-  .mega-feature-eyebrow {
-    font-size: var(--text-eyebrow);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #aebbe6;
-  }
-  .mega-feature-title {
-    font-size: var(--text-body-sm);
-    font-weight: 500;
-    line-height: 1.35;
-    color: #fff;
-    margin-top: auto;
-  }
-  .mega-feature-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: var(--text-caption);
-    font-weight: 500;
-    color: #dbe3ff;
-  }
-  .mega-feature:hover .arrow {
-    transform: translateX(3px);
   }
 
   /* ── Actions ── */
@@ -420,13 +341,17 @@ const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label 
   .nav-toggle:hover {
     border-color: var(--color-control);
   }
-  .nav-toggle-close {
+  /* Same fix, and this one was VISIBLE: both icons painted on top of each
+     other at every mobile width, so the button read as a hamburger with a
+     cross through it. `.nav-toggle-close { display: none }` was scoped, the
+     svg it targets is a child component's root, and the two never met. */
+  .nav-toggle :global(.nav-toggle-close) {
     display: none;
   }
-  .nav-wrap.is-open .nav-toggle-open {
+  .nav-wrap.is-open .nav-toggle :global(.nav-toggle-open) {
     display: none;
   }
-  .nav-wrap.is-open .nav-toggle-close {
+  .nav-wrap.is-open .nav-toggle :global(.nav-toggle-close) {
     display: block;
   }
 

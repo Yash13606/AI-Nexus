@@ -79,7 +79,7 @@ const totals = {
       two disagreed by 105px. Measured, not assumed. */}
   <section class="hero section">
     <HeroField />
-    <div class="shell hero-inner">
+    <div class="shell p-hero-inner">
       <Breadcrumbs trail={trail} />
 
       <p class="t-label rise" style="--i: 0; color: var(--color-muted);">
@@ -284,18 +284,44 @@ const totals = {
     /* Fills the screen under the sticky chrome — see the note in
        [slug].astro. Composed from the tokens, and svh so mobile browser chrome
        does not push the fold off screen. */
-    --chrome: calc(var(--nav-h) + var(--subnav-h) + 1px);
+    --chrome: var(--chrome-h);
     min-height: calc(100svh - var(--chrome));
+    /* COLUMN, and centred on the main axis. This was `display: flex` with
+       `align-items: center`, which centred the content vertically and broke the
+       page's left edge doing it: in a row-direction flex container the `.shell`
+       is an item, so it shrink-to-fits instead of filling, and its
+       `margin-inline: auto` then centres what is left. Measured at 1486px wide:
+       the hero's shell sat at x=353 with width 780, while the sub-nav and every
+       section below it sat at x=143 with width 1200. A 210px indent on the one
+       block a reader looks at first.
+
+       In column direction the cross axis is horizontal, items stretch by
+       default, and the vertical centring comes from `justify-content` instead —
+       which is what `.fold` further down this file already does. */
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
   }
   @media (max-width: 1099px) {
     .hero {
-      align-items: flex-start;
+      /* justify-content, not align-items: in column direction align-items is
+         the horizontal axis, and `flex-start` there would re-break the
+         alignment this rule exists alongside. */
+      justify-content: flex-start;
     }
   }
 
-  .hero-inner {
+  /* NOT `hero-inner`. That name is taken: theme.css carries a site-wide
+     `.hero-inner { max-width: 780px; margin-inline: auto }` for the landing
+     page's centred hero, and this hero is left-aligned inside a 1200px shell.
+     Sharing the name silently capped this block at 780px and centred it —
+     measured at x=353 against x=143 for the sub-nav and every section below,
+     a 210px indent on the first thing a reader sees.
+
+     Renamed rather than out-ranked. Two different heroes wanting two different
+     things from one class name is a collision, and the fix for a collision is a
+     name, not a heavier selector. */
+  .p-hero-inner {
     position: relative;
     z-index: 1;
     width: 100%;
@@ -303,7 +329,7 @@ const totals = {
   /* A length, never 68ch — see the note above the markup. Paragraphs only: the
      h1 carries its own tighter headline measure inline and is well inside this
      one, so both are capped, just not by the same rule. */
-  .hero-inner p {
+  .p-hero-inner p {
     max-width: var(--hero-measure);
   }
 
@@ -334,7 +360,7 @@ const totals = {
      air was what pushed the deck below the fold. */
   .fold {
     --section-y: clamp(1.5rem, 2.75vw, 2.5rem);
-    min-height: calc(100svh - var(--chrome, 146px));
+    min-height: calc(100svh - var(--chrome, 151px));
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -643,7 +669,7 @@ const totals = {
   @media (min-width: 1024px) {
     thead th {
       position: sticky;
-      top: calc(var(--nav-h) + var(--subnav-h));
+      top: var(--chrome-h);
     }
   }
 
