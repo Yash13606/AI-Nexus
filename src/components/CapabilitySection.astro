@@ -34,9 +34,9 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
           <article
             data-reveal
             style={`--i: ${Math.min(i, 3)};`}
-            class={`bento-cell card hov p-elev p-fill p-6 flex flex-col gap-2 ${i === 0 ? 'bento-lead' : ''}`}
+            class="bento-cell card hov p-elev p-fill p-7 flex flex-col gap-2"
           >
-            <h3 class={i === 0 ? 't-h3' : 't-h4'}>{m.title}</h3>
+            <h3 class="t-h4">{m.title}</h3>
             <p class="t-sm">{m.body}</p>
           </article>
         ))}
@@ -140,29 +140,40 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 </div>
 
 <style>
-  /* ── Bento: uneven spans, lead tile first ─────────────────────────────── */
+  /* ── Bento: alternating pairs ──────────────────────────────────────────
+     Two cards per row on a 12-column grid, and the wide one swaps sides each
+     row: 7/5, then 5/7, then 7/5. Uneven spans without any cell spanning two
+     ROWS, which is the whole point.
+
+     The previous shape gave the first tile `grid-row: span 2`. A grid row
+     equalises to its tallest cell, so that tile inherited the height of the
+     two stacked beside it and its own short body left roughly 300px of empty
+     card — measured on TrustProperty, whose first module is two lines long.
+     Pairs cannot do that: each row is only as tall as the taller of two cards
+     that hold comparable amounts of text.
+
+     Titles are all one size for the same reason the rows are paired — with no
+     cell carrying more weight than another, a larger first title would be
+     arbitrary rather than hierarchical. */
   .bento {
     display: grid;
     gap: 1.5rem;
     grid-template-columns: 1fr;
   }
-  /* The cell IS the card — no wrapper, so the scoped rule lands. */
   .bento-cell {
     height: 100%;
   }
-  @media (min-width: 700px) {
+  @media (min-width: 900px) {
     .bento {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(12, minmax(0, 1fr));
     }
-  }
-  @media (min-width: 1024px) {
-    .bento {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .bento-cell {
+      grid-column: span 5;
     }
-    /* One tile carries more weight, so the grid is not six equal boxes. */
-    .bento-lead {
-      grid-column: span 2;
-      grid-row: span 2;
+    .bento-cell:nth-child(6n + 1),
+    .bento-cell:nth-child(6n + 4),
+    .bento-cell:nth-child(6n + 5) {
+      grid-column: span 7;
     }
   }
 

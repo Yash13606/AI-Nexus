@@ -44,6 +44,11 @@ const PER_RING = 150;
 const HAZE = 800;
 const COUNT = STRANDS * PER_STRAND + RINGS * PER_RING + HAZE; // 12,000
 
+/** Reference hero height, in CSS pixels. The form is drawn at this scale
+ *  wherever it appears, so /platforms/ and the four detail pages show one
+ *  object at one size rather than five of it at five. */
+const REF_H = 620;
+
 const TAU = Math.PI * 2;
 const HEIGHT = 2.1;
 const R0 = 0.66;
@@ -99,6 +104,7 @@ uniform vec2 u_par;
 uniform float u_aspect;
 uniform float u_px;
 uniform float u_ox;
+uniform float u_fit;
 varying vec3 v_col;
 varying float v_a;
 void main() {
@@ -111,8 +117,8 @@ void main() {
   p = vec3(p.x, p.y * cx - p.z * sx, p.z * cx + p.y * sx);
   float zc = max(3.05 - p.z, 0.05);
   float w = 1.9 / zc;
-  gl_Position = vec4(p.x * w / u_aspect + u_ox, p.y * w, 0.0, 1.0);
-  gl_PointSize = u_px * a_meta.y * w;
+  gl_Position = vec4(p.x * w * u_fit / u_aspect + u_ox, p.y * w * u_fit, 0.0, 1.0);
+  gl_PointSize = u_px * a_meta.y * w * u_fit;
   v_a = a_meta.x * mix(0.09, 0.60, clamp((3.95 - zc) / 1.8, 0.0, 1.0));
   v_col = a_col;
 }`;
@@ -244,6 +250,7 @@ export function initField(canvas) {
   const uAspect = u('u_aspect');
   const uPx = u('u_px');
   const uOx = u('u_ox');
+  const uFit = u('u_fit');
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -265,6 +272,14 @@ export function initField(canvas) {
     // Below 1100px there is no empty right, so the component drops the whole
     // canvas box under the text instead and the form centres in it.
     gl.uniform1f(uOx, w >= 1100 ? 0.46 : 0);
+
+    /* The projection fits the canvas HEIGHT, so without this the form is as
+       big as its hero — and the heroes are not the same height. AdvoHub's lede
+       runs to ten lines and its spindle came out noticeably larger than
+       MedOrbit's. u_fit rescales to a fixed reference so the object is the
+       same size on every page, and only ever shrinks: on a hero shorter than
+       the reference it stays fitted rather than overflowing. */
+    gl.uniform1f(uFit, Math.min(REF_H, h) / h);
   }
   size();
   new ResizeObserver(size).observe(canvas);

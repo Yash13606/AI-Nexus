@@ -43,9 +43,9 @@ const { layout, roles, parallax = false } = Astro.props;
           <article
             data-reveal
             style={`--i: ${Math.min(i, 3)};`}
-            class={`rbento-cell card hov p-elev p-fill p-6 ${i === 0 ? 'rbento-lead' : ''}`}
+            class="rbento-cell card hov p-elev p-fill p-7"
           >
-            <h3 class={i === 0 ? 't-h3' : 't-h4'}>{r.title}</h3>
+            <h3 class="t-h4">{r.title}</h3>
             <p class="t-sm mt-2">{r.body}</p>
           </article>
         ))}
@@ -113,7 +113,10 @@ const { layout, roles, parallax = false } = Astro.props;
     }
   }
 
-  /* ── Bento ────────────────────────────────────────────────────────────── */
+  /* ── Bento ────────────────────────────────────────────────────────────
+     Same alternating 7/5 pairs as CapabilitySection, and for the same reason —
+     see the note there about a row-spanning cell inheriting a height its own
+     content cannot fill. */
   .rbento {
     display: grid;
     gap: 1.5rem;
@@ -122,17 +125,17 @@ const { layout, roles, parallax = false } = Astro.props;
   .rbento-cell {
     height: 100%;
   }
-  @media (min-width: 700px) {
+  @media (min-width: 900px) {
     .rbento {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(12, minmax(0, 1fr));
     }
-  }
-  @media (min-width: 1024px) {
-    .rbento {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .rbento-cell {
+      grid-column: span 5;
     }
-    .rbento-lead {
-      grid-column: span 2;
+    .rbento-cell:nth-child(6n + 1),
+    .rbento-cell:nth-child(6n + 4),
+    .rbento-cell:nth-child(6n + 5) {
+      grid-column: span 7;
     }
   }
 

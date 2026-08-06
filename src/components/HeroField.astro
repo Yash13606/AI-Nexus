@@ -68,9 +68,19 @@ const { hues, tone = 'quad' } = Astro.props;
 </script>
 
 <style>
+  /* Anchored to the TOP of the hero at a fixed height, not stretched to fill
+     it. The heroes are not the same height — the ledes run from three lines to
+     ten, so they measure 640px to 1096px — and a field that fills its hero puts
+     the form at a different place on every page. Moving between platforms then
+     reads as the object jumping rather than the page changing.
+
+     Top-anchored and fixed, the form lands at the same offset below the sticky
+     sub-nav on all five routes, and field.js's u_fit already holds it to one
+     size. Same object, same place, whichever page you arrive on. */
   .hf {
     position: absolute;
-    inset: 0;
+    inset: 0 0 auto 0;
+    height: min(100%, 40rem);
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
@@ -161,7 +171,7 @@ const { hues, tone = 'quad' } = Astro.props;
   @media (max-width: 1099px) {
     .hf {
       inset: auto 0 0 0;
-      height: 56%;
+      height: min(56%, 26rem);
     }
     /* Turned on its side: the spindle lies down and the four nodes read left to
        right. Same object, same count, rotated into the room it has. */
@@ -189,7 +199,7 @@ const { hues, tone = 'quad' } = Astro.props;
      under the buttons, which is the same statement the spindle makes. */
   @media (max-width: 768px) {
     .hf {
-      height: 44%;
+      height: min(44%, 20rem);
     }
   }
 

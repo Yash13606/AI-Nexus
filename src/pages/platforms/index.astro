@@ -40,6 +40,8 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
  *  reduced-motion reader all get a plain headline. */
 const words = (line: string) => line.split(' ');
 
+const maxAgents = Math.max(...platforms.map((p) => p.agentCount));
+
 const totals = {
   agents: platforms.reduce((n, p) => n + p.agentCount, 0),
   roles: platforms.reduce((n, p) => n + detail[p.slug].roles.length, 0),
@@ -162,7 +164,7 @@ const totals = {
         Real <table>, real <caption>, scope on every header cell, no role
         overrides. The FLIP re-rank stays; its controls stay JS-injected. */}
   <section class="section">
-    <div class="shell" id="compare" style="scroll-margin-top: 128px;">
+    <div class="shell p-table" id="compare" style="scroll-margin-top: 128px;">
       <div class="p-secthead mb-11">
         <div data-reveal class="p-head">
           <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
@@ -203,14 +205,20 @@ const totals = {
                   data-roles={String(detail[p.slug].roles.length)}
                   data-languages={languages[p.slug] === '—' ? '0' : languages[p.slug]}
                 >
-                  <th scope="row" class="plat-cell">
+                  <th scope="row" class="plat-cell" style={`--row-hue: ${p.hue};`}>
                     <span class="swatch" style={`background: ${p.hue};`} aria-hidden="true"></span>
                     <a href={`/platforms/${p.slug}/`}>{p.name}</a>
                   </th>
                   <td>{p.sector}</td>
-                  <td class="num">{p.agentCount}</td>
-                  <td class="num">{detail[p.slug].roles.length}</td>
-                  <td class="num">{languages[p.slug]}</td>
+                  {/* The figure is the fact; the bar is the comparison. Both
+                      come from the same number, the bar is aria-hidden, and a
+                      screen reader or a JS-off reader loses nothing. */}
+                  <td class="num">
+                    <span class="numv">{p.agentCount}</span>
+                    <span class="bar" aria-hidden="true" style={`--v: ${p.agentCount / maxAgents};`} />
+                  </td>
+                  <td class="num"><span class="numv">{detail[p.slug].roles.length}</span></td>
+                  <td class="num"><span class="numv">{languages[p.slug]}</span></td>
                   <td class="site-cell mono">
                     <a href={p.site} target="_blank" rel="noopener">
                       {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />

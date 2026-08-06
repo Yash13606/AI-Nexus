@@ -883,3 +883,118 @@
     z-index: 1;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   §16.11 — the comparison table, restyled.
+
+   It was a boxed grid: an outline round the whole thing, a fill behind the
+   header, a rule under every row and body-sized figures. That is the register
+   of a spec sheet, and it made the page's most important object its dullest.
+
+   What changed is presentation only. It is still a real <table> with a real
+   <caption>, `scope` on every header cell, `aria-sort` on the sortable ones
+   and the desktop/mobile sticky split intact — §8.14 is not relaxed here, and
+   none of this is reachable by a screen reader as anything other than a table.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* No box. Hairlines between rows carry the structure, which is all the
+     structure a five-column table needs. */
+  .p-table .tbl-wrap {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .p-table thead th {
+    background: transparent;
+    border-bottom: 1px solid var(--color-hairline);
+    color: var(--color-muted);
+    padding-block: 0.5rem 0.875rem;
+  }
+  .p-table th,
+  .p-table td {
+    padding-inline: 1.25rem;
+  }
+  .p-table th:first-child,
+  .p-table td:first-child {
+    padding-inline-start: 0;
+  }
+  .p-table th:last-child,
+  .p-table td:last-child {
+    padding-inline-end: 0;
+  }
+  .p-table tbody th,
+  .p-table tbody td {
+    padding-block: 1.5rem;
+  }
+
+  /* The figures are what a reader is comparing, so they get the size. */
+  .p-table .numv {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-h3);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  /* A bar under the agent count, proportional to the largest. The figure above
+     it is still the fact; this is the comparison, which is the one thing a
+     column of numerals does not give you at a glance. aria-hidden and derived
+     from the same number, so nothing is asserted here that the cell does not
+     already say. */
+  .p-table .bar {
+    display: block;
+    height: 3px;
+    margin-top: 0.625rem;
+    max-width: 5.5rem;
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklab, var(--color-hairline) 70%, transparent);
+    position: relative;
+    overflow: hidden;
+  }
+  .p-table .bar::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--v, 0) * 100%);
+    border-radius: inherit;
+    background: var(--row-hue, var(--page-accent));
+    transform-origin: left;
+    scale: 0 1;
+  }
+  html[data-reveal-ready] [data-revealed] .p-table .bar::after,
+  html:not([data-reveal-ready]) .p-table .bar::after {
+    scale: 1 1;
+    transition: scale var(--dur-section) var(--ease-entrance) 200ms;
+  }
+
+  /* Hue reaches the whole row on hover, so the row you are reading is the row
+     you are reading. The swatch already carries identity at rest. */
+  .p-table tbody tr:hover th,
+  .p-table tbody tr:hover td {
+    background: color-mix(in oklab, var(--row-hue, var(--page-accent)) 5%, var(--color-paper));
+  }
+  .p-table .plat-cell a {
+    font-size: var(--text-h4);
+    font-weight: 600;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .p-table .plat-cell a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .p-table .swatch {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: var(--radius-pill);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .p-table .bar::after {
+      scale: 1 1 !important;
+      transition: none !important;
+    }
+  }
+}
