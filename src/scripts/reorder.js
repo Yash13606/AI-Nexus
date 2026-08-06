@@ -145,19 +145,59 @@ export function initTableSort(root) {
 export function initSeatFilter(root, hue) {
   const grid = root.querySelector('[data-agent-grid]');
   if (!grid) return;
+
+  /* Two shapes ship from the same template. Below twelve agents the roster is
+     one flat grid; at twelve or more it is grouped by seat, and then the cards
+     live in each group's OWN grid rather than in [data-agent-grid].
+
+     Reordering by `grid.appendChild(card)` is correct for the flat shape and
+     destroys the grouped one: it lifts every card out of its group and drops
+     it in the outer container, leaving four empty headings and twenty loose
+     cards. Measured on Edvation — the only platform with twelve or more —
+     after a single click on any seat. So the grouped shape reorders GROUPS,
+     which is the equivalent move one level up. */
+  const groups = [...grid.querySelectorAll('.agent-group')];
   const cards = [...grid.querySelectorAll('.agent-card')];
   if (cards.length < 4) return;
 
   const seats = [...new Set(cards.map((c) => c.dataset.audience))].filter(Boolean);
   const options = [{ label: 'Every seat', seat: null }, ...seats.map((s) => ({ label: s, seat: s }))];
 
+  /* Emphasis, never removal — in both shapes. A non-matching card keeps its
+     place in the reading order and its full opacity; it just stops being the
+     one with the accent border. */
+  const mark = (seat) => {
+    for (const c of cards) {
+      const hit = !seat || c.dataset.audience === seat;
+      c.style.borderColor = hit && seat ? hue : '';
+      c.dataset.match = hit ? 'true' : 'false';
+    }
+    for (const g of groups) {
+      const hit = !seat || g.dataset.audience === seat;
+      g.dataset.match = hit ? 'true' : 'false';
+    }
+  };
+
   const apply = (opt) => {
-    flip(cards, () => {
-      cards.forEach((c) => {
-        const hit = !opt.seat || c.dataset.audience === opt.seat;
-        c.style.borderColor = hit && opt.seat ? hue : '';
-        c.dataset.match = hit ? 'true' : 'false';
+    if (groups.length) {
+      // Grouped: bring the matching GROUP to the front, cards stay put.
+      flip(groups, () => {
+        mark(opt.seat);
+        if (opt.seat) {
+          groups
+            .slice()
+            .sort((a, b) => Number(b.dataset.match === 'true') - Number(a.dataset.match === 'true'))
+            .forEach((g) => grid.appendChild(g));
+        } else {
+          groups.forEach((g) => grid.appendChild(g));
+        }
       });
+      return;
+    }
+
+    // Flat: reorder the cards inside the single grid they all share.
+    flip(cards, () => {
+      mark(opt.seat);
       if (opt.seat) {
         cards
           .slice()
@@ -170,4 +210,46 @@ export function initSeatFilter(root, hue) {
   };
 
   controls(root, options, apply, 'Show agents for a seat');
+}
+
+/* ── /platforms/edvation/ — twenty agents is a long scroll ─────────────────
+   3,214px of roster, and sixteen of the twenty sit in one group. Two things
+   were missing, both navigational rather than decorative:
+
+     · which seat you are currently inside, once its heading has scrolled away
+     · a way back to the other three without scrolling to find them
+
+   The seat bar already exists and already lists all four. This pins it while
+   the roster is on screen and marks the group you are actually in, so the
+   control doubles as a position indicator. Nothing is hidden and nothing
+   moves — with JS off the bar is not injected at all and the headings are
+   still in the document in reading order. */
+export function initSeatSpy(root) {
+  const bar = root.querySelector('.reorder-bar');
+  const groups = [...root.querySelectorAll('.agent-group')];
+  if (!bar || groups.length < 2) return;
+
+  const buttons = [...bar.querySelectorAll('.reorder-btn')];
+  const byLabel = new Map(buttons.map((b) => [b.textContent.trim(), b]));
+
+  const setCurrent = (audience) => {
+    for (const b of buttons) b.removeAttribute('data-current');
+    byLabel.get(audience)?.setAttribute('data-current', '');
+  };
+
+  /* The band is the strip just under the sticky chrome. A group is "current"
+     while its box crosses that line — which is the group whose cards you are
+     actually reading, not merely the one nearest the viewport centre. */
+  const io = new IntersectionObserver(
+    (entries) => {
+      const hit = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (hit) setCurrent(hit.target.dataset.audience);
+    },
+    { rootMargin: '-136px 0px -55% 0px', threshold: 0 }
+  );
+  groups.forEach((g) => io.observe(g));
+
+  bar.setAttribute('data-spy', '');
 }

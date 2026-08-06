@@ -798,3 +798,59 @@
     scale: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   §16.10 — the long roster.
+
+   Edvation ships twenty agents against seven to eleven elsewhere, and the
+   grouping is lopsided: sixteen Students, then two, one and one. That is
+   3,214px of section in which a reader can lose track of which seat they are
+   looking at. Neither rule here hides anything — both are orientation.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* The seat bar pins under the main nav and the platform sub-nav, so the four
+     seats stay reachable through the whole roster instead of only at the top.
+     `data-spy` is set by initSeatSpy, so a bar that is not being tracked never
+     becomes sticky and cannot pin with nothing to say. */
+  .reorder-bar[data-spy] {
+    position: sticky;
+    top: calc(68px + var(--subnav-h));
+    z-index: 6;
+    margin-inline: calc(var(--shell-pad, 0px) * -1);
+    padding: 0.75rem var(--shell-pad, 0px);
+    background: color-mix(in oklab, var(--color-paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-micro) var(--ease-entrance);
+  }
+
+  /* The group you are currently inside. A ring rather than the pressed state,
+     because pressed means "you chose this" and current means "you are here" —
+     they are different facts and can disagree. */
+  .reorder-btn[data-current] {
+    border-color: var(--page-accent);
+    color: var(--color-ink);
+    box-shadow: inset 0 -2px 0 0 var(--page-accent);
+  }
+  .reorder-btn[aria-pressed='true'][data-current] {
+    box-shadow: inset 0 -2px 0 0 var(--color-paper);
+  }
+
+  /* Group headings pin too. In a sixteen-card group the heading is off screen
+     for most of the scroll, and without it the roster is an undifferentiated
+     wall of cards. */
+  .group-head {
+    position: sticky;
+    top: calc(68px + var(--subnav-h) + 3.25rem);
+    z-index: 5;
+    background: var(--color-paper);
+    padding-top: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reorder-bar[data-spy] {
+    backdrop-filter: none;
+  }
+}

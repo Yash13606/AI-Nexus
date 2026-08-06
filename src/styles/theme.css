@@ -259,9 +259,12 @@ a {
    ═══════════════════════════════════════════════════════════════ */
 @layer components {
 .shell {
+  /* Exposed so an element inside the shell can bleed to its edges — the
+     sticky seat bar needs to, or it pins as a floating pill. */
+  --shell-pad: clamp(1.5rem, 4vw, 3rem);
   max-width: var(--page-max-width);
   margin-inline: auto;
-  padding-inline: clamp(1.5rem, 4vw, 3rem);
+  padding-inline: var(--shell-pad);
 }
 
 .band {
