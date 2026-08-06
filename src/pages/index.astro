@@ -2,7 +2,6 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
-import StickyContentWrapper from '../components/react/StickyContentWrapper.tsx';
 import PlatformPanelBody from '../components/PlatformPanelBody.astro';
 import RevealRoot from '../components/ui/RevealRoot.astro';
 import ScrollExpand from '../components/react/ScrollExpand';
@@ -17,16 +16,6 @@ import {
   deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs, aboutBlock,
 } from '../content/home';
 import { entities, contact } from '../content/site';
-
-/** The Sticky Content Wrapper below passes four STATIC named slots, because
- *  Astro cannot build them in a loop (see the note at the call site). Four
- *  slots and five platforms would drop one silently, so make it loud. */
-if (platforms.length !== 4) {
-  throw new Error(
-    `index.astro renders exactly 4 sticky panels; content/platforms.ts has ${platforms.length}. ` +
-      'Add or remove a <PlatformPanelBody slot="body-N"> to match.'
-  );
-}
 
 const agentsPlanned = isPlanned('/ai-agents/');
 
@@ -213,34 +202,38 @@ const roleAngles = [45, -45, 135, 90];
       </p>
     </div>
 
-    {/* The Sticky Content Wrapper (Hyperiux Vault), driving the four worked
-        examples. `client:visible` so the island — React, GSAP/ScrollTrigger
-        and Lenis — is only fetched once a reader has scrolled this far, and
-        never at all on a page they leave before reaching it.
+    {/* Four self-contained entries, each one a two-column pair: the copy and
+        its worked example on the left, that platform's illustration on the
+        right, vertically centred against it.
 
-        The bodies are rendered HERE, by Astro, and passed in as named slots:
-        each one contains a real EvidenceCard, the site's most-used component
-        at ~60 instances. Re-implementing that card inside the React component
-        would give it a second definition to drift from. */}
-    {/* The Sticky Content Wrapper (Hyperiux Vault), driving the four worked
-        examples. `client:visible` so the island — React, GSAP/ScrollTrigger and
-        Lenis — is fetched only once a reader scrolls this far, and never at all
-        for someone who leaves before reaching it.
+        `mt-12` and the entry gap are the page's own rhythm — the same values
+        the 48-agents and governance sections use — so this section spaces like
+        its neighbours instead of inventing a scale.
 
-        FOUR STATIC SLOTS, not a map. Astro hoists named-slot content into its
-        own render function, so a `slot={`body-${idx}`}` built inside a `.map`
-        does not close over `idx` and the build fails outright. The assertion in
-        the frontmatter turns a fifth platform into a build error rather than a
-        panel that silently never renders. */}
-    <StickyContentWrapper
-      client:visible
-      items={platforms.map((p) => ({ image: `/platforms/tile-${p.slug}.webp`, alt: '' }))}
-    >
-      <PlatformPanelBody slot="body-0" platform={platforms[0]} index={0} />
-      <PlatformPanelBody slot="body-1" platform={platforms[1]} index={1} />
-      <PlatformPanelBody slot="body-2" platform={platforms[2]} index={2} />
-      <PlatformPanelBody slot="body-3" platform={platforms[3]} index={3} />
-    </StickyContentWrapper>
+        THIS REPLACED A PINNED OVERLAY. A 100vh sticky box with its content
+        vertically centred puts the first entry ~450px below the track's top
+        while the heading is still on screen: measured at 1246px between the
+        intro and the first entry. The pairing went with it — a pin needs one
+        column of copy and one of images, stacked independently, which is why
+        nothing lined up. */}
+    {/* Inside .shell — the entries share the page container with the heading
+        above them. The block this replaced sat outside it, because a pinned
+        overlay wanted the full viewport width; left as it was, the copy
+        started at x=0, hard against the window edge. */}
+    <div class="shell">
+      <div class="pex-list mt-12">
+        {platforms.map((p, idx) => (
+          <article class="pex">
+            <div class="pex-copy">
+              <PlatformPanelBody platform={p} index={idx} />
+            </div>
+            <div class="pex-visual">
+              <img src={`/platforms/tile-${p.slug}.webp`} alt="" decoding="async" loading="lazy" />
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
   </section>
 
   {/* ══════════════ 48 AGENTS ══════════════
