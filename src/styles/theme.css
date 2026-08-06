@@ -1447,31 +1447,37 @@ a:hover > .arrow {
   .scw[data-ready] {
     position: relative;
   }
+
+  /* FULL BLEED, not inside the 1200px shell. The reference is a hard 50/50
+     split with the image running edge to edge and top to bottom — measured off
+     it: the split sits at 50.3% of the width and the dark half covers every row
+     from the first to the last. A shell-width box with padding cannot do that;
+     the image would stop 150px short of the right edge and float in paper.
+
+     The left column keeps the site's grid anyway. Its padding is the page
+     gutter computed from the same --page-max-width every other section uses, so
+     the copy lines up with the heading above it while the image does not. */
   .scw[data-ready] .scw-sticky {
     position: sticky;
     top: 0;
     height: 100vh;
     display: flex;
     flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    align-items: stretch;
     gap: 0;
-    max-width: var(--page-max-width);
-    margin-inline: auto;
-    padding-inline: 1.5rem;
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 0;
   }
-  .scw[data-ready] .scw-left {
+  .scw[data-ready] .scw-left,
+  .scw[data-ready] .scw-right {
     position: relative;
+    width: 50%;
     height: 100%;
-    width: 52%;
     gap: 0;
   }
   .scw[data-ready] .scw-right {
-    position: relative;
-    height: 100%;
-    width: 40%;
     overflow: hidden;
-    gap: 0;
   }
   .scw[data-ready] .scw-content,
   .scw[data-ready] .scw-image {
@@ -1482,22 +1488,66 @@ a:hover > .arrow {
     padding-block: 0;
   }
   .scw[data-ready] .scw-content {
+    /* Same clamp .shell uses. Declared rather than inherited: --shell-pad is
+       set on .shell and this column is not inside one, so relying on
+       inheritance would silently resolve to nothing and put the copy 24px left
+       of the heading above it — measured at 144 against 168.
+
+       The gutter is derived from THIS column, not from 100vw. The column is
+       exactly half the page, so (page - 1200) / 2 is the same as
+       (column - 600) — and percentages resolve against the containing block,
+       which has no scrollbar in it. 100vw does include the scrollbar, so on a
+       machine with classic scrollbars it would push this copy a few pixels
+       right of the heading it is supposed to line up with. */
+    --shell-pad: clamp(1.5rem, 4vw, 3rem);
     display: flex;
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
+    padding-left: max(var(--shell-pad), calc(100% - var(--page-max-width) / 2 + var(--shell-pad)));
+    padding-right: clamp(2rem, 4vw, 4rem);
   }
+  /* The half is a full-bleed PANEL with the tile centred on it, not a photo
+     cropped to fill. The reference's right half is a photograph, and `cover`
+     would match it — but the four assets here are 331x449 product renders, so
+     filling this half means upscaling them 2.32x at 1280, 2.61x at 1440 and
+     3.48x at 1920. A blurred render is not the same picture as a sharp
+     photograph, and it is not attractive at any size.
+
+     So: the panel bleeds edge to edge and top to bottom exactly as the
+     reference does, and the tile sits on it at a size it can actually hold.
+     The moment there are real photographs, `contain` becomes `cover` and the
+     max-widths come off — one rule, and this matches the reference outright. */
   .scw[data-ready] .scw-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
+    background: var(--color-wash);
+  }
+  .scw[data-ready] .scw-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 90% at 50% 40%, var(--color-paper), transparent 70%);
+  }
+  .scw[data-ready] .scw-image img {
+    position: relative;
+    width: auto;
+    height: auto;
+    max-width: min(62%, 24rem);
+    max-height: 64%;
+    aspect-ratio: auto;
+    object-fit: contain;
+    margin-inline: 0;
+    display: block;
+    filter: drop-shadow(0 24px 48px rgb(11 18 32 / 0.14));
   }
   .scw[data-ready] .scw-progress {
+    --shell-pad: clamp(1.5rem, 4vw, 3rem);
     display: flex;
     align-items: baseline;
     gap: 0.25rem;
     position: absolute;
-    right: clamp(1.5rem, 4vw, 3rem);
+    left: max(var(--shell-pad), calc(100% - var(--page-max-width) / 2 + var(--shell-pad)));
     bottom: clamp(1.5rem, 4vw, 3rem);
     color: var(--color-muted);
     z-index: 1;
