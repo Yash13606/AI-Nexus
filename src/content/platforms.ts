@@ -14,13 +14,38 @@ export type HeroLayout = 'mock-below' | 'left-mock-right' | 'left-narrow-refs-ri
 
 /** How the module list is presented. Assigned so no two adjacent siblings in
  *  comparison-table order share one. */
-export type CapabilityLayout = 'bento' | 'tabs' | 'alternating';
+export type CapabilityLayout = 'bento' | 'tabs' | 'alternating' | 'showcase';
+
+/** How the role list is presented. Second axis of variation, so two pages can
+ *  share a capability layout without reading as the same page. */
+export type RolesLayout = 'grid' | 'bento' | 'spotlight' | 'alternating';
+
+/** Where `stats` renders. Same four figures and the same four labels either
+ *  way — this moves them, it does not add any. In the hero they are a strip
+ *  under the CTA; as a band they are a mid-page object with count-up on the
+ *  figures that are plain integers. */
+export type StatsPlacement = 'hero' | 'band';
+
+/** Page-level patterns that are not layouts. §16 allows three motion patterns
+ *  per page and these are counted toward that budget, which is why they are
+ *  declared in content rather than switched on wherever they would look nice. */
+export type PageMotion = {
+  /** Decorative lockup strip. aria-hidden — the four names are already linked
+   *  in the siblings grid, so this adds no reachable content and no new link. */
+  marquee?: true;
+  magneticCta?: true;
+  /** Scroll parallax on alternating rows. Capped at 40px, transform only. */
+  parallax?: true;
+};
 
 export type Platform = {
   slug: 'medorbit' | 'edvation' | 'advohub' | 'trustproperty';
   /** Union-typed: an invalid value is a build error, not a silent fallback. */
   heroLayout: HeroLayout;
   capabilityLayout: CapabilityLayout;
+  rolesLayout: RolesLayout;
+  statsPlacement: StatsPlacement;
+  motion: PageMotion;
   name: string;
   sector: string;
   hue: string;
@@ -47,7 +72,10 @@ export const platforms: Platform[] = [
   {
     slug: 'medorbit',
     heroLayout: 'mock-below',
-    capabilityLayout: 'bento',
+    capabilityLayout: 'showcase',
+    rolesLayout: 'spotlight',
+    statsPlacement: 'hero',
+    motion: { magneticCta: true },
     name: 'MedOrbit',
     sector: 'Healthcare',
     hue: 'var(--color-medorbit)',
@@ -106,6 +134,9 @@ export const platforms: Platform[] = [
     slug: 'edvation',
     heroLayout: 'left-mock-right',
     capabilityLayout: 'tabs',
+    rolesLayout: 'bento',
+    statsPlacement: 'band',
+    motion: {},
     name: 'Edvation',
     sector: 'Education',
     hue: 'var(--color-edvation)',
@@ -163,7 +194,10 @@ export const platforms: Platform[] = [
   {
     slug: 'advohub',
     heroLayout: 'left-narrow-refs-right',
-    capabilityLayout: 'alternating',
+    capabilityLayout: 'showcase',
+    rolesLayout: 'alternating',
+    statsPlacement: 'hero',
+    motion: { parallax: true },
     name: 'AdvoHub',
     sector: 'Legal',
     hue: 'var(--color-advohub)',
@@ -224,6 +258,9 @@ export const platforms: Platform[] = [
     slug: 'trustproperty',
     heroLayout: 'split',
     capabilityLayout: 'bento',
+    rolesLayout: 'alternating',
+    statsPlacement: 'hero',
+    motion: { marquee: true, magneticCta: true },
     name: 'TrustProperty',
     sector: 'Property',
     hue: 'var(--color-trustproperty)',

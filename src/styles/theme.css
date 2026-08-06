@@ -419,11 +419,19 @@ a:hover > .arrow {
     background: var(--color-mist);
     border-color: var(--page-accent);
   }
-  /* On a Wash band the card is Paper, so the step runs the other way. */
-  .band .hov:hover {
-    background: var(--color-paper);
-    border-color: var(--page-accent);
-  }
+  /* There used to be a `.band .hov:hover { background: var(--color-paper) }`
+     override here, on the reasoning that a card on a Wash band should step the
+     other way. It was wrong twice over:
+
+       · The card is ALREADY Paper at rest on a band, so setting Paper on hover
+         changed nothing — the surface step, one of this vocabulary's four
+         signals, was silently inert.
+       · Every `.hov` on the site is inside a band (the two bento grids), so the
+         override fired 100% of the time and the rule above fired never.
+
+     The step now runs the same direction everywhere — Paper at rest, Mist on
+     hover — which is toward the band rather than away from it. Measured on both
+     band types after the change; see §14b. */
   .hov-affordance {
     opacity: 0;
     transition: opacity var(--dur-micro) var(--ease-entrance);

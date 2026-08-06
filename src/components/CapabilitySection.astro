@@ -61,6 +61,11 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
               {m.title}
             </button>
           ))}
+          {/* The sliding indicator. Empty and aria-hidden: it marks the
+              selection, it does not announce it — aria-selected already does
+              that. Zero-width and invisible until initIndicator measures a
+              tab, so JS off leaves the per-tab border doing the marking. */}
+          <span class="p-ind" aria-hidden="true" />
         </div>
         {/* No `hidden` in the SSR. With JS off every panel renders, stacked and
             fully readable — nothing is unreachable. The armed root hides all but
@@ -78,6 +83,39 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
             <p class="t-sm mt-2">{m.body}</p>
           </div>
         ))}
+      </div>
+    )
+  }
+
+  {
+    layout === 'showcase' && (
+      /* Sticky showcase. The pinned half is DECORATION ONLY — a step counter
+         and a rail marker, both aria-hidden. It deliberately does not echo the
+         module titles: duplicating them would make a screen reader read every
+         title twice, and would put a copy of real content behind an opacity
+         swap, which §11 forbids.
+
+         So the reading column is the whole content, in document order, at full
+         opacity. JS off means --step is never written, the counter sits at 01
+         and the marker at the top, and all six modules render exactly as they
+         do now. Nothing is a step that has to be reached. */
+      <div class="show" data-showcase style={`--n: ${modules.length};`}>
+        <div class="show-pin" aria-hidden="true">
+          <p class="show-count mono m-0" />
+          <div class="show-rail">
+            <span class="show-mark" />
+          </div>
+          <p class="show-total mono t-cap m-0">/ {String(modules.length).padStart(2, '0')}</p>
+        </div>
+
+        <ol class="show-steps list-none m-0 p-0">
+          {modules.map((m, i) => (
+            <li class="show-step" data-step style={`--s: ${i};`}>
+              <h3 class="t-h3">{m.title}</h3>
+              <p class="t-sm mt-3">{m.body}</p>
+            </li>
+          ))}
+        </ol>
       </div>
     )
   }
@@ -130,6 +168,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 
   /* ── Tabs ─────────────────────────────────────────────────────────────── */
   .tablist {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
@@ -178,6 +217,117 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     }
   }
 
+  /* ── Sliding indicator ────────────────────────────────────────────────────
+     Lives here rather than in platform.css because the override below has to
+     beat this component's own `.tab[aria-selected='true']` rule — and Astro
+     scoped styles are unlayered, so a layered file cannot do it at any
+     specificity. Measured: with the rule in platform.css both markers painted.
+
+     Progressive enhancement, in order:
+       no JS  → the per-tab bottom border marks the selection, as built
+       JS     → initIndicator sets data-indicator, the per-tab border goes
+                transparent and this one bar takes over and slides
+     The tabs' ARIA, roving tabindex and keyboard handling are untouched. */
+  .p-ind {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 2px;
+    width: var(--ind-w, 0);
+    background: var(--page-accent);
+    transform: translate(var(--ind-x, 0), calc(var(--ind-y, 0px) - 2px));
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tablist[data-indicator] .p-ind {
+    opacity: 1;
+    transition:
+      transform var(--dur-micro) var(--ease-entrance),
+      width var(--dur-micro) var(--ease-entrance);
+  }
+  .tablist[data-indicator] .tab[aria-selected='true'] {
+    border-bottom-color: transparent;
+  }
+
+  /* ── Sticky showcase ──────────────────────────────────────────────────────
+     One column pins, the other scrolls. `--step` comes from initShowcase; the
+     counter is drawn from it with a CSS counter, so the number is generated
+     rather than being six spans that take turns being visible. */
+  .show {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .show-steps {
+    display: flex;
+    flex-direction: column;
+  }
+  .show-step {
+    padding-block: 2rem;
+    border-top: 1px solid var(--color-hairline);
+    max-width: var(--prose-max-width);
+  }
+  .show-step:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .show-pin {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .show {
+      grid-template-columns: 13rem minmax(0, 1fr);
+      gap: 4rem;
+    }
+    .show-pin {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      /* Clear of the 68px main nav and the platform sub-nav. */
+      top: calc(68px + var(--subnav-h) + 3rem);
+      align-self: start;
+      height: 4rem;
+    }
+    /* Steps get room to be scrolled past, so a step is genuinely the thing in
+       the middle of the viewport when the observer picks it. */
+    .show-step {
+      padding-block: 3.5rem;
+    }
+  }
+
+  .show-count {
+    font-size: var(--text-mono-lg);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    counter-reset: show-s calc(var(--step, 0) + 1);
+  }
+  .show-count::after {
+    content: counter(show-s, decimal-leading-zero);
+  }
+  .show-total {
+    color: var(--color-muted);
+  }
+  .show-rail {
+    position: relative;
+    flex: 1;
+    height: 2px;
+    background: var(--color-hairline);
+    border-radius: var(--radius-pill);
+  }
+  .show-mark {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: calc(100% / var(--n));
+    background: var(--page-accent);
+    border-radius: inherit;
+    transform: translateX(calc(var(--step, 0) * 100%));
+    transition: transform var(--dur-element) var(--ease-entrance);
+  }
+
   /* ── Alternating ──────────────────────────────────────────────────────── */
   .alt {
     display: flex;
@@ -213,6 +363,12 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
       animation: none;
     }
     .tab {
+      transition: none;
+    }
+    /* The marker still tracks the step — it just arrives instead of sliding.
+       Removing it would leave the rail saying nothing. */
+    .show-mark,
+    .p-ind {
       transition: none;
     }
   }

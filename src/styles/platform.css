@@ -132,6 +132,63 @@
     color: var(--color-control);
   }
 
+  /* ── Spotlight ────────────────────────────────────────────────────────────
+     A radial wash following the pointer, painted UNDER the card's content by a
+     z-index:-1 pseudo-element on an isolated card — same arrangement, and same
+     reasoning, as the border beam. Opacity is driven by --lit so the glow fades
+     in and out rather than snapping between cards. */
+  [data-spotlight] > * {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  [data-spotlight] > *::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      14rem 14rem at var(--px, 50%) var(--py, 50%),
+      color-mix(in oklab, var(--page-accent) 12%, transparent),
+      transparent 70%
+    );
+    opacity: var(--lit, 0);
+    transition: opacity var(--dur-micro) var(--ease-entrance);
+    pointer-events: none;
+  }
+
+  /* The tabs indicator lives in CapabilitySection.astro, not here. Astro
+     scoped styles are UNLAYERED, and unlayered CSS beats layered CSS whatever
+     the specificity — so nothing in this file can override a scoped rule that
+     touches the same property. The border-bottom override needed exactly that,
+     and lost silently: measured with data-indicator set and the per-tab border
+     still painting rgb(180,83,9) underneath the bar. Rules here are safe only
+     where no scoped rule sets the same property; that is true of every other
+     block in this file, and was checked one by one. */
+
+  /* ── Alternating-row parallax ─────────────────────────────────────────────
+     Scroll-driven CSS, and this is the case §16 says it is for: the effect is
+     decorative depth, so where `animation-timeline` is unsupported the row
+     simply sits at its resting position and a reader loses nothing. Contrast
+     the sticky showcase, which must SWAP a step and therefore uses an
+     IntersectionObserver instead — a permission is not an instruction.
+
+     40px total, transform only, and split so odd and even rows drift in
+     opposite directions. Any more than this and it stops reading as depth and
+     starts reading as an effect. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .ralt-parallax .ralt-row {
+        animation: p-drift linear both;
+        animation-timeline: view();
+        animation-range: cover 0% cover 100%;
+      }
+      .ralt-parallax .ralt-row:nth-child(even) {
+        animation-name: p-drift-rev;
+      }
+    }
+  }
+
   /* ── Table rows ───────────────────────────────────────────────────────────
      A <tr> is not a reliable box-shadow host, so the shadow is painted by the
      cells. Both offsets in --shadow-2 are purely vertical, so adjacent cells
@@ -197,6 +254,30 @@
   }
 }
 
+/* 28px end to end. §16 caps it at 40 and 40 was the first attempt; at that
+   distance a ~150px row visibly slides against its neighbours and reads as an
+   effect rather than as depth, which is the failure the cap exists to prevent.
+   Under the cap is not the same as subtle. `translate` rather than
+   `transform`, for the same reason the hover lift uses it: these rows are also
+   [data-reveal] elements, and the reveal's finished state sets
+   `transform: none` at a specificity this cannot beat. Measured. */
+@keyframes p-drift {
+  from {
+    translate: 0 14px;
+  }
+  to {
+    translate: 0 -14px;
+  }
+}
+@keyframes p-drift-rev {
+  from {
+    translate: 0 -14px;
+  }
+  to {
+    translate: 0 14px;
+  }
+}
+
 /* Muted for most of the cycle, ink for the sixth of it the scan is on the row.
    Resting state (no animation) is the muted end, which is the readable one. */
 @keyframes p-scan {
@@ -215,11 +296,18 @@
    hover lift all stop. The resting frame of each is already the correct one. */
 @media (prefers-reduced-motion: reduce) {
   .p-beam::before,
-  .p-roster-row {
+  .p-roster-row,
+  .ralt-parallax .ralt-row {
     animation: none !important;
   }
+  /* theme.css's kill switch only forces `transform: none`, so anything using
+     the independent `translate` property has to be nulled here by name. */
   .card.p-elev:hover,
-  .card.p-elev:focus-within {
+  .card.p-elev:focus-within,
+  .ralt-parallax .ralt-row {
     translate: none !important;
+  }
+  .p-ind {
+    transition: none !important;
   }
 }

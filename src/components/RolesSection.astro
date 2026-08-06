@@ -1,0 +1,183 @@
+---
+/** "Who {platform} is for" — the role catalogue, in one of four presentations.
+ *
+ *  Second axis of variation alongside CapabilitySection, so two pages that
+ *  happen to share a capability layout still do not read as the same page.
+ *  Which one is a content decision (`rolesLayout`), never a branch on slug.
+ *
+ *  All four render the same roles from the same data, all at full opacity, in
+ *  document order. Nothing here is behind a hover, a tab or a step. */
+import type { Role } from '../content/platform-detail-fixed';
+import type { RolesLayout } from '../content/platforms';
+
+interface Props {
+  layout: RolesLayout;
+  roles: Role[];
+  /** Scroll parallax on the alternating rows. Ignored by the other layouts. */
+  parallax?: boolean;
+}
+const { layout, roles, parallax = false } = Astro.props;
+---
+
+<div class={`roles roles-${layout}`}>
+  {
+    layout === 'grid' && (
+      <div class="rgrid">
+        {roles.map((r) => (
+          <div class="rcell">
+            <h3 class="t-h4">{r.title}</h3>
+            <p class="t-sm mt-2">{r.body}</p>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    layout === 'bento' && (
+      /* Uneven spans, first cell doubled. data-reveal sits on the styled
+         element itself — a class passed to <Reveal> renders a div without this
+         component's data-astro-cid, so the scoped rule never matches. */
+      <div class="rbento">
+        {roles.map((r, i) => (
+          <article
+            data-reveal
+            style={`--i: ${Math.min(i, 3)};`}
+            class={`rbento-cell card hov p-elev p-6 ${i === 0 ? 'rbento-lead' : ''}`}
+          >
+            <h3 class={i === 0 ? 't-h3' : 't-h4'}>{r.title}</h3>
+            <p class="t-sm mt-2">{r.body}</p>
+          </article>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    layout === 'spotlight' && (
+      /* The glow follows the pointer. It is a radial gradient on a pseudo-
+         element driven by --px/--py, so it is decoration in the §11 sense:
+         pointer-fine only, and every word of the card is already legible at
+         rest with no pointer, no JS and no hover. */
+      <div class="rspot" data-spotlight>
+        {roles.map((r, i) => (
+          <article data-reveal style={`--i: ${Math.min(i, 3)};`} class="rspot-cell card p-elev p-6">
+            <h3 class="t-h4">{r.title}</h3>
+            <p class="t-sm mt-2">{r.body}</p>
+          </article>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    layout === 'alternating' && (
+      <ol class={`ralt list-none m-0 p-0${parallax ? ' ralt-parallax' : ''}`}>
+        {roles.map((r, i) => (
+          <li class="ralt-row" data-reveal style={`--i: ${Math.min(i, 3)};`}>
+            <span class="ralt-n mono t-cap" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <div class="ralt-body">
+              <h3 class="t-h4">{r.title}</h3>
+              <p class="t-sm mt-2">{r.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+</div>
+
+<style>
+  /* ── Grid: the original presentation, kept as the default ─────────────── */
+  .rgrid {
+    display: grid;
+    gap: 2.25rem 2.25rem;
+  }
+  .rcell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 640px) {
+    .rgrid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1280px) {
+    .rgrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* ── Bento ────────────────────────────────────────────────────────────── */
+  .rbento {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  .rbento-cell {
+    height: 100%;
+  }
+  @media (min-width: 700px) {
+    .rbento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .rbento {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .rbento-lead {
+      grid-column: span 2;
+    }
+  }
+
+  /* ── Spotlight ────────────────────────────────────────────────────────── */
+  .rspot {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 700px) {
+    .rspot {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1280px) {
+    .rspot {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* ── Alternating ──────────────────────────────────────────────────────── */
+  .ralt {
+    display: flex;
+    flex-direction: column;
+  }
+  .ralt-row {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 0 1.5rem;
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  /* --color-control is 3.57:1 on Paper and 3.32:1 on Wash — §3 marks it
+     non-text for that reason. These numerals are decorative and aria-hidden,
+     but they are still visible text, and aria-hidden does not exempt anything
+     from 1.4.3. Muted is the floor. */
+  .ralt-n {
+    color: var(--color-muted);
+  }
+  .ralt-body {
+    max-width: var(--prose-max-width);
+  }
+  @media (min-width: 900px) {
+    .ralt-row:nth-child(even) .ralt-body {
+      margin-left: auto;
+    }
+  }
+</style>

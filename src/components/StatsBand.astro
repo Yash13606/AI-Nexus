@@ -1,0 +1,94 @@
+---
+/** A ledger strip of figures. Shared by /platforms/ and the detail pages so
+ *  the two cannot drift apart.
+ *
+ *  A strip between two sections rather than a third band colour: the pages
+ *  already alternate Paper and Wash, and a third treatment here would be a new
+ *  colour rule rather than a new object. Hairlines top and bottom separate it.
+ *
+ *  §1.1's count-up ban is lifted for /platforms/* on one condition, and the
+ *  condition is the whole point: the FINAL value is server-rendered as text.
+ *  View-source shows it, JS off shows it, a crawler reads it, reduced motion
+ *  keeps it. initCountUp only animates a display value up to a number that is
+ *  already in the HTML — and it bails on anything that is not a plain integer,
+ *  so `100+`, `ap-south-1` and `₹0` are labels and stay put. */
+interface Props {
+  items: { figure: string | number; label: string }[];
+  /** Pre-escaped HTML, for labels carrying declared Devanagari runs. */
+  html?: boolean;
+}
+const { items, html = false } = Astro.props;
+
+/** Only a bare integer is a quantity worth counting up to. */
+const countable = (f: string | number) => /^\d+$/.test(String(f));
+---
+
+<section class="stats section">
+  <div class="shell">
+    <dl class="statgrid m-0">
+      {
+        items.map((s, i) => (
+          <div class="stat" data-reveal style={`--i: ${Math.min(i, 3)};`}>
+            {/* `ap-south-1` is a figure too. Long ones step down a size rather
+                than overflowing or forcing the whole strip smaller. */}
+            <dd
+              class={`statnum mono m-0${String(s.figure).length > 4 ? ' statnum-long' : ''}`}
+              data-countup={countable(s.figure) ? '' : undefined}
+            >
+              {s.figure}
+            </dd>
+            {html ? (
+              <dt class="statlab t-sm" set:html={s.label} />
+            ) : (
+              <dt class="statlab t-sm">{s.label}</dt>
+            )}
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  .stats {
+    padding-block: clamp(2rem, 4vw, 3rem);
+  }
+  .statgrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+    border-block: 1px solid var(--color-hairline);
+    padding-block: clamp(1.75rem, 3.5vw, 2.5rem);
+  }
+  @media (min-width: 800px) {
+    .statgrid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 0;
+  }
+  /* Tabular figures so a count-up does not jitter its own column width as the
+     digit count changes. `overflow-wrap` because a figure is not always short:
+     `ap-south-1` is one of them. */
+  .statnum {
+    font-size: var(--text-mono-lg);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .statnum-long {
+    font-size: var(--text-h3);
+    line-height: 1.2;
+    letter-spacing: normal;
+  }
+  .statlab {
+    color: var(--color-muted);
+  }
+</style>
