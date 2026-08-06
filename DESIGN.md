@@ -249,7 +249,7 @@ Four well-separated hues, each deep enough to hold white text *and* to sit on wh
 4. A **9px legend swatch** beside that platform's name in the comparison table
 5. The **audience tag** on an agent card
 
-> **Retracted.** #4 originally read *"the left rule on that platform's comparison-table row."* A 3px colored side border is the single most recognizable AI-UI tell and the Impeccable detector flags it (`side-tab`). Replaced with a legend swatch, which identifies a series the way a chart legend does. The agent-count pill (#2) also moved off `--color-accent-wash` onto paper after measuring **4.34:1** — below AA.
+> **Retracted.** #4 originally read *"the left rule on that platform's comparison-table row."* A 3px colored side border is the single most recognizable AI-UI tell. Replaced with a legend swatch, which identifies a series the way a chart legend does. The agent-count pill (#2) also moved off `--color-accent-wash` onto paper after measuring **4.34:1** — below AA.
 
 ### Where it is forbidden
 

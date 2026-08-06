@@ -1,9 +1,7 @@
 ---
-/** One agent, with its full Evidence triad inline. 48 instances across the
- *  four platform pages. Anchor target — scroll-margin clears the 68px nav.
- *
- *  `data-audience` drives the seat reorder on the platform page. The card is
- *  never hidden by it; it recedes at most. */
+/** One agent, with its full Evidence triad inline.
+ *  Worked example (Input/Output) collapses behind <details> for scannability.
+ *  Control guardrail is always visible at the bottom. */
 import { markIndic } from '../content/indic';
 import type { AgentDetail } from '../content/platform-detail';
 interface Props {
@@ -14,37 +12,48 @@ const { agent, hue } = Astro.props;
 ---
 
 <article
-  class="agent-card card p-6 flex flex-col gap-3.5"
+  class="agent-card card flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
   id={agent.slug}
   data-audience={agent.audience}
-  style="scroll-margin-top: 88px;"
+  data-search-text={`${agent.name} ${agent.summary} ${agent.audience} ${agent.input} ${agent.output} ${agent.control}`.toLowerCase()}
+  style={`scroll-margin-top: 124px; --chue: ${hue};`}
 >
-  <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1.5">
-    <h3 class="t-h4">{agent.name}</h3>
-    <span
-      class="pill mono shrink-0"
-      style={`background: var(--color-paper); color: ${hue}; border: 1px solid ${hue}33;`}
-    >
-      {agent.audience}
-    </span>
+  <div class="p-5 flex-1 flex flex-col">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1.5">
+      <h3 class="t-h4" style="color: var(--color-heading); font-size: 1.0625rem; font-weight: 600; line-height: 1.25;">{agent.name}</h3>
+      <span
+        class="pill mono shrink-0 text-xs px-2.5 py-0.5 rounded-full font-medium"
+        style={`background: color-mix(in srgb, ${hue} 8%, transparent); color: ${hue}; border: 1px solid color-mix(in srgb, ${hue} 30%, transparent);`}
+      >
+        {agent.audience}
+      </span>
+    </div>
+
+    <p class="t-sm mt-2.5 text-sm" style="color: var(--color-muted, #4b5464); line-height: 1.55;">{agent.summary}</p>
+
+    <details class="card-evidence mt-3 group">
+      <summary class="cursor-pointer flex items-center gap-1.5 py-2 text-xs font-medium text-accent select-none border-t border-hairline hover:text-accent-deep transition-colors">
+        <svg class="evidence-chev transition-transform duration-200 group-open:rotate-180" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        <span>Worked example</span>
+      </summary>
+      <div class="evidence-body pb-2 space-y-2.5 pt-1">
+        <div>
+          <p class="t-cap font-semibold mb-0.5 mono text-[0.6875rem] uppercase tracking-wider text-accent">Input</p>
+          <p class="text-xs leading-relaxed" style="color: var(--color-ink);">{agent.input}</p>
+        </div>
+        <div>
+          <p class="t-cap font-semibold mb-0.5 mono text-[0.6875rem] uppercase tracking-wider text-accent">Output</p>
+          <p class="text-xs leading-relaxed" style="color: var(--color-ink);" set:html={markIndic(agent.output)} />
+        </div>
+      </div>
+    </details>
   </div>
 
-  <p class="t-sm" style="color: var(--color-muted);">{agent.summary}</p>
+  <div class="seal-rule h-px w-full" style="background: var(--color-hairline, #e2e6ee);"></div>
 
-  <div class="pt-3.5" style="border-top: 1px solid var(--color-hairline);">
-    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Input</p>
-    <p class="t-sm">{agent.input}</p>
-  </div>
-
-  <div>
-    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-ink);">Output</p>
-    <p class="t-sm" set:html={markIndic(agent.output)} />
-  </div>
-
-  <div class="seal-rule h-px w-full" style="background: var(--color-control);"></div>
-
-  <div class="rounded-[8px] p-4 mt-auto" style="background: var(--color-mist);">
-    <p class="t-cap font-semibold mb-[5px]" style="color: var(--color-withheld);">Control</p>
-    <p class="t-sm">{agent.control}</p>
+  <div class="mx-3.5 mb-3.5 mt-2.5 rounded-[8px] p-3" style={`background: color-mix(in srgb, ${hue} 5%, #f8f4f8); border: 1px solid color-mix(in srgb, ${hue} 14%, #e2e6ee);`}>
+    <p class="t-cap font-semibold mb-1 mono text-[0.5625rem] uppercase tracking-widest" style="color: #7c1f3a;">Control</p>
+    <p class="text-xs leading-relaxed" style="color: var(--color-ink);">{agent.control}</p>
   </div>
 </article>
+

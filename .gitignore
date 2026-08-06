@@ -22,7 +22,3 @@ refencer image for ui/
 # input when writing DESIGN.md. The conclusions live in DESIGN.md; the
 # source analyses stay local.
 refrence design md files/
-
-# Impeccable local state
-.impeccable/config.local.json
-.impeccable/critique/

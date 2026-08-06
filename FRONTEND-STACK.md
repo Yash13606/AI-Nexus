@@ -42,7 +42,6 @@ The minimum set that makes AI-generated UI stop looking templated.
 ```bash
 npx skills@latest add nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max --agent claude-code -y
 npx skills@latest add Leonxlnx/taste-skill --skill design-taste-frontend --agent claude-code -y
-npx skills@latest add pbakaus/impeccable --skill impeccable --agent claude-code -y
 npx skills@latest add nexu-io/open-design --skill frontend-design color-expert design-review --agent claude-code -y
 ```
 
@@ -50,7 +49,6 @@ npx skills@latest add nexu-io/open-design --skill frontend-design color-expert d
 |---|---|
 | `ui-ux-pro-max` | 84 UI styles, 192 palettes, 74 font pairings, 161 industry rules. Say what you're building, it picks the system. |
 | `design-taste-frontend` | Anti-"AI slop" rules — intentional layout/type/motion with density + variance dials. |
-| `impeccable` | 59 detector rules + critique. Catches generic-AI tells: Inter overuse, cards-in-cards, weak contrast, dated easing. |
 | `frontend-design` | The general "build this page, make it premium" generator. |
 | `color-expert` | OKLCH palettes, contrast math, accessible color systems. |
 | `design-review` | Screenshot → critique → fix → before/after. Run before launch. |
@@ -211,7 +209,6 @@ Once installed, type these in Claude Code:
 ### Improving what exists
 | Type | To |
 |---|---|
-| `/impeccable` | Audit + polish. Also `/impeccable critique`, `polish`, `animate`, `harden`. |
 | `/design-review` | Screenshot → critique → fix → before/after. |
 | `/redesign-existing-projects` | Upgrade an existing site without breaking it. |
 | `/performance-optimization` | Core Web Vitals, bundle size. |
@@ -248,7 +245,7 @@ Once installed, type these in Claude Code:
 3. `/imagegen-frontend-web` — one reference image per section, get client sign-off on those.
 4. `/image-to-code` or `/frontend-design` — build to match.
 5. `/gsap-scrolltrigger` + `/emilkowalski-motion` — add motion last, sparingly.
-6. `/impeccable` then `/design-review` — audit before launch.
+6. `/design-review` — audit before launch.
 7. `/performance-optimization` — Core Web Vitals pass.
 
 ---
