@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
+import StickyContentWrapper from '../components/react/StickyContentWrapper.tsx';
+import PlatformPanelBody from '../components/PlatformPanelBody.astro';
 import RevealRoot from '../components/ui/RevealRoot.astro';
 import ScrollExpand from '../components/react/ScrollExpand';
 import GradualBlur from '../components/react/GradualBlur';
@@ -15,6 +17,16 @@ import {
   deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs, aboutBlock,
 } from '../content/home';
 import { entities, contact } from '../content/site';
+
+/** The Sticky Content Wrapper below passes four STATIC named slots, because
+ *  Astro cannot build them in a loop (see the note at the call site). Four
+ *  slots and five platforms would drop one silently, so make it loud. */
+if (platforms.length !== 4) {
+  throw new Error(
+    `index.astro renders exactly 4 sticky panels; content/platforms.ts has ${platforms.length}. ` +
+      'Add or remove a <PlatformPanelBody slot="body-N"> to match.'
+  );
+}
 
 const agentsPlanned = isPlanned('/ai-agents/');
 
@@ -201,56 +213,34 @@ const roleAngles = [45, -45, 135, 90];
       </p>
     </div>
 
-    <div id="platform-pin" class="pp-track mt-10" style={`--pp-count: ${platforms.length};`}>
-      <div class="pp-sticky">
-        {platforms.map((p, idx) => (
-          <div class="pp-panel" data-pp-index={idx}>
-            <div class="shell w-full">
-              <div class="pp-panel-grid">
-                <div class="pp-copy">
-                  <div class="flex items-center gap-3">
-                    <span class="mono t-cap shrink-0" style="color: var(--color-muted);" aria-hidden="true">
-                      {String(idx + 1).padStart(2, '0')}
-                    </span>
-                    <span class="shrink-0" style="height: 26px; display: flex; align-items: center;">
-                      <img
-                        src={`/platforms/${p.slug}.png`}
-                        alt=""
-                        style="height: 100%; width: auto; max-width: 110px; object-fit: contain;"
-                      />
-                    </span>
-                    <p class="t-label m-0" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
-                  </div>
+    {/* The Sticky Content Wrapper (Hyperiux Vault), driving the four worked
+        examples. `client:visible` so the island — React, GSAP/ScrollTrigger
+        and Lenis — is only fetched once a reader has scrolled this far, and
+        never at all on a page they leave before reaching it.
 
-                  <h3 class="t-h2 mt-4">{p.headline}</h3>
-                  <p class="t-lede mt-4">{p.pinSummary}</p>
+        The bodies are rendered HERE, by Astro, and passed in as named slots:
+        each one contains a real EvidenceCard, the site's most-used component
+        at ~60 instances. Re-implementing that card inside the React component
+        would give it a second definition to drift from. */}
+    {/* The Sticky Content Wrapper (Hyperiux Vault), driving the four worked
+        examples. `client:visible` so the island — React, GSAP/ScrollTrigger and
+        Lenis — is fetched only once a reader scrolls this far, and never at all
+        for someone who leaves before reaching it.
 
-                  <div class="mt-7">
-                    <EvidenceCard evidence={p.evidence} />
-                  </div>
-
-                  <a href={`/platforms/${p.slug}/`} class="link-accent mt-6">
-                    Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
-                  </a>
-                </div>
-
-                <div class="pp-visual">
-                  {/* Not lazy: all four are ~10KB, and three of them are
-                      behind an opacity-0 panel where a lazy load can be
-                      deferred indefinitely and leave the slot empty. */}
-                  <img src={`/platforms/tile-${p.slug}.webp`} alt="" decoding="async" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        <p class="pp-progress mono t-cap" aria-hidden="true">
-          <span class="pp-progress-current">01</span>
-          <span>/ {String(platforms.length).padStart(2, '0')}</span>
-        </p>
-      </div>
-    </div>
+        FOUR STATIC SLOTS, not a map. Astro hoists named-slot content into its
+        own render function, so a `slot={`body-${idx}`}` built inside a `.map`
+        does not close over `idx` and the build fails outright. The assertion in
+        the frontmatter turns a fifth platform into a build error rather than a
+        panel that silently never renders. */}
+    <StickyContentWrapper
+      client:visible
+      items={platforms.map((p) => ({ image: `/platforms/tile-${p.slug}.webp`, alt: '' }))}
+    >
+      <PlatformPanelBody slot="body-0" platform={platforms[0]} index={0} />
+      <PlatformPanelBody slot="body-1" platform={platforms[1]} index={1} />
+      <PlatformPanelBody slot="body-2" platform={platforms[2]} index={2} />
+      <PlatformPanelBody slot="body-3" platform={platforms[3]} index={3} />
+    </StickyContentWrapper>
   </section>
 
   {/* ══════════════ 48 AGENTS ══════════════
@@ -537,10 +527,8 @@ const roleAngles = [45, -45, 135, 90];
   import { initReveal } from '../scripts/reveal.js';
   import { initGlowCards } from '../scripts/glow-cards.js';
   import { initTabs } from '../scripts/tabs.js';
-  import { initPlatformPin } from '../scripts/platform-pin.js';
   initReveal();
   initGlowCards();
-  initPlatformPin();
 
   const deploymentTabs = document.getElementById('deployment-tabs');
   if (deploymentTabs) initTabs(deploymentTabs);

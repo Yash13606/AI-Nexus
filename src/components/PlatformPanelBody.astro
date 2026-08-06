@@ -1,0 +1,49 @@
+---
+/** One platform's copy inside the Sticky Content Wrapper: identity row,
+ *  headline, one sentence, the worked example, and the link out.
+ *
+ *  It exists as its own component so the four panels can be passed to the React
+ *  island as four STATIC named slots. The first attempt built them in a `.map`
+ *  with `slot={`body-${idx}`}` and the build failed with `idx is not defined` —
+ *  Astro hoists named-slot content into separate render functions, so it does
+ *  not close over the loop variable. Static names, four call sites, no closure.
+ *
+ *  Rendered by Astro rather than re-built in React so the EvidenceCard here is
+ *  the same component as the ~60 other instances on the site. */
+import EvidenceCard from './EvidenceCard.astro';
+import Icon from './Icon.astro';
+import type { Platform } from '../content/platforms';
+
+interface Props {
+  platform: Platform;
+  index: number;
+}
+const { platform: p, index } = Astro.props;
+---
+
+<div class="pp-copy">
+  <div class="flex items-center gap-3">
+    <span class="mono t-cap shrink-0" style="color: var(--color-muted);" aria-hidden="true">
+      {String(index + 1).padStart(2, '0')}
+    </span>
+    <span class="shrink-0" style="height: 26px; display: flex; align-items: center;">
+      <img
+        src={`/platforms/${p.slug}.png`}
+        alt=""
+        style="height: 100%; width: auto; max-width: 110px; object-fit: contain;"
+      />
+    </span>
+    <p class="t-label m-0" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
+  </div>
+
+  <h3 class="t-h2 mt-4">{p.headline}</h3>
+  <p class="t-lede mt-4">{p.pinSummary}</p>
+
+  <div class="mt-7">
+    <EvidenceCard evidence={p.evidence} />
+  </div>
+
+  <a href={`/platforms/${p.slug}/`} class="link-accent mt-6">
+    Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
+  </a>
+</div>
