@@ -23,8 +23,9 @@
  *     longer made on pages and paths that cannot use it.
  *
  *  Every word is the same copy the grid carried, from the same content module.
- *  Each card shows five of its platform's real agents; the pill in the header
- *  states the true total, as the count line did before. */
+ *  Each card shows four of its platform's real agents; the pill in the header
+ *  states the true total. Four rather than five because the whole band is held
+ *  to one screen — see the `.fold` note in index.astro. */
 import Icon from './Icon.astro';
 import PlatformLockup from './PlatformLockup.astro';
 import { platforms } from '../content/platforms';
@@ -34,7 +35,7 @@ import { markIndic } from '../content/indic';
 /** The cards effect stacks slides, so they must share one box. Four rows fits
  *  the shortest roster (TrustProperty ships seven agents) and keeps every card
  *  the same height without padding any of them out. */
-const ROWS = 5;
+const ROWS = 4;
 ---
 
 <div class="deck-wrap">
@@ -115,11 +116,15 @@ const ROWS = 5;
      driving; this file only owns it BEFORE that, and only ever owns the
      card's own appearance. */
 
+  /* 0.875rem, not 1.5. The band is held to one screen and this gap appears
+     twice — above the dots and above the hint — so it is 48px of the 61 that
+     had to come out. Taking it here costs nothing; taking it out of the card
+     would have clipped an agent row. */
   .deck-wrap {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.875rem;
   }
 
   /* ── Pre-init / no-JS: a plain readable column ────────────────────────────
@@ -264,7 +269,7 @@ const ROWS = 5;
      so a card that does not fit fails silently. */
   .deck[data-deck-ready] {
     width: min(100%, 600px);
-    height: 35.5rem;
+    height: 32rem;
   }
   .deck[data-deck-ready] .deck-card {
     height: 100%;

@@ -114,7 +114,7 @@ const totals = {
 
 
   {/* ══════════════ THE FOUR ══════════════ */}
-  <section class="section band p-bloom p-grain">
+  <section class="section band p-bloom p-grain fold">
     <div class="shell">
       <div class="p-secthead">
         <div data-reveal class="p-head">
@@ -131,7 +131,7 @@ const totals = {
           out side by side. PlatformDeck carries the whole no-JS story: see the
           note at the top of that file for why Swiper's class names are added
           at runtime rather than shipped. */}
-      <div class="mt-12">
+      <div class="mt-6">
         <PlatformDeck />
       </div>
     </div>
@@ -323,6 +323,25 @@ const totals = {
   .rise {
     animation: rise var(--dur-element) var(--ease-entrance) both;
     animation-delay: calc(var(--i, 0) * var(--reveal-stagger));
+  }
+
+  /* ── The deck band, one screen tall ──────────────────────────────────────
+     Same --chrome arithmetic as the hero, so the two read as consecutive full
+     screens rather than one full screen and then a long scroll.
+
+     Section padding is tightened here specifically. --section-y is 120px top
+     and bottom at this width, and 240px of padding is most of the difference
+     between the content (1005px) and a screen (774px at 900) — spending it on
+     air was what pushed the deck below the fold. */
+  .fold {
+    --section-y: clamp(1.5rem, 2.75vw, 2.5rem);
+    min-height: calc(100svh - var(--chrome, 126px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .fold > .shell {
+    width: 100%;
   }
 
   /* ── Bento ────────────────────────────────────────────────────────────────
