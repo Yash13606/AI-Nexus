@@ -1,213 +1,546 @@
 ---
-/** The one nav, every page including home, one markup for every viewport —
- *  no hamburger, no duplicate mobile list. It wraps onto its own line on
- *  narrow screens instead of hiding behind a toggle. Platforms and
- *  Solutions — the two items with real children — are real links (so
- *  tapping on touch still goes somewhere) that also reveal a dropdown on
- *  hover/focus for desktop mouse and keyboard use.
+/** Floating pill navbar. A rounded, frosted bar detached from the top edge;
+ *  content scrolls through the gaps beside it. Desktop dropdowns are CSS-only
+ *  (hover + focus-within), so the menu works with no JavaScript; the single
+ *  script drives the mobile disclosure and a scrolled-state class only.
  *
- *  Dropdown hit-testing: the gap between the trigger and the panel is
- *  bridged with padding on the OUTER wrapper (.nav-dropdown-panel), not
- *  margin — margin doesn't count as part of the element's own box, so a
- *  margin-based gap is a dead zone the mouse falls through on the way
- *  down, closing the menu before you can reach it. Padding does count,
- *  so the hoverable area is unbroken from the trigger to the card. The
- *  inner .nav-dropdown-card only handles the visual chrome + entrance
- *  animation, never the hit-testing. */
+ *  Platforms and Solutions are real links (a tap on touch still navigates)
+ *  that also reveal a panel on desktop. The gap between a trigger and its
+ *  panel is bridged with padding on the OUTER wrapper (.nav-panel), never
+ *  margin — margin is a dead zone the pointer falls through, closing the menu
+ *  before it can be reached. */
 import Icon from './Icon.astro';
 import { nav, footerCols, isPlanned } from '../content/site';
 import { platforms } from '../content/platforms';
 
 const solutionLinks = footerCols.find((c) => c.title === 'Solutions')!.links;
+const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label !== 'Solutions');
 ---
 
-<header
-  id="site-nav"
-  class="sticky top-0 z-50 tx-fast"
-  style="background: var(--color-paper); border-bottom: 1px solid var(--color-hairline);"
->
-  <div class="shell flex flex-wrap items-center justify-between gap-x-6 gap-y-3" style="padding-block: 14px;">
-    <a href="/" class="t-h4 no-underline tracking-[-0.02em]" style="color: var(--color-ink);">AI Nexus</a>
+<div class="nav-wrap" id="site-nav">
+  <header class="nav-pill">
+    <a href="/" class="nav-brand" aria-label="AI Nexus — home">
+      <span class="nav-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
+          <circle cx="5" cy="6" r="1.8" />
+          <circle cx="19" cy="6" r="1.8" />
+          <circle cx="12" cy="20" r="1.8" />
+          <path d="M11 10.5 6 7M13 10.5 18 7M12 14.6V18" />
+        </svg>
+      </span>
+      <span class="nav-brand-text">AI Nexus</span>
+    </a>
 
-    <div class="flex items-center gap-4 order-2 shrink-0">
-      <a href="/login/" class="t-sm no-underline tx-fast" style="color: var(--color-body);">Log in</a>
-      <a href="/contact/" class="btn btn-primary tx-fast">Book a demo</a>
-    </div>
-
-    <nav aria-label="Primary" class="flex flex-wrap items-center gap-x-7 gap-y-2 order-3 w-full lg:order-none lg:w-auto">
-      <div class="nav-dropdown">
-        <a href="/platforms/" class="t-sm no-underline tx-fast nav-link" style="color: var(--color-body);">
+    {/* ── Desktop menu ── */}
+    <nav class="nav-menu" aria-label="Primary">
+      <div class="nav-item nav-has-menu">
+        <a href="/platforms/" class="nav-link">
           Platforms <Icon name="chevron-down" size={12} class="nav-chevron" />
         </a>
-        <div class="nav-dropdown-panel">
-          <div class="nav-dropdown-card nav-dropdown-card--platforms">
-            {platforms.map((p) => (
-              <a href={`/platforms/${p.slug}/`} class="platform-item" style={`--hue: ${p.hue};`}>
-                <span class="platform-item-name">{p.name}</span>
-                <span class="platform-item-subtitle">{p.subtitle}</span>
-              </a>
-            ))}
+        <div class="nav-panel nav-panel--wide">
+          <div class="nav-card nav-mega">
+            <div class="nav-mega-grid">
+              {platforms.map((p) => (
+                <a href={`/platforms/${p.slug}/`} class="mega-item" style={`--hue: ${p.hue};`}>
+                  <span class="mega-item-dot" aria-hidden="true"></span>
+                  <span class="mega-item-body">
+                    <span class="mega-item-name">{p.name}</span>
+                    <span class="mega-item-sub">{p.subtitle}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+            <a href="/contact/" class="mega-feature">
+              <span class="mega-feature-eyebrow">Book a demo</span>
+              <span class="mega-feature-title">See a platform run on your own institution</span>
+              <span class="mega-feature-cta">
+                30-minute demo <Icon name="arrow-right" class="arrow" size={14} />
+              </span>
+            </a>
           </div>
         </div>
       </div>
 
-      <a href="/ai-agents/" class="t-sm no-underline tx-fast" style="color: var(--color-body);">AI agents</a>
+      <a href="/ai-agents/" class="nav-link">AI agents</a>
 
-      <div class="nav-dropdown">
-        <a href="/solutions/hospitals/" class="t-sm no-underline tx-fast nav-link" style="color: var(--color-body);">
+      <div class="nav-item nav-has-menu">
+        <a href="/solutions/hospitals/" class="nav-link">
           Solutions <Icon name="chevron-down" size={12} class="nav-chevron" />
         </a>
-        <div class="nav-dropdown-panel">
-          <div class="nav-dropdown-card">
+        <div class="nav-panel">
+          <div class="nav-card nav-list">
             {solutionLinks.map((l) => (
-              <a href={l.href} class="plain-link">{l.label}</a>
+              <a href={l.href} class="list-item">{l.label}</a>
             ))}
           </div>
         </div>
       </div>
 
       {
-        nav
-          .filter((item) => item.label !== 'Platforms' && item.label !== 'Solutions')
-          .map((item) =>
-            isPlanned(item.href) ? (
-              <span class="t-sm" style="color: var(--color-muted);" title="Coming soon">
-                {item.label}
-              </span>
-            ) : (
-              <a href={item.href} class="t-sm no-underline tx-fast hover:text-[--color-ink]" style="color: var(--color-body);">
-                {item.label}
-              </a>
-            )
+        flatLinks.map((item) =>
+          isPlanned(item.href) ? (
+            <span class="nav-link is-planned" title="Coming soon">{item.label}</span>
+          ) : (
+            <a href={item.href} class="nav-link">{item.label}</a>
           )
+        )
       }
     </nav>
+
+    {/* ── Actions ── */}
+    <div class="nav-actions">
+      <a href="/login/" class="nav-login">Log in</a>
+      <a href="/contact/" class="btn btn-primary nav-cta">Book a demo</a>
+      <button type="button" class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-mobile">
+        <Icon name="menu" size={20} class="nav-toggle-open" />
+        <Icon name="close" size={20} class="nav-toggle-close" />
+      </button>
+    </div>
+  </header>
+
+  {/* ── Mobile disclosure ── */}
+  <div id="nav-mobile" class="nav-mobile" hidden>
+    <p class="nav-mobile-label">Platforms</p>
+    {platforms.map((p) => (
+      <a href={`/platforms/${p.slug}/`} class="nav-mobile-link" style={`--hue: ${p.hue};`}>
+        <span class="mega-item-dot" aria-hidden="true"></span>{p.name}
+      </a>
+    ))}
+    <a href="/ai-agents/" class="nav-mobile-link nav-mobile-link--plain">AI agents</a>
+
+    <p class="nav-mobile-label">Solutions</p>
+    {solutionLinks.map((l) => (
+      <a href={l.href} class="nav-mobile-link nav-mobile-link--plain">{l.label}</a>
+    ))}
+
+    <div class="nav-mobile-rule"></div>
+    {flatLinks.map((item) => (
+      <a href={item.href} class="nav-mobile-link nav-mobile-link--plain">{item.label}</a>
+    ))}
+    <div class="nav-mobile-actions">
+      <a href="/login/" class="btn btn-secondary">Log in</a>
+      <a href="/contact/" class="btn btn-primary">Book a demo</a>
+    </div>
   </div>
-</header>
+</div>
 
 <style>
-  .nav-dropdown {
+  .nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: clamp(0.5rem, 1.4vw, 0.9rem) clamp(0.75rem, 3vw, 1.5rem);
+  }
+
+  .nav-pill {
+    max-width: var(--page-max-width);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 60px;
+    padding-inline: 0.75rem 0.75rem;
+    padding-left: 1.25rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-hairline);
+    background: color-mix(in oklab, var(--color-paper) 82%, transparent);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    transition:
+      box-shadow var(--dur-state) var(--ease-out),
+      border-color var(--dur-state) var(--ease-out),
+      background-color var(--dur-state) var(--ease-out);
+  }
+  /* Deepen the pill once the page scrolls under it. */
+  .nav-wrap.is-scrolled .nav-pill {
+    border-color: color-mix(in oklab, var(--color-hairline) 70%, var(--color-control));
+    background: color-mix(in oklab, var(--color-paper) 90%, transparent);
+    box-shadow: 0 8px 28px -14px rgb(11 18 32 / 0.28);
+  }
+
+  /* ── Brand ── */
+  .nav-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--color-ink);
+    font-size: var(--text-h4);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    flex: none;
+  }
+  .nav-mark {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--color-accent);
+  }
+  .nav-mark svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── Desktop menu ── */
+  .nav-menu {
+    display: none;
+    align-items: center;
+    gap: 0.15rem;
+  }
+  .nav-item {
     position: relative;
   }
   .nav-link {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.25rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--text-body-sm);
+    font-weight: 500;
+    color: var(--color-body);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      color var(--dur-feedback) var(--ease-out),
+      background-color var(--dur-feedback) var(--ease-out);
+  }
+  .nav-link:hover,
+  .nav-item:hover .nav-link,
+  .nav-item:focus-within .nav-link {
+    color: var(--color-ink);
+    background: var(--color-mist);
+  }
+  .nav-link.is-planned {
+    color: var(--color-muted);
+    cursor: default;
   }
   .nav-chevron {
-    transition: transform var(--dur-state) var(--ease-out);
     color: var(--color-control);
+    transition: transform var(--dur-state) var(--ease-out);
   }
-  .nav-dropdown:hover .nav-chevron,
-  .nav-dropdown:focus-within .nav-chevron {
+  .nav-item:hover .nav-chevron,
+  .nav-item:focus-within .nav-chevron {
     transform: rotate(180deg);
   }
 
-  /* Outer wrapper: positioning + the hit-testing bridge. Never moves,
-     never scales — only opacity/visibility toggle here, so the hoverable
-     region is stable the instant the trigger is entered. */
-  .nav-dropdown-panel {
+  /* ── Dropdown panels ── */
+  .nav-panel {
     position: absolute;
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    padding-top: 10px;
+    padding-top: 12px;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity var(--dur-feedback) var(--ease-out), visibility var(--dur-feedback) var(--ease-out);
+    transition:
+      opacity var(--dur-feedback) var(--ease-out),
+      visibility var(--dur-feedback) var(--ease-out);
   }
-  .nav-dropdown:hover .nav-dropdown-panel,
-  .nav-dropdown:focus-within .nav-dropdown-panel {
+  .nav-item:hover .nav-panel,
+  .nav-item:focus-within .nav-panel {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
   }
-
-  /* Inner card: all the visual chrome and the entrance motion. */
-  .nav-dropdown-card {
-    min-width: 210px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 8px;
+  .nav-card {
     background: var(--color-paper);
     border: 1px solid var(--color-hairline);
     border-radius: var(--radius-panel);
-    box-shadow: var(--shadow-sticky);
-    transform: translateY(6px) scale(0.98);
-    transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 18px 48px -20px rgb(11 18 32 / 0.28);
+    transform: translateY(6px) scale(0.985);
+    transform-origin: top center;
+    transition: transform var(--dur-state) cubic-bezier(0.34, 1.4, 0.64, 1);
   }
-  .nav-dropdown:hover .nav-dropdown-card,
-  .nav-dropdown:focus-within .nav-dropdown-card {
+  .nav-item:hover .nav-card,
+  .nav-item:focus-within .nav-card {
     transform: translateY(0) scale(1);
   }
 
-  .plain-link {
+  /* Solutions — a simple padded list. */
+  .nav-list {
+    min-width: 230px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .list-item {
     display: block;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    border-radius: var(--radius-button);
     font-size: var(--text-body-sm);
     color: var(--color-body);
     text-decoration: none;
-    transition: background-color var(--dur-feedback) var(--ease-out), color var(--dur-feedback) var(--ease-out);
+    transition:
+      background-color var(--dur-feedback) var(--ease-out),
+      color var(--dur-feedback) var(--ease-out);
   }
-  .plain-link:hover,
-  .plain-link:focus-visible {
+  .list-item:hover,
+  .list-item:focus-visible {
     background: var(--color-mist);
     color: var(--color-ink);
   }
 
-  /* Platforms gets the richer treatment: a wider 2-up grid of real
-     product identity (name + subtitle + hue), not a bare link list —
-     the site's established platform-tag language, not a fake screenshot. */
-  .nav-dropdown-card--platforms {
+  /* Platforms — a mega panel: a 2-up product grid beside a featured card. */
+  .nav-mega {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 0.75rem;
+    width: 640px;
+    padding: 0.85rem;
+  }
+  .nav-mega-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
-    min-width: 420px;
-    padding: 10px;
+    gap: 2px;
   }
-  .platform-item {
+  .mega-item {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding: 12px 14px 12px 16px;
-    border-left: 2px solid var(--hue);
-    border-radius: 10px;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: var(--radius-card);
     text-decoration: none;
     transition: background-color var(--dur-feedback) var(--ease-out);
   }
-  .platform-item:hover,
-  .platform-item:focus-visible {
+  .mega-item:hover,
+  .mega-item:focus-visible {
     background: var(--color-wash);
   }
-  .platform-item-name {
+  .mega-item-dot {
+    flex: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-top: 0.35rem;
+    border-radius: var(--radius-pill);
+    background: var(--hue);
+  }
+  .mega-item-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .mega-item-name {
     font-size: var(--text-body-sm);
     font-weight: 500;
     color: var(--color-ink);
   }
-  .platform-item-subtitle {
+  .mega-item-sub {
     font-size: var(--text-caption);
     color: var(--color-muted);
+    line-height: 1.35;
+  }
+  .mega-feature {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1rem;
+    border-radius: var(--radius-card);
+    background: var(--color-ink);
+    text-decoration: none;
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+  }
+  .mega-feature::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(120% 100% at 100% 0%, rgb(43 70 212 / 0.55), transparent 60%);
+  }
+  .mega-feature-eyebrow {
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #aebbe6;
+  }
+  .mega-feature-title {
+    font-size: var(--text-body-sm);
+    font-weight: 500;
+    line-height: 1.35;
+    color: #fff;
+    margin-top: auto;
+  }
+  .mega-feature-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: var(--text-caption);
+    font-weight: 500;
+    color: #dbe3ff;
+  }
+  .mega-feature:hover .arrow {
+    transform: translateX(3px);
   }
 
-  @media (max-width: 640px) {
-    .nav-dropdown-card--platforms {
-      grid-template-columns: 1fr;
-      min-width: 260px;
+  /* ── Actions ── */
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex: none;
+  }
+  .nav-login {
+    display: none;
+    font-size: var(--text-body-sm);
+    font-weight: 500;
+    color: var(--color-body);
+    text-decoration: none;
+    padding: 0.4rem 0.5rem;
+    transition: color var(--dur-feedback) var(--ease-out);
+  }
+  .nav-login:hover {
+    color: var(--color-ink);
+  }
+  .nav-cta {
+    border-radius: var(--radius-pill);
+  }
+
+  /* Hamburger — mobile only. */
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-hairline);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: border-color var(--dur-feedback) var(--ease-out);
+  }
+  .nav-toggle:hover {
+    border-color: var(--color-control);
+  }
+  .nav-toggle-close {
+    display: none;
+  }
+  .nav-wrap.is-open .nav-toggle-open {
+    display: none;
+  }
+  .nav-wrap.is-open .nav-toggle-close {
+    display: block;
+  }
+
+  /* ── Mobile disclosure ── */
+  .nav-mobile {
+    max-width: var(--page-max-width);
+    margin: 0.5rem auto 0;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: var(--radius-panel);
+    border: 1px solid var(--color-hairline);
+    background: var(--color-paper);
+    box-shadow: 0 18px 48px -20px rgb(11 18 32 / 0.28);
+  }
+  .nav-mobile[hidden] {
+    display: none;
+  }
+  .nav-mobile-label {
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    padding: 0.75rem 0.75rem 0.35rem;
+  }
+  .nav-mobile-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 0.75rem;
+    border-radius: var(--radius-button);
+    font-size: var(--text-body);
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .nav-mobile-link--plain {
+    color: var(--color-body);
+    font-weight: 500;
+  }
+  .nav-mobile-link:hover,
+  .nav-mobile-link:focus-visible {
+    background: var(--color-mist);
+  }
+  .nav-mobile-rule {
+    height: 1px;
+    background: var(--color-hairline);
+    margin: 0.4rem 0.75rem;
+  }
+  .nav-mobile-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem 0.4rem;
+  }
+  .nav-mobile-actions .btn {
+    justify-content: center;
+  }
+
+  /* ── Desktop breakpoint ── */
+  @media (min-width: 1024px) {
+    .nav-menu {
+      display: flex;
+    }
+    .nav-login {
+      display: inline-flex;
+    }
+    .nav-toggle {
+      display: none;
+    }
+    .nav-mobile {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .nav-brand-text {
+      display: none;
     }
   }
 </style>
 
 <script>
-  // The only JavaScript in this component: the scroll shadow. Everything
-  // else — the dropdown reveal, the responsive wrap — is CSS only.
-  const navEl = document.getElementById('site-nav');
-  const onScroll = () => {
-    if (!navEl) return;
-    navEl.style.boxShadow = window.scrollY > 8 ? 'var(--shadow-sticky)' : '';
-  };
+  // Two jobs: a scrolled-state class on the sticky wrapper, and the mobile
+  // disclosure. Desktop dropdowns are pure CSS and need no script.
+  const wrap = document.getElementById('site-nav');
+  const toggle = wrap?.querySelector('.nav-toggle') as HTMLButtonElement | null;
+  const panel = document.getElementById('nav-mobile');
+
+  const onScroll = () => wrap?.classList.toggle('is-scrolled', window.scrollY > 4);
   onScroll();
   addEventListener('scroll', onScroll, { passive: true });
+
+  const setOpen = (open: boolean) => {
+    if (!wrap || !toggle || !panel) return;
+    wrap.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
+  };
+
+  toggle?.addEventListener('click', () => setOpen(panel?.hidden ?? true));
+  panel?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setOpen(false);
+  });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !panel?.hidden) {
+      setOpen(false);
+      toggle?.focus();
+    }
+  });
+  // A resize up into desktop leaves no stranded open panel.
+  matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+    if (e.matches) setOpen(false);
+  });
 </script>
