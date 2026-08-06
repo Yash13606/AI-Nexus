@@ -43,7 +43,7 @@ const { layout, roles, parallax = false } = Astro.props;
           <article
             data-reveal
             style={`--i: ${Math.min(i, 3)};`}
-            class={`rbento-cell card hov p-elev p-6 ${i === 0 ? 'rbento-lead' : ''}`}
+            class={`rbento-cell card hov p-elev p-fill p-6 ${i === 0 ? 'rbento-lead' : ''}`}
           >
             <h3 class={i === 0 ? 't-h3' : 't-h4'}>{r.title}</h3>
             <p class="t-sm mt-2">{r.body}</p>
@@ -61,7 +61,7 @@ const { layout, roles, parallax = false } = Astro.props;
          rest with no pointer, no JS and no hover. */
       <div class="rspot" data-spotlight data-tilt>
         {roles.map((r, i) => (
-          <article data-reveal style={`--i: ${Math.min(i, 3)};`} class="rspot-cell card p-elev p-6">
+          <article data-reveal style={`--i: ${Math.min(i, 3)};`} class="rspot-cell card p-elev p-fill p-6">
             <h3 class="t-h4">{r.title}</h3>
             <p class="t-sm mt-2">{r.body}</p>
           </article>

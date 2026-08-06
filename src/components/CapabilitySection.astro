@@ -34,7 +34,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
           <article
             data-reveal
             style={`--i: ${Math.min(i, 3)};`}
-            class={`bento-cell card hov p-6 flex flex-col gap-2 ${i === 0 ? 'bento-lead' : ''}`}
+            class={`bento-cell card hov p-elev p-fill p-6 flex flex-col gap-2 ${i === 0 ? 'bento-lead' : ''}`}
           >
             <h3 class={i === 0 ? 't-h3' : 't-h4'}>{m.title}</h3>
             <p class="t-sm">{m.body}</p>

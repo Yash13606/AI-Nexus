@@ -140,17 +140,17 @@ const groups = grouped
         Six modules, presented per `capabilityLayout`. The Ink timeline that
         used to sit here has moved into the hero, so it is not rendered twice —
         §11 caps a page at two Ink blocks and the footer is the other one. */}
-  <section class="section band p-atmos" style={`--page-accent: ${hueVar};`}>
+  <section class="section band p-bloom p-grain" style={`--page-accent: ${hueVar};`}>
     <div class="shell">
-      <div data-reveal class="p-head">
-        <h2 class="t-h2" style="max-width: 20ch;">What {p.name} does</h2>
-      </div>
-      <Reveal i={1}>
-        <p class="t-lede mt-5 mb-11">
+      <div class="p-secthead mb-11">
+        <div data-reveal class="p-head">
+          <h2 class="t-h2" style="max-width: 20ch;">What {p.name} does</h2>
+        </div>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
           {d.modules.length} modules, one platform. Every one of them is where an AI agent gets its
           data — the agents sit inside the system of record, not beside it.
         </p>
-      </Reveal>
+      </div>
 
       <CapabilitySection layout={p.capabilityLayout} modules={d.modules} name={p.name} />
 
@@ -165,11 +165,13 @@ const groups = grouped
         and the controls are injected by script so they are never dead. ── */}
   <section class="section">
     <div class="shell" id="agents" data-hue={p.slug} style={`--page-accent: ${hueVar};`}>
-      <h2 class="t-h2 p-head" data-reveal style="max-width: 22ch;">The {p.agentCount} {p.name} AI agents</h2>
-      <p class="t-lede mt-5 mb-9">
-        Each agent does one job, and each carries its own guardrail. Product examples on this site are
-        illustrative.
-      </p>
+      <div class="p-secthead mb-9">
+        <h2 class="t-h2 p-head" data-reveal style="max-width: 22ch;">The {p.agentCount} {p.name} AI agents</h2>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
+          Each agent does one job, and each carries its own guardrail. Product examples on this site are
+          illustrative.
+        </p>
+      </div>
 
       {
         grouped ? (
@@ -214,10 +216,12 @@ const groups = grouped
   {/* ── Roles ── */}
   <section class="section band" style={`--page-accent: ${hueVar};`}>
     <div class="shell">
-      <h2 class="t-h2 p-head" data-reveal style="max-width: 20ch;">Who {p.name} is for</h2>
-      <p class="t-lede mt-5">
-        {d.roles.length} roles, each with its own view — and an audit log that records who saw what.
-      </p>
+      <div class="p-secthead">
+        <h2 class="t-h2 p-head" data-reveal style="max-width: 20ch;">Who {p.name} is for</h2>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
+          {d.roles.length} roles, each with its own view — and an audit log that records who saw what.
+        </p>
+      </div>
 
       <div class="mt-11">
         <RolesSection layout={p.rolesLayout} roles={d.roles} parallax={p.motion.parallax} />
@@ -228,11 +232,13 @@ const groups = grouped
   {/* ── Compliance. Statements, not logos — the header line is mandatory. ── */}
   <section class="section">
     <div class="shell">
-      <h2 class="t-h2 p-head" data-reveal style="max-width: 20ch;">Standards and compliance</h2>
-      <p class="t-lede mt-5 mb-8">
-        These are capability statements, not certification logos. Certificates are published only when they
-        exist.
-      </p>
+      <div class="p-secthead mb-8">
+        <h2 class="t-h2 p-head" data-reveal style="max-width: 20ch;">Standards and compliance</h2>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
+          These are capability statements, not certification logos. Certificates are published only when they
+          exist.
+        </p>
+      </div>
 
       <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
         {
@@ -274,7 +280,7 @@ const groups = grouped
               href={`/platforms/${s.slug}/`}
               data-reveal
               data-rv="scale"
-              class="card card-hover tx-fast p-5 flex flex-col gap-2 no-underline group/link"
+              class="card card-hover p-fill tx-fast p-5 flex flex-col gap-2 no-underline group/link"
               style={`border-top: 3px solid ${s.hue}; --card-hue: ${s.hue};`}
             >
               <span class="t-label" style={`color: ${s.hue};`}>{s.sector}</span>

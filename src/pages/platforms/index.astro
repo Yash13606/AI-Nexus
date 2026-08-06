@@ -104,15 +104,17 @@ const totals = {
   <PlatformSubnav />
 
   {/* ══════════════ THE FOUR ══════════════ */}
-  <section class="section band p-atmos">
+  <section class="section band p-bloom p-grain">
     <div class="shell">
-      <div data-reveal class="p-head">
-        <h2 class="t-h2" style="max-width: 20ch;">The four platforms</h2>
+      <div class="p-secthead">
+        <div data-reveal class="p-head">
+          <h2 class="t-h2" style="max-width: 20ch;">The four platforms</h2>
+        </div>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
+          One company, one engineering discipline. Each product runs its industry end to end, and each
+          carries its own agents, role catalogue and compliance surface.
+        </p>
       </div>
-      <p class="t-lede mt-5" data-reveal data-rv="blur" style="--i: 1;">
-        One company, one engineering discipline. Each product runs its industry end to end, and each
-        carries its own agents, role catalogue and compliance surface.
-      </p>
 
       {/* Bento, not a four-up. The first tile carries more weight because it
           holds the live roster, and an even grid would flatten that back out.
@@ -123,11 +125,12 @@ const totals = {
           platforms.map((p, i) => (
             <article
               data-reveal
-              class={`pcard card hov p-elev p-tilt p-glow p-6 ${i === 0 ? 'lead p-beam' : ''}`}
+              class={`pcard card hov p-elev p-fill p-tilt p-glow p-6 ${i === 0 ? 'lead p-beam' : ''}`}
               data-rv={i % 2 ? 'right' : 'left'}
               style={`--i: ${Math.min(i, 3)}; --beam-hue: ${p.hue}; --card-hue: ${p.hue}; border-top: 3px solid ${p.hue};`}
             >
                 <div class="cardhead">
+                  <span class="p-dot" aria-hidden="true" />
                   <PlatformLockup name={p.name} as="h3" />
                   <p class="t-sm mt-1.5" style="color: var(--color-muted);">{p.subtitle}</p>
                 </div>
@@ -229,15 +232,15 @@ const totals = {
         overrides. The FLIP re-rank stays; its controls stay JS-injected. */}
   <section class="section">
     <div class="shell" id="compare" style="scroll-margin-top: 128px;">
-      <div data-reveal class="p-head">
-        <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
-      </div>
-      <Reveal i={1}>
-        <p class="t-lede mt-5 mb-11">
+      <div class="p-secthead mb-11">
+        <div data-reveal class="p-head">
+          <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
+        </div>
+        <p class="t-lede" data-reveal data-rv="blur" style="--i: 1;">
           48 named AI agents across the four. Every figure below is the count the platform actually
           ships.
         </p>
-      </Reveal>
+      </div>
 
       <div class="tbl-wrap" data-reveal data-rv="scale">
         <table data-sortable>
@@ -424,6 +427,21 @@ const totals = {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+  }
+  /* The dot sits on the lockup's baseline row, so the hue reads before the
+     name does at a glance across four cards. */
+  .cardhead :global(.lockup),
+  .cardhead > h3 {
+    display: inline;
+  }
+  .cardhead {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 0.625rem;
+    align-items: baseline;
+  }
+  .cardhead > :last-child {
+    grid-column: 2;
   }
   .cardfoot {
     /* Pins the block to the bottom of a stretched cell, so a tile that is

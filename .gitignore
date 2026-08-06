@@ -25,3 +25,6 @@ refrence design md files/
 
 # Unit review artefacts (screenshots, recordings) — never committed
 .review/
+
+# Reference material dropped in the repo root — never committed
+screencapture-*.pdf
