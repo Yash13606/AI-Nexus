@@ -4,40 +4,77 @@ import Icon from '../components/Icon.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Faq from '../components/Faq.astro';
+import Reveal from '../components/ui/Reveal.astro';
+import RevealRoot from '../components/ui/RevealRoot.astro';
 import { platforms } from '../content/platforms';
 import { detail } from '../content/platform-detail';
 import { governance } from '../content/home';
 import { securityFaqs } from '../content/pages';
 import { contact } from '../content/site';
+
+/* Hero verification row — one representative compliance line per platform,
+   pulled straight from the same data the Standards section renders below.
+   No new copy: this is an echo of §Standards, not a new claim. */
+const heroChips = platforms.map((p) => detail[p.slug].compliance[0]);
 ---
 
 <Base
   title="AI Governance, DPDP Compliance & Data Residency | AI Nexus"
   description="The controls implemented in all four AI Nexus platforms: PHI redaction, citation verification, fail-closed consent, human approval, cost ceilings, per-agent kill switches and append-only audit trails. Data in AWS Mumbai."
 >
-  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
+  <RevealRoot />
+
+  {/* ── Hero ── */}
+  <section class="section hero-sec">
     <div class="shell">
       <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Security' }]} />
-      <h1 class="t-h1" style="max-width: 16ch;">How the AI is governed</h1>
+      <h1 class="t-h1 mt-4" style="max-width: 16ch;">How the AI is governed</h1>
       <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
       <p class="t-lede mt-7">
         The same discipline runs through all four platforms. Everything on this page is a control
         implemented in the software, not a commitment in a policy document.
       </p>
+
+      <ul class="hero-chips mt-8 flex flex-wrap gap-2.5 list-none m-0 p-0">
+        {
+          heroChips.map((c, i) => (
+            <li class="pill chip-verify" style={`--i: ${i}; border: 1px solid var(--color-hairline); background: var(--color-mist);`}>
+              {c}
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
   {/* ── The controls ── */}
   <section class="section band">
     <div class="shell">
-      <h2 class="t-h2">The controls</h2>
-      <div class="mt-11 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
+      <Reveal>
+        <h2 class="t-h2">The controls</h2>
+      </Reveal>
+      <div class="mt-12 grid gap-x-9 gap-y-10 sm:grid-cols-2 xl:grid-cols-4">
         {
-          governance.map((g) => (
-            <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
+          governance.map((g, i) => (
+            <Reveal i={i} as="div" class="ctrl flex flex-col gap-2.5 pt-5" style={`--i: ${i};`}>
+              <span class="ctrl-check" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <circle cx="10" cy="10" r="9" stroke="var(--color-hairline)" stroke-width="1.5" />
+                  <path
+                    class="ctrl-check-mark"
+                    d="M5.5 10.3 8.5 13.3 14.5 6.8"
+                    stroke="var(--color-verified)"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    fill="none"
+                    pathLength="1"
+                  />
+                </svg>
+              </span>
               <h3 class="t-h4">{g.title}</h3>
               <p class="t-sm">{g.body}</p>
-            </div>
+            </Reveal>
           ))
         }
       </div>
@@ -47,12 +84,14 @@ import { contact } from '../content/site';
   {/* ── Data residency. The second and last Ink block on this page. ── */}
   <section class="section">
     <div class="shell">
-      <div class="rounded-[16px] p-8 sm:p-10" style="background: var(--color-ink);">
+      <div class="residency-panel rounded-[16px] p-8 sm:p-10" style="background: var(--color-ink);">
         <h2 class="t-h2" style="color: #fff;">Data residency</h2>
         <p class="t-lede mt-5" style="color: #a8b4c8;">
-          All four platforms run in AWS Mumbai <span class="mono" style="color: #fff;">(ap-south-1)</span>.
+          All four platforms run in AWS Mumbai
+          <span class="mono residency-tag" style="color: #fff;">(ap-south-1)</span>.
           Data does not leave India in normal operation.
         </p>
+        <div class="seal-rule residency-seal mt-9 h-px w-full" style="background: var(--color-accent);"></div>
       </div>
     </div>
   </section>
@@ -60,33 +99,39 @@ import { contact } from '../content/site';
   {/* ── Per-platform standards ── */}
   <section class="section band">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 22ch;">Standards each platform implements</h2>
-      <p class="t-lede mt-5">
-        These are capability statements, not certification logos. We publish certificates only when they
-        exist.
-      </p>
+      <Reveal>
+        <h2 class="t-h2" style="max-width: 22ch;">Standards each platform implements</h2>
+      </Reveal>
+      <Reveal i={1}>
+        <p class="t-lede mt-5">
+          These are capability statements, not certification logos. We publish certificates only when they
+          exist.
+        </p>
+      </Reveal>
 
-      <div class="mt-11 grid gap-8 sm:grid-cols-2">
+      <div class="mt-12 grid gap-8 sm:grid-cols-2">
         {
-          platforms.map((p) => (
-            <div class="card p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
-              <div class="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
-                <h3 class="t-h3">{p.name}</h3>
-                <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
-                  Platform details <Icon name="arrow-right" class="arrow" size={14} />
-                </a>
+          platforms.map((p, i) => (
+            <Reveal i={i} as="div">
+              <div class="card hov p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
+                <div class="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
+                  <h3 class="t-h3">{p.name}</h3>
+                  <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
+                    Platform details <Icon name="arrow-right" class="arrow" size={14} />
+                  </a>
+                </div>
+                <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
+                  {detail[p.slug].compliance.map((c, pi) => (
+                    <li
+                      class="pill pill-tick"
+                      style={`--pi: ${pi}; background: var(--color-mist); border: 1px solid var(--color-hairline); color: var(--color-body);`}
+                    >
+                      {c}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul class="flex flex-wrap gap-2 list-none m-0 p-0">
-                {detail[p.slug].compliance.map((c) => (
-                  <li
-                    class="pill"
-                    style="background: var(--color-mist); border: 1px solid var(--color-hairline); color: var(--color-body);"
-                  >
-                    {c}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            </Reveal>
           ))
         }
       </div>
@@ -96,7 +141,9 @@ import { contact } from '../content/site';
   {/* ── FAQ ── */}
   <section class="section">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Questions we get asked</h2>
+      <Reveal>
+        <h2 class="t-h2" style="max-width: 20ch;">Questions we get asked</h2>
+      </Reveal>
       <div class="mt-10">
         <Faq items={securityFaqs} openFirst />
       </div>
@@ -110,3 +157,80 @@ import { contact } from '../content/site';
 
   <CtaBand />
 </Base>
+
+<script>
+  import { initReveal } from '../scripts/reveal.js';
+  initReveal();
+</script>
+
+<style>
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .hero-sec {
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+  }
+
+  .hero-chips .pill {
+    font-family: var(--font-mono);
+  }
+
+  /* ── Controls grid ────────────────────────────────────────────────────── */
+  .ctrl {
+    border-top: 1px solid var(--color-hairline);
+  }
+  .ctrl-check {
+    display: inline-flex;
+  }
+  /* Base state: the check is fully drawn, so a no-JS / no-scroll reader sees
+     a complete, correct badge — the stroke draw is a delay on arrival, not a
+     reveal of content. */
+  .ctrl-check-mark {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+  html[data-reveal-ready] [data-reveal] .ctrl-check-mark {
+    stroke-dashoffset: 1;
+  }
+  html[data-reveal-ready] [data-reveal][data-revealed] .ctrl-check-mark {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset var(--dur-section) var(--ease-entrance) calc(var(--dur-element) * 0.4);
+  }
+
+  /* ── Data residency panel ─────────────────────────────────────────────── */
+  .residency-panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  /* Same streaked-light texture as the home hero card, retinted for the ink
+     surface — white hairlines instead of the accent gradient beneath them. */
+  .residency-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.05) 0 1px,
+      transparent 1px clamp(52px, 6vw, 82px)
+    );
+    mask-image: linear-gradient(180deg, transparent 0%, #000 45%, #000 100%);
+  }
+  .residency-tag {
+    border-radius: 4px;
+    padding: 0.05em 0.35em;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-verified) 55%, transparent);
+  }
+  .residency-seal {
+    transform-origin: left center;
+  }
+
+  /* ── Standards cascade ────────────────────────────────────────────────── */
+  .pill-tick {
+    animation: tick-verified var(--dur-element) var(--ease-entrance) both paused;
+    animation-delay: calc(var(--pi, 0) * 90ms);
+  }
+  html[data-reveal-ready] [data-reveal][data-revealed] .pill-tick {
+    animation-play-state: running;
+  }
+</style>

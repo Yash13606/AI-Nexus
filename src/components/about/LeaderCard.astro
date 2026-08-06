@@ -1,0 +1,105 @@
+---
+import Icon from '../Icon.astro';
+import type { Leader } from '../../content/about';
+
+/** A leadership card with a square image slot. When no portrait is supplied the
+ *  slot holds its own aspect ratio and shows a mono placeholder label — the same
+ *  pattern as the product .screen slot, so dropping an <img> in later changes
+ *  nothing about the layout. `placeholder` entries render an explicit, honest
+ *  empty state rather than an invented person. */
+interface Props {
+  leader: Leader;
+}
+const { leader } = Astro.props;
+const { name, role, bio, linkedin, image, placeholder = false } = leader;
+---
+
+<article class:list={['leader', 'card', { 'is-placeholder': placeholder }]}>
+  <div class="leader__photo">
+    {
+      image ? (
+        <img src={image} alt={`Portrait of ${name}`} loading="lazy" width="480" height="480" />
+      ) : (
+        <span class="leader__ph mono">{placeholder ? 'Add photo' : 'Portrait'}</span>
+      )
+    }
+  </div>
+
+  <div class="leader__meta">
+    {
+      placeholder ? (
+        <p class="leader__ph-name mono">{role}</p>
+      ) : (
+        <>
+          <h3 class="leader__name t-h4">{name}</h3>
+          <p class="leader__role">{role}</p>
+          {bio && <p class="leader__bio t-sm">{bio}</p>}
+          {linkedin && (
+            <a href={linkedin} target="_blank" rel="noopener" class="link-accent leader__link group/link">
+              LinkedIn <Icon name="arrow-up-right" size={14} />
+            </a>
+          )}
+        </>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .leader {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+  }
+  .leader__photo {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: var(--color-wash);
+    border-bottom: 1px solid var(--color-hairline);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .leader__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .leader__ph {
+    font-size: var(--text-caption);
+    color: var(--color-control);
+    letter-spacing: 0.02em;
+  }
+  .leader__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 1.375rem 1.375rem 1.5rem;
+    flex: 1;
+  }
+  .leader__role {
+    font-size: var(--text-body-sm);
+    color: var(--color-muted);
+  }
+  .leader__bio {
+    color: var(--color-body);
+    margin-top: 0.25rem;
+  }
+  .leader__link {
+    margin-top: 0.625rem;
+  }
+  .leader__ph-name {
+    font-size: var(--text-body-sm);
+    color: var(--color-control);
+  }
+  /* Placeholder cards read as scaffolding, not chrome: dashed slot, no claim. */
+  .is-placeholder .leader__photo {
+    background: repeating-linear-gradient(
+      135deg,
+      var(--color-wash) 0 10px,
+      var(--color-mist) 10px 20px
+    );
+  }
+</style>

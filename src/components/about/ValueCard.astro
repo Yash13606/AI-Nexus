@@ -1,0 +1,53 @@
+---
+/** One core value. Numbered mono index (data role, §4), title, body. Uses the
+ *  sanctioned .hov surface step; the corner rule is a decorative affordance that
+ *  arrives on hover (§11) — aria-hidden, never content at opacity 0. */
+interface Props {
+  index: string;
+  title: string;
+  body: string;
+}
+const { index, title, body } = Astro.props;
+---
+
+<article class="value card hov">
+  <p class="value__index mono" aria-hidden="true">{index}</p>
+  <h3 class="value__title t-h4">{title}</h3>
+  <p class="value__body t-sm">{body}</p>
+  <span class="value__rule hov-affordance" aria-hidden="true"></span>
+</article>
+
+<style>
+  .value {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: clamp(1.75rem, 3vw, 2.25rem);
+    height: 100%;
+    overflow: hidden;
+  }
+  .value__index {
+    font-size: var(--text-caption);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--color-control);
+  }
+  .value__title {
+    margin-top: 0.25rem;
+  }
+  .value__body {
+    color: var(--color-body);
+    flex: 1;
+  }
+  /* A short accent rule that draws in from the corner on hover — the §11
+     decorative affordance, drawn with the page accent, never a lift or shadow. */
+  .value__rule {
+    position: absolute;
+    left: clamp(1.75rem, 3vw, 2.25rem);
+    bottom: 0;
+    width: 2.5rem;
+    height: 2px;
+    background: var(--page-accent);
+  }
+</style>

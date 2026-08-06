@@ -3,95 +3,496 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import CtaBand from '../components/CtaBand.astro';
-import { platforms } from '../content/platforms';
-import { aboutIntro, aboutBody } from '../content/pages';
+import RevealRoot from '../components/ui/RevealRoot.astro';
+import Reveal from '../components/ui/Reveal.astro';
+import StatCard from '../components/about/StatCard.astro';
+import ValueCard from '../components/about/ValueCard.astro';
+import LeaderCard from '../components/about/LeaderCard.astro';
+import Timeline from '../components/about/Timeline.astro';
+import { aboutHero, story, pillars, stats, timeline, values, leaders } from '../content/about';
 import { entities, contact } from '../content/site';
+import { aboutIntro } from '../content/pages';
+
+const trail = [{ href: '/', label: 'Home' }, { label: 'About' }];
 ---
 
 <Base
   title="About AI Nexus Innovations Hub — Bengaluru & Singapore"
   description={aboutIntro}
+  trail={trail}
 >
-  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
+  <RevealRoot />
+
+  {/* ══════════════ HERO ══════════════
+      Breadcrumbs above a self-contained gradient panel — the branded surface
+      treatment reuses the home hero's language (accent-wash radial + streak
+      texture), left-aligned for a chapter opener. The entrance is the same
+      self-completing CSS `.rise` used on /platforms/: if it never runs, the
+      page is already correct. */}
+  <section class="section about-hero-section">
     <div class="shell">
-      <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'About' }]} />
-      <h1 class="t-h1" style="max-width: 20ch;">A product company for the institutions that matter most</h1>
-      <div class="sweep-rule mt-7 h-px w-full max-w-[520px]" style="background: var(--color-accent);"></div>
-      <p class="t-lede mt-7">{aboutIntro}</p>
+      <Breadcrumbs trail={trail} />
 
-      <div class="mt-9 flex flex-col gap-5 prose">
-        {aboutBody.map((para) => <p class="t-body">{para}</p>)}
+      <div class="about-hero">
+        <div class="about-hero__inner">
+          <p class="t-label rise about-hero__eyebrow" style="--i: 0;">{aboutHero.eyebrow}</p>
+          <h1 class="t-display rise about-hero__headline" style="--i: 1;">{aboutHero.headline}</h1>
+          <p class="t-lede rise about-hero__lede" style="--i: 2;">{aboutHero.lede}</p>
+          <div class="rise about-hero__actions" style="--i: 3;">
+            <a href="/contact/" class="btn btn-primary tx-fast">
+              Book a demo <Icon name="arrow-right" class="arrow" />
+            </a>
+            <a href="/platforms/" class="btn btn-secondary tx-fast">See the platforms</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  {/* ── Leadership + entities ── */}
-  <section class="section band">
-    <div class="shell grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:items-start">
-      <div class="flex flex-col gap-2">
-        <h2 class="t-h4">Leadership</h2>
-        <p class="t-h3" style="color: var(--color-ink);">Geetha R</p>
-        <p class="t-sm" style="color: var(--color-muted);">Founder &amp; Director</p>
-        <a
-          href={contact.linkedin}
-          target="_blank"
-          rel="noopener"
-          class="link-accent mt-2 group/link"
-        >
-          LinkedIn <Icon name="arrow-up-right" size={14} />
-        </a>
-      </div>
-
-      <div class="grid gap-5 sm:grid-cols-2">
-        {
-          entities.map((e) => (
-            <div class="card p-5 flex flex-col gap-1.5">
-              <p class="t-label" style="color: var(--color-muted);">{e.region}</p>
-              <p class="t-sm" style="color: var(--color-ink); font-weight: 500;">{e.name}</p>
-              <p class="t-cap mono" style="color: var(--color-muted);">{e.id} · {e.place}</p>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  {/* ── What we build ── */}
+  {/* ══════════════ COMPANY STORY · VISION · MISSION ══════════════ */}
   <section class="section">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">What we build</h2>
-      <p class="t-lede mt-5">
-        Four platforms and 48 named AI agents, all operated and supported by us.
-      </p>
+      <div class="story-grid">
+        <Reveal class="story-grid__head">
+          <p class="t-label about-accent">{story.eyebrow}</p>
+          <h2 class="t-h2 mt-4">{story.heading}</h2>
+        </Reveal>
+        <Reveal i={1} class="story-grid__body">
+          {story.body.map((para) => <p class="t-body">{para}</p>)}
+        </Reveal>
+      </div>
 
-      <div class="mt-11 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="pillars">
         {
-          platforms.map((p) => (
-            <article class="card card-hover tx-fast p-6 flex flex-col gap-3" style={`border-top: 3px solid ${p.hue};`}>
-              <h3 class="t-h3">{p.name}</h3>
-              <p class="t-sm flex-1">
-                {p.subtitle} — {p.headline}
-              </p>
-              <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-                <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
-                  Explore <Icon name="arrow-right" class="arrow" size={14} />
-                </a>
-                <a
-                  href={p.site}
-                  target="_blank"
-                  rel="noopener"
-                  class="t-sm no-underline inline-flex items-center gap-1"
-                  style="color: var(--color-muted);"
-                >
-                  {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-                </a>
-              </div>
-            </article>
+          pillars.map((p, i) => (
+            <Reveal as="article" i={i} class="pillar">
+              <p class="t-label about-accent">{p.label}</p>
+              <p class="pillar__body t-lede">{p.body}</p>
+            </Reveal>
           ))
         }
       </div>
     </div>
   </section>
 
+  {/* ══════════════ STATS — verifiable figures only ══════════════ */}
+  <section class="section band">
+    <div class="shell">
+      <Reveal>
+        <h2 class="t-h2 about-max-20">AI Nexus by the numbers</h2>
+      </Reveal>
+      <Reveal i={1}>
+        <p class="t-lede mt-5">
+          Every figure below is one we can stand behind — the products we operate, not a metric we
+          have not measured.
+        </p>
+      </Reveal>
+
+      <div class="stat-grid">
+        {
+          stats.map((s, i) => (
+            <Reveal i={i}>
+              <StatCard figure={s.figure} label={s.label} sub={s.sub} />
+            </Reveal>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════════ TIMELINE ══════════════ */}
+  <section class="section">
+    <div class="shell">
+      <Reveal>
+        <h2 class="t-h2 about-max-20">The journey so far</h2>
+      </Reveal>
+      <Reveal i={1}>
+        <p class="t-lede mt-5 mb-14">
+          A young company, moving deliberately — building four platforms to one discipline rather than
+          many to none.
+        </p>
+      </Reveal>
+
+      <Timeline items={timeline} />
+    </div>
+  </section>
+
+  {/* ══════════════ LEADERSHIP ══════════════ */}
+  <section class="section band">
+    <div class="shell">
+      <Reveal>
+        <h2 class="t-h2 about-max-20">Leadership</h2>
+      </Reveal>
+      <Reveal i={1}>
+        <p class="t-lede mt-5">Founded and led from Bengaluru and Singapore.</p>
+      </Reveal>
+
+      {
+        leaders.length === 1 ? (
+          <Reveal class="leader-featured card">
+            <div class="leader-featured__photo">
+              {leaders[0].image ? (
+                <img
+                  src={leaders[0].image}
+                  alt={`Portrait of ${leaders[0].name}`}
+                  loading="lazy"
+                  width="520"
+                  height="640"
+                />
+              ) : (
+                <span class="leader-featured__ph mono">Portrait</span>
+              )}
+            </div>
+            <div class="leader-featured__body">
+              <p class="t-label about-accent">Founder</p>
+              <h3 class="leader-featured__name t-h2">{leaders[0].name}</h3>
+              <p class="leader-featured__role">{leaders[0].role}</p>
+              {leaders[0].bio && <p class="leader-featured__bio t-lede">{leaders[0].bio}</p>}
+              {leaders[0].linkedin && (
+                <a
+                  href={leaders[0].linkedin}
+                  target="_blank"
+                  rel="noopener"
+                  class="btn btn-secondary tx-fast leader-featured__cta"
+                >
+                  Connect on LinkedIn <Icon name="arrow-up-right" size={14} />
+                </a>
+              )}
+            </div>
+          </Reveal>
+        ) : (
+          <div class="leader-grid">
+            {leaders.map((leader, i) => (
+              <Reveal i={i}>
+                <LeaderCard leader={leader} />
+              </Reveal>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  {/* ══════════════ CORE VALUES ══════════════ */}
+  <section class="section">
+    <div class="shell">
+      <Reveal>
+        <h2 class="t-h2 about-max-20">What we hold to</h2>
+      </Reveal>
+      <Reveal i={1}>
+        <p class="t-lede mt-5">
+          Six commitments that shape how every platform and every agent is built — the same discipline
+          across four industries.
+        </p>
+      </Reveal>
+
+      <div class="value-grid">
+        {
+          values.map((v, i) => (
+            <Reveal i={i % 3}>
+              <ValueCard index={v.index} title={v.title} body={v.body} />
+            </Reveal>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════════ ENTITIES ══════════════ */}
+  <section class="section band">
+    <div class="shell">
+      <Reveal>
+        <h2 class="t-h2 about-max-20">Where we are registered</h2>
+      </Reveal>
+      <div class="entity-grid">
+        {
+          entities.map((e, i) => (
+            <Reveal i={i}>
+              <div class="entity card">
+                <p class="t-label about-muted">{e.region}</p>
+                <p class="entity__name t-sm">{e.name}</p>
+                <p class="entity__id t-cap mono">{e.id} · {e.place}</p>
+              </div>
+            </Reveal>
+          ))
+        }
+      </div>
+      <Reveal>
+        <a href={contact.linkedin} target="_blank" rel="noopener" class="link-accent entity-link group/link">
+          Follow AI Nexus on LinkedIn <Icon name="arrow-up-right" size={14} />
+        </a>
+      </Reveal>
+    </div>
+  </section>
+
+  {/* ══════════════ CTA — the one centred block ══════════════ */}
   <CtaBand />
 </Base>
+
+<script>
+  import { initReveal } from '../scripts/reveal.js';
+  initReveal();
+</script>
+
+<style>
+  /* ── Shared helpers (kept off the markup as inline styles) ─────────────── */
+  .about-accent {
+    color: var(--page-accent);
+  }
+  .about-muted {
+    color: var(--color-muted);
+  }
+  .about-max-20 {
+    max-width: 20ch;
+  }
+
+  /* ── Hero ───────────────────────────────────────────────────────────────
+     Load entrance, 60ms per step. Self-completing: if it never runs the page
+     is already correct (matches /platforms/ .rise). */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .rise {
+    animation: rise var(--dur-element) var(--ease-entrance) both;
+    animation-delay: calc(var(--i, 0) * var(--reveal-stagger));
+  }
+
+  .about-hero-section {
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) 0;
+  }
+  .about-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: clamp(16px, 2.2vw, 28px);
+    padding: clamp(3rem, 7vw, 6rem) clamp(1.75rem, 5vw, 4.5rem);
+    /* Branded surface — accent-wash radial pooling from the lower-left, over the
+       Wash neutral. Reuses existing tokens only; introduces no new colour. */
+    background:
+      radial-gradient(120% 130% at 0% 100%, var(--color-accent-wash) 0%, transparent 58%),
+      var(--color-wash);
+    border: 1px solid var(--color-hairline);
+  }
+  /* Fine vertical streak texture — the same material tell as the home hero,
+     dialled down and masked so it never reads as a grid. */
+  .about-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      90deg,
+      rgb(43 70 212 / 0.05) 0 1px,
+      transparent 1px clamp(52px, 6vw, 82px)
+    );
+    mask-image: linear-gradient(180deg, transparent 0%, #000 42%, #000 100%);
+  }
+  .about-hero__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 44rem;
+  }
+  .about-hero__headline {
+    margin-top: 1.25rem;
+    font-weight: 500;
+    max-width: 18ch;
+  }
+  .about-hero__lede {
+    margin-top: 1.5rem;
+  }
+  .about-hero__actions {
+    margin-top: 2.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* ── Story · Vision · Mission ─────────────────────────────────────────── */
+  .story-grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3.5rem);
+  }
+  .story-grid__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: var(--prose-max-width);
+  }
+  @media (min-width: 900px) {
+    .story-grid {
+      grid-template-columns: 0.85fr 1.15fr;
+      align-items: start;
+    }
+  }
+
+  .pillars {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  @media (min-width: 700px) {
+    .pillars {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .pillar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid var(--page-accent);
+  }
+  .pillar__body {
+    color: var(--color-body);
+    max-width: none;
+  }
+
+  /* ── Grids ─────────────────────────────────────────────────────────────
+     One shared measure so stats, values, leaders and entities move together. */
+  .stat-grid,
+  .value-grid,
+  .leader-grid,
+  .entity-grid {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 1.5rem);
+  }
+  .stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .leader-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .value-grid {
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .value-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 960px) {
+    .value-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .entity-grid {
+    grid-template-columns: 1fr;
+    max-width: 760px;
+  }
+  @media (min-width: 640px) {
+    .entity-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Reveal wrappers stretch to their grid row so the cards inside stay equal
+     height regardless of copy length. */
+  .stat-grid > *,
+  .value-grid > *,
+  .leader-grid > *,
+  .entity-grid > * {
+    display: flex;
+  }
+  .stat-grid > * > *,
+  .value-grid > * > *,
+  .leader-grid > * > *,
+  .entity-grid > * > * {
+    width: 100%;
+  }
+
+  /* ── Featured leader (single real profile, no empty cards) ─────────────── */
+  .leader-featured {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 920px;
+  }
+  .leader-featured__photo {
+    position: relative;
+    background: var(--color-wash);
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .leader-featured__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .leader-featured__ph {
+    font-size: var(--text-caption);
+    color: var(--color-control);
+    letter-spacing: 0.02em;
+  }
+  .leader-featured__body {
+    padding: clamp(1.75rem, 3.5vw, 2.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  .leader-featured__name {
+    margin-top: 0.4rem;
+  }
+  .leader-featured__role {
+    font-size: var(--text-h4);
+    color: var(--color-muted);
+  }
+  .leader-featured__bio {
+    color: var(--color-body);
+    margin-top: 0.875rem;
+    max-width: 46ch;
+  }
+  .leader-featured__cta {
+    margin-top: 1.75rem;
+    align-self: flex-start;
+  }
+  @media (min-width: 760px) {
+    .leader-featured {
+      grid-template-columns: 300px 1fr;
+    }
+    .leader-featured__photo {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 360px;
+      border-bottom: 0;
+      border-right: 1px solid var(--color-hairline);
+    }
+  }
+
+  /* ── Entities ──────────────────────────────────────────────────────────── */
+  .entity {
+    padding: 1.375rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .entity__name {
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+  .entity__id {
+    color: var(--color-muted);
+  }
+  .entity-link {
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      animation: none;
+    }
+  }
+</style>
