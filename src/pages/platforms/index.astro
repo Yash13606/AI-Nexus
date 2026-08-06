@@ -285,7 +285,7 @@ const totals = {
     /* Fills the screen under the sticky chrome — see the note in
        [slug].astro. Composed from the tokens, and svh so mobile browser chrome
        does not push the fold off screen. */
-    --chrome: calc(var(--nav-h) + var(--subnav-h) + 1px);
+    --chrome: var(--chrome-h);
     min-height: calc(100svh - var(--chrome));
     /* COLUMN, and centred on the main axis. This was `display: flex` with
        `align-items: center`, which centred the content vertically and broke the
@@ -361,7 +361,7 @@ const totals = {
      air was what pushed the deck below the fold. */
   .fold {
     --section-y: clamp(1.5rem, 2.75vw, 2.5rem);
-    min-height: calc(100svh - var(--chrome, 146px));
+    min-height: calc(100svh - var(--chrome, 151px));
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -670,7 +670,7 @@ const totals = {
   @media (min-width: 1024px) {
     thead th {
       position: sticky;
-      top: calc(var(--nav-h) + var(--subnav-h));
+      top: var(--chrome-h);
     }
   }
 

@@ -213,12 +213,22 @@ const flatLinks = nav.filter((item) => !handWritten.has(item.href));
     color: var(--color-muted);
     cursor: default;
   }
-  .nav-chevron {
+  /* :global on the icon's own class, because it is a class passed to a CHILD
+     COMPONENT. Astro does not put this file's `data-astro-cid` on a child
+     component's root element, so `.nav-chevron { … }` compiles to
+     `.nav-chevron[data-astro-cid-…]` and matches nothing — the rule is in the
+     stylesheet, is syntactically valid, and has never had any effect. The
+     ancestor (`.nav-item`, `.nav-link`) is in this file and is scoped
+     normally, so the pair is still confined to this component.
+
+     DESIGN.md §14b records this as fragility 2 and as the first instance of
+     the failure class. It was live in three more places here. */
+  .nav-link :global(.nav-chevron) {
     color: var(--color-control);
     transition: transform var(--dur-state) var(--ease-out);
   }
-  .nav-item:hover .nav-chevron,
-  .nav-item:focus-within .nav-chevron {
+  .nav-item:hover .nav-link :global(.nav-chevron),
+  .nav-item:focus-within .nav-link :global(.nav-chevron) {
     transform: rotate(180deg);
   }
 
@@ -333,13 +343,17 @@ const flatLinks = nav.filter((item) => !handWritten.has(item.href));
   .nav-toggle:hover {
     border-color: var(--color-control);
   }
-  .nav-toggle-close {
+  /* Same fix, and this one was VISIBLE: both icons painted on top of each
+     other at every mobile width, so the button read as a hamburger with a
+     cross through it. `.nav-toggle-close { display: none }` was scoped, the
+     svg it targets is a child component's root, and the two never met. */
+  .nav-toggle :global(.nav-toggle-close) {
     display: none;
   }
-  .nav-wrap.is-open .nav-toggle-open {
+  .nav-wrap.is-open .nav-toggle :global(.nav-toggle-open) {
     display: none;
   }
-  .nav-wrap.is-open .nav-toggle-close {
+  .nav-wrap.is-open .nav-toggle :global(.nav-toggle-close) {
     display: block;
   }
 

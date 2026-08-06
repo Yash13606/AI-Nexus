@@ -355,7 +355,7 @@ const groups = grouped
 
        svh, not vh: on mobile `vh` is the LARGEST viewport, so a 100vh hero sits
        partly under the browser's own chrome until it retracts. */
-    --chrome: calc(var(--nav-h) + var(--subnav-h) + 1px);
+    --chrome: var(--chrome-h);
     min-height: calc(100svh - var(--chrome));
     /* Column, and centred on the main axis — see the note in
        /platforms/index.astro. Row direction made `.shell` shrink-to-fit and
