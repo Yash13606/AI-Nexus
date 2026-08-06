@@ -76,15 +76,24 @@ interface Props {
  *  and not absurdly tall, which is the signature of a full-page screenshot tool
  *  resizing the viewport to the document height.
  *
- *  THE 800 IS MEASURED, not chosen. The four panels need 589 / 589 / 733 / 612
+ *  THE 850 IS MEASURED, not chosen. The four panels need 589 / 589 / 733 / 612
  *  CSS pixels; AdvoHub is the tall one because its worked example is a citation
- *  that fails closed and the Control row runs to three lines. At the inherited
- *  700px floor that panel overflowed its box by 53px and the bottom of the
- *  Control row was cut — which is exactly the failure the Vault component's own
- *  brief warns about: the sticky column must not overlap content or disappear
- *  before the supporting material has finished. A window between 700 and 799
- *  tall now gets the stacked list, where nothing is clipped. */
-const CAN_PIN = '(min-width: 1025px) and (min-height: 800px) and (max-height: 1600px)';
+ *  that fails closed and the Control row runs to three lines. The pinned box is
+ *  the screen minus the nav pill (74px), so 850 leaves 776 for a panel that
+ *  needs 733 — 43px of margin.
+ *
+ *  It was 700 when this landed, inherited from the pin it replaced. At that
+ *  floor AdvoHub overflowed by 53px and the bottom of its Control row was cut:
+ *  exactly the failure the Vault component's own brief warns about — the sticky
+ *  column must not overlap content or disappear before the supporting material
+ *  has finished.
+ *
+ *  THE COST IS REAL and worth stating: a 1280x800 or 1440x800 window is common,
+ *  and it now gets the stacked list rather than the pin. The alternative was to
+ *  shave ~25px of spacing out of the panel to squeeze under 800, which buys the
+ *  pin on those screens and leaves nothing for the day a Control row runs to
+ *  four lines. Clipping the evidence is the worse failure. */
+const CAN_PIN = '(min-width: 1025px) and (min-height: 850px) and (max-height: 1600px)';
 
 export function StickyContentComp({
   items = [],
