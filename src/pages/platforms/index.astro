@@ -8,6 +8,7 @@ import PlatformSubnav from '../../components/PlatformSubnav.astro';
 import PlatformLockup from '../../components/PlatformLockup.astro';
 import Reveal from '../../components/ui/Reveal.astro';
 import HeroField from '../../components/HeroField.astro';
+import PlatformDeck from '../../components/PlatformDeck.astro';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
 import { markIndic } from '../../content/indic';
@@ -116,83 +117,13 @@ const totals = {
         </p>
       </div>
 
-      {/* Bento, not a four-up. The first tile carries more weight because it
-          holds the live roster, and an even grid would flatten that back out.
-          Reading order is unchanged from the sub-nav and the table — the
-          bento rearranges emphasis, never sequence. */}
-      <div class="bento mt-12" data-tilt>
-        {
-          platforms.map((p, i) => (
-            <article
-              data-reveal
-              class={`pcard card hov p-elev p-fill p-tilt p-glow p-6 ${i === 0 ? 'lead p-beam' : ''}`}
-              data-rv={i % 2 ? 'right' : 'left'}
-              style={`--i: ${Math.min(i, 3)}; --beam-hue: ${p.hue}; --card-hue: ${p.hue}; border-top: 3px solid ${p.hue};`}
-            >
-                <div class="cardhead">
-                  <span class="p-dot" aria-hidden="true" />
-                  <PlatformLockup name={p.name} as="h3" />
-                  <p class="t-sm mt-1.5" style="color: var(--color-muted);">{p.subtitle}</p>
-                </div>
-
-                <ul class="bullets list-none m-0 p-0 flex flex-col gap-2">
-                  {p.bullets.map((b) => (
-                    <li class="t-sm flex gap-2.5">
-                      <Icon name="check" class="mt-1 shrink-0" size={14} />
-                      <span set:html={markIndic(b)} />
-                    </li>
-                  ))}
-                </ul>
-
-                {/* The lead tile's micro-demo: this platform's actual roster,
-                    with a scan running down it. Every name is server-rendered
-                    at full opacity — the scan steps colour, never presence, so
-                    §11's "hover reveals decoration, never content" is not bent
-                    and neither is "content may not start at opacity 0". CSS
-                    off, JS off or reduced motion all leave a plain readable
-                    list. Six of eleven; the count below says eleven. */}
-                {i === 0 && (
-                  <ul class="roster list-none m-0 p-0">
-                    {detail[p.slug].agents.slice(0, 6).map((a, r) => (
-                      <li class="p-roster-row roster-row t-sm" style={`--r: ${r};`}>
-                        <span class="roster-name">{a.name}</span>
-                        <span class="p-roster-seat roster-seat mono t-cap">{a.audience}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                {/* Grouped so the wide fourth tile can move the whole block to
-                    the right of the bullets instead of leaving ~1000px of the
-                    card empty. In the column layout `margin-top: auto` on this
-                    puts it at the bottom, which is what the old flex-1 spacer
-                    was for. */}
-                <div class="cardfoot">
-                  {/* §11 as amended: a count is content, so it exists at rest —
-                      muted mono stepping to ink. Never opacity 0. */}
-                  <p class="count mono t-cap m-0">{p.agentCount} AI agents</p>
-
-                  <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-                    {/* The card is the link; this is its visible label, so the
-                        anchor text is the product name, never "read more". */}
-                    <a href={`/platforms/${p.slug}/`} class="explore link-accent stretch">
-                      Explore {p.name}
-                      <Icon name="arrow-right" class="hov-affordance" size={14} />
-                    </a>
-                    <a
-                      href={p.site}
-                      target="_blank"
-                      rel="noopener"
-                      class="site t-sm no-underline inline-flex items-center gap-1 tx-fast"
-                      style="color: var(--color-muted);"
-                    >
-                      {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-                    </a>
-                  </div>
-                </div>
-            </article>
-          ))
-        }
+      {/* The four platforms as a draggable deck rather than a grid. Same four
+          cards, same copy, same links — stacked and swipeable instead of laid
+          out side by side. PlatformDeck carries the whole no-JS story: see the
+          note at the top of that file for why Swiper's class names are added
+          at runtime rather than shipped. */}
+      <div class="mt-12">
+        <PlatformDeck />
       </div>
     </div>
   </section>
