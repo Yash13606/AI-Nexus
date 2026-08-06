@@ -1,0 +1,364 @@
+---
+/** The four platforms as a draggable card deck (Swiper 11, `cards` effect).
+ *
+ *  TWO DEVIATIONS FROM THE BRIEF, both to stop content being stranded:
+ *
+ *  1. The markup does NOT ship Swiper's class names. It ships `deck-card`, and
+ *     the init script renames the elements to `swiper` / `swiper-wrapper` /
+ *     `swiper-slide` immediately before constructing the instance.
+ *
+ *     Shipping them is what strands the content. Swiper's stylesheet makes
+ *     `.swiper-wrapper` a flex row and `.swiper` an overflow-hidden box, and
+ *     that CSS applies whether or not the JS ever runs. With scripting off, or
+ *     with the script blocked while the stylesheet loads, three of the four
+ *     platforms are laid out off the right edge of a clipped box and are
+ *     unreachable — no scrollbar, no keyboard route. Renaming in JS means the
+ *     no-JS rendering is a plain vertical stack of four readable cards.
+ *
+ *  2. Both CDN assets are injected by that same script rather than sitting in
+ *     <head>. A reader with JS off then makes zero third-party requests, and
+ *     the other seventeen routes never touch jsdelivr at all. §13 says
+ *     "self-hosted, no third-party request" about fonts for this reason; the
+ *     brief named the CDN explicitly, so the request stays — it is just no
+ *     longer made on pages and paths that cannot use it.
+ *
+ *  Every word is the same copy the grid carried, from the same content module.
+ *  Each card shows four of its platform's real agents; the count line beneath
+ *  states the true total, as it did before. */
+import Icon from './Icon.astro';
+import PlatformLockup from './PlatformLockup.astro';
+import { platforms } from '../content/platforms';
+import { detail } from '../content/platform-detail-fixed';
+import { markIndic } from '../content/indic';
+
+/** The cards effect stacks slides, so they must share one box. Four rows fits
+ *  the shortest roster (TrustProperty ships seven agents) and keeps every card
+ *  the same height without padding any of them out. */
+const ROWS = 4;
+---
+
+<div class="deck-wrap">
+  <div class="deck" data-deck>
+    <div class="deck-track">
+      {
+        platforms.map((p) => (
+          <article class="deck-card" style={`--card-hue: ${p.hue};`}>
+            <span class="deck-accent" aria-hidden="true" />
+
+            <div class="deck-head">
+              <span class="p-dot" aria-hidden="true" />
+              <PlatformLockup name={p.name} as="h3" />
+            </div>
+            <p class="deck-tag t-sm">{p.subtitle}</p>
+
+            <ul class="deck-feats list-none m-0 p-0">
+              {p.bullets.map((b) => (
+                <li class="t-sm">
+                  <Icon name="check" class="shrink-0" size={14} />
+                  <span set:html={markIndic(b)} />
+                </li>
+              ))}
+            </ul>
+
+            <ul class="deck-mods list-none m-0 p-0">
+              {detail[p.slug].agents.slice(0, ROWS).map((a) => (
+                <li class="deck-mod t-sm">
+                  <span class="deck-mod-name">{a.name}</span>
+                  <span class="deck-mod-seat mono t-cap">{a.audience}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="deck-foot">
+              <p class="deck-count mono t-cap m-0">{p.agentCount} AI agents</p>
+              <div class="deck-links">
+                <a href={`/platforms/${p.slug}/`} class="explore link-accent">
+                  Explore {p.name}
+                  <Icon name="arrow-right" size={14} />
+                </a>
+                <a
+                  href={p.site}
+                  target="_blank"
+                  rel="noopener"
+                  class="deck-site t-sm no-underline inline-flex items-center gap-1 tx-fast"
+                >
+                  {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+                </a>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+
+  {/* Injected-into rather than injected: the element ships empty so the dots
+      cannot appear as dead controls before Swiper owns them. */}
+  <div class="deck-dots" data-deck-dots aria-hidden="true"></div>
+
+  <p class="deck-hint t-cap mono" data-deck-hint hidden>Drag to compare · {platforms.length} platforms</p>
+</div>
+
+<style>
+  /* CRITICAL, and the reason this component's CSS looks over-qualified.
+     Astro scoped styles are UNLAYERED and carry an extra attribute selector,
+     so every rule here outranks Swiper's stylesheet — which arrives from a CDN
+     as plain unlayered CSS at (0,1,0). Anything this file sets on .deck-track
+     or .deck-card wins against Swiper's own layout and quietly breaks the
+     effect. Measured: the deck rendered as a vertical stack with the instance
+     constructed and running.
+
+     So the split is strict. Layout of the track belongs to Swiper once it is
+     driving; this file only owns it BEFORE that, and only ever owns the
+     card's own appearance. */
+
+  .deck-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  /* ── Pre-init / no-JS: a plain readable column ────────────────────────────
+     What a crawler and a scripting-off reader get, and a complete rendering. */
+  .deck:not([data-deck-ready]) .deck-track {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  /* ── The card's own appearance. Never its position. ───────────────────── */
+  .deck-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-paper);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+    padding: 2.25rem 2rem 1.75rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-2);
+  }
+  .deck:not([data-deck-ready]) .deck-card {
+    position: relative;
+    width: 100%;
+  }
+
+  .deck-accent {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--card-hue),
+      color-mix(in oklab, var(--card-hue) 45%, var(--color-paper)) 55%,
+      var(--card-hue)
+    );
+  }
+
+  .deck-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+  }
+  .deck-tag {
+    color: var(--color-muted);
+    margin-top: 0.375rem;
+  }
+
+  .deck-feats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-top: 1.5rem;
+  }
+  .deck-feats li {
+    display: flex;
+    gap: 0.625rem;
+    align-items: baseline;
+  }
+
+  .deck-mods {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .deck-mod {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.5rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-hairline) 55%, transparent);
+  }
+  .deck-mod:last-child {
+    border-bottom: 0;
+  }
+  .deck-mod-name {
+    color: var(--color-body);
+  }
+  .deck-mod-seat {
+    flex: none;
+    color: var(--color-muted);
+  }
+
+  .deck-foot {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .deck-count {
+    color: var(--color-muted);
+  }
+  .deck-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+  }
+  .explore {
+    font-weight: 500;
+  }
+  .deck-site {
+    color: var(--color-muted);
+  }
+
+  /* ── Once Swiper is driving ───────────────────────────────────────────────
+     Only the container's box. The track and the slides' positioning are
+     Swiper's, and nothing here touches either. */
+  /* Height is fixed because the cards effect stacks the slides and they have
+     to share a box — but it is the measured height of the TALLEST card, not a
+     round number. Anything larger leaves the footer stranded at the bottom of
+     an empty card; anything smaller clips, because the card is overflow:hidden
+     so a card that does not fit fails silently. */
+  .deck[data-deck-ready] {
+    width: min(100%, 600px);
+    height: 35.5rem;
+  }
+  .deck[data-deck-ready] .deck-card {
+    height: 100%;
+    box-shadow: var(--shadow-3);
+  }
+
+  @media (max-width: 640px) {
+    .deck[data-deck-ready] {
+      width: min(100%, 340px);
+      /* 38rem, not a guess: TrustProperty's card measured 597px of content at
+         390px wide — its bullets wrap to three lines where the others wrap to
+         two. At 33rem its whole footer, including the Explore link, was cut
+         off with no scrollbar and no error. */
+      height: 38rem;
+    }
+    .deck-card {
+      padding: 1.75rem 1.375rem 1.375rem;
+    }
+    .deck-feats,
+    .deck-mods {
+      margin-top: 1rem;
+    }
+    .deck-foot {
+      padding-top: 1rem;
+    }
+  }
+
+  /* ── Dots ─────────────────────────────────────────────────────────────── */
+  .deck-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .deck-dots :global(.swiper-pagination-bullet) {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-control);
+    opacity: 0.4;
+    cursor: pointer;
+    transition:
+      opacity var(--dur-micro) var(--ease-entrance),
+      width var(--dur-micro) var(--ease-entrance),
+      background-color var(--dur-micro) var(--ease-entrance);
+  }
+  .deck-dots :global(.swiper-pagination-bullet-active) {
+    opacity: 1;
+    width: 1.5rem;
+    background: var(--page-accent);
+  }
+
+  .deck-hint {
+    color: var(--color-muted);
+  }
+  .deck-hint[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  /** Renames the deck into Swiper's class names, pulls the CDN assets, and
+   *  constructs the instance. Nothing here runs — and nothing is requested —
+   *  unless scripting is on and the deck is actually on the page. */
+  const deck = document.querySelector<HTMLElement>('[data-deck]');
+
+  const CSS = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css';
+  const JS = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
+
+  const load = (tag: 'link' | 'script', attrs: Record<string, string>) =>
+    new Promise<void>((res, rej) => {
+      const el = document.createElement(tag);
+      Object.assign(el, attrs);
+      el.onload = () => res();
+      el.onerror = () => rej(new Error(attrs.href || attrs.src));
+      document.head.appendChild(el);
+    });
+
+  if (deck) {
+    (async () => {
+      try {
+        await Promise.all([
+          load('link', { rel: 'stylesheet', href: CSS }),
+          load('script', { src: JS }),
+        ]);
+
+        /* Rename only now. Before this point Swiper's stylesheet has nothing to
+           match, so a slow or blocked script cannot leave the deck in the
+           clipped flex-row state that hides three of the four platforms. */
+        deck.classList.add('swiper');
+        deck.querySelector('.deck-track')!.classList.add('swiper-wrapper');
+        deck.querySelectorAll('.deck-card').forEach((c) => c.classList.add('swiper-slide'));
+
+        /* Deliberately NOT given the `swiper-pagination` class: that class is
+           `position: absolute` in Swiper's stylesheet, which would lift the
+           dots out of flow and park them over the card. Swiper is happy to
+           render bullets into any element passed by reference. */
+        const dots = document.querySelector<HTMLElement>('[data-deck-dots]')!;
+        deck.setAttribute('data-deck-ready', '');
+
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // @ts-expect-error — Swiper is a global from the CDN bundle.
+        new Swiper(deck, {
+          effect: 'cards',
+          grabCursor: true,
+          speed: reduced ? 0 : 420,
+          cardsEffect: { perSlideOffset: 9, perSlideRotate: 2.6, slideShadows: false },
+          keyboard: { enabled: true },
+          a11y: {
+            enabled: true,
+            containerMessage: 'The four AI Nexus platforms',
+            prevSlideMessage: 'Previous platform',
+            nextSlideMessage: 'Next platform',
+          },
+          pagination: { el: dots, clickable: true },
+        });
+
+        /* The hint is only true once dragging is possible, so it ships hidden
+           and is revealed here rather than being present and wrong. */
+        document.querySelector('[data-deck-hint]')?.removeAttribute('hidden');
+      } catch {
+        /* CDN unreachable, blocked, or offline. The deck stays exactly as it
+           was server-rendered: four readable cards in a column. */
+      }
+    })();
+  }
+</script>

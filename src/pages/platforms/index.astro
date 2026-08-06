@@ -8,7 +8,7 @@ import PlatformSubnav from '../../components/PlatformSubnav.astro';
 import PlatformLockup from '../../components/PlatformLockup.astro';
 import Reveal from '../../components/ui/Reveal.astro';
 import HeroField from '../../components/HeroField.astro';
-import PlatformCardStack from '../../components/PlatformCardStack';
+import PlatformDeck from '../../components/PlatformDeck.astro';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
 import { markIndic } from '../../content/indic';
@@ -117,26 +117,13 @@ const totals = {
         </p>
       </div>
 
-      {/* The four platforms as a scrollable card stack (smoothui, React
-          island). Only the fields that are rendered are passed, so the client
-          payload carries those rather than the whole content module. */}
-      <div class="mt-12 stack-wrap">
-        <PlatformCardStack
-          client:visible
-          platforms={platforms.map((p) => ({
-            slug: p.slug,
-            name: p.name,
-            subtitle: p.subtitle,
-            hue: p.hue,
-            agentCount: p.agentCount,
-            site: p.site,
-            bullets: p.bullets,
-            agents: detail[p.slug].agents.slice(0, 4).map((a) => ({
-              name: a.name,
-              audience: a.audience,
-            })),
-          }))}
-        />
+      {/* The four platforms as a draggable deck rather than a grid. Same four
+          cards, same copy, same links — stacked and swipeable instead of laid
+          out side by side. PlatformDeck carries the whole no-JS story: see the
+          note at the top of that file for why Swiper's class names are added
+          at runtime rather than shipped. */}
+      <div class="mt-12">
+        <PlatformDeck />
       </div>
     </div>
   </section>
