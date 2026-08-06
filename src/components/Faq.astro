@@ -14,8 +14,10 @@ const { items, openFirst = false } = Astro.props;
     items.map((f, i) => (
       <details open={openFirst && i === 0}>
         <summary>
-          {f.q}
-          <Icon name="chevron-down" class="chev" size={18} />
+          <span>{f.q}</span>
+          <span class="faq-toggle">
+            <Icon name="plus" class="chev" size={16} />
+          </span>
         </summary>
         {/* Indic runs carry their real lang so screen readers switch voice and
             :lang() routes them to the Devanagari cut. JSON-LD keeps the plain

@@ -13,12 +13,28 @@ import { contact, entities } from '../content/site';
   <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
     <div class="shell">
       <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Contact' }]} />
-      <h1 class="t-h1" style="max-width: 18ch;">Book a demo, or just ask us something</h1>
+      <p class="t-label mt-2" style="color: var(--color-accent);">Talk to us</p>
+      <h1 class="t-h1 mt-3" style="max-width: 18ch;">Book a demo, or just ask us something</h1>
       <div class="sweep-rule mt-7 h-px w-full max-w-[460px]" style="background: var(--color-accent);"></div>
       <p class="t-lede mt-7">
         A demo of any platform takes about 30 minutes and runs on your own facility type, board, practice
         area or city rather than a generic tour. There is no charge, and we reply within one business day.
       </p>
+
+      <ul class="expect mt-9 list-none m-0 p-0">
+        {
+          [
+            { k: '~30 min', v: 'A working demo, not a slide tour' },
+            { k: 'Your data', v: 'Run on your facility type or city' },
+            { k: '1 business day', v: 'We reply, every enquiry' },
+          ].map((e) => (
+            <li class="expect__item">
+              <span class="expect__k mono">{e.k}</span>
+              <span class="expect__v t-sm">{e.v}</span>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -109,34 +125,44 @@ import { contact, entities } from '../content/site';
       </div>
 
       {/* ── Details ── */}
-      <aside class="flex flex-col gap-9">
-        <div class="card p-6 flex flex-col gap-3">
+      <aside class="flex flex-col gap-6">
+        <div class="card p-6 flex flex-col gap-4">
           <h2 class="t-h4">Direct</h2>
-          <ul class="list-none m-0 p-0 flex flex-col gap-2">
-            <li>
+          <ul class="list-none m-0 p-0 flex flex-col gap-3.5">
+            <li class="flex items-start gap-3">
+              <span class="contact-ic" aria-hidden="true"><Icon name="mail" size={15} /></span>
               <a href={`mailto:${contact.email}`} class="t-sm mono no-underline hover:underline" style="color: var(--color-accent);">
                 {contact.email}
               </a>
             </li>
-            <li>
+            <li class="flex items-start gap-3">
+              <span class="contact-ic" aria-hidden="true"><Icon name="phone" size={15} /></span>
               <a href={contact.phoneHref} class="t-sm mono no-underline hover:underline" style="color: var(--color-accent);">
                 {contact.phone}
               </a>
             </li>
-            <li class="t-sm mono" style="color: var(--color-muted);">{contact.hours}</li>
+            <li class="flex items-start gap-3">
+              <span class="contact-ic" aria-hidden="true"><Icon name="map-pin" size={15} /></span>
+              <span class="t-sm">{contact.office}<br />India</span>
+            </li>
           </ul>
+          <p class="t-cap mono mt-1" style="color: var(--color-muted);">{contact.hours}</p>
+          <a
+            href={contact.linkedin}
+            target="_blank"
+            rel="noopener"
+            class="link-accent mt-1"
+          >
+            Connect on LinkedIn <Icon name="arrow-up-right" size={13} />
+          </a>
         </div>
 
-        <div class="flex flex-col gap-3">
-          <h2 class="t-h4">Office</h2>
-          <p class="t-sm">{contact.office}<br />India</p>
-        </div>
-
-        <div class="flex flex-col gap-4">
+        <div class="card p-6 flex flex-col gap-4">
           <h2 class="t-h4">Legal entities</h2>
           {
             entities.map((e) => (
               <div class="flex flex-col gap-1">
+                <p class="t-cap t-label" style="color: var(--color-muted);">{e.region}</p>
                 <p class="t-sm" style="color: var(--color-ink); font-weight: 500;">{e.name}</p>
                 <p class="t-cap mono" style="color: var(--color-muted);">{e.id} · {e.place}</p>
               </div>
@@ -144,9 +170,9 @@ import { contact, entities } from '../content/site';
           }
         </div>
 
-        <div class="flex flex-col gap-3">
+        <div class="card p-6 flex flex-col gap-4">
           <h2 class="t-h4">Product sites</h2>
-          <ul class="list-none m-0 p-0 flex flex-col gap-2.5">
+          <ul class="list-none m-0 p-0 flex flex-col gap-3">
             {
               platforms.map((p) => (
                 <li class="flex flex-col">
@@ -251,18 +277,82 @@ import { contact, entities } from '../content/site';
     border-radius: var(--radius-button);
     padding: 0.75rem 0.875rem;
     width: 100%;
+    transition:
+      border-color var(--dur-micro) var(--ease-entrance),
+      box-shadow var(--dur-micro) var(--ease-entrance),
+      background-color var(--dur-micro) var(--ease-entrance);
+  }
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--color-ink);
   }
   .field textarea {
     resize: vertical;
     min-height: 7rem;
   }
+  /* Focus lands an accent ring rather than only recolouring the border —
+     the same affordance as the global :focus-visible, tuned for a filled
+     control against Paper. */
   .field input:focus-visible,
   .field select:focus-visible,
   .field textarea:focus-visible {
+    outline: none;
     border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-wash);
+    background: var(--color-paper);
+  }
+  .field input[aria-invalid='true'],
+  .field textarea[aria-invalid='true'] {
+    border-color: var(--color-withheld);
   }
   .err {
     font-size: var(--text-caption);
     color: var(--color-withheld);
+  }
+
+  /* Hero "what to expect" row — three facts as bordered cells sharing a rail. */
+  .expect {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+    max-width: 640px;
+  }
+  @media (min-width: 560px) {
+    .expect {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .expect__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-card);
+    background: var(--color-paper);
+    border-top: 3px solid var(--color-accent);
+  }
+  .expect__k {
+    font-size: var(--text-body-sm);
+    font-weight: 500;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+  }
+  .expect__v {
+    color: var(--color-muted);
+  }
+
+  /* Icon badge in the Direct card — a soft accent tile, not a bare glyph. */
+  .contact-ic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-top: 0.05rem;
+    border-radius: var(--radius-button);
+    background: var(--color-accent-wash);
+    color: var(--color-accent);
   }
 </style>

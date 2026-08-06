@@ -383,16 +383,45 @@ const agentsPlanned = isPlanned('/ai-agents/');
     </div>
   </section>
 
-  {/* ══════════════ FAQ — native <details>, zero JS ══════════════ */}
+  {/* ══════════════ FAQ — native <details>, zero JS ══════════════
+      Two columns: a sticky rail carrying the heading and a direct-contact
+      card, and the accordion itself. The rail collapses above the accordion
+      on narrow viewports. Native <details> keeps every answer in the DOM and
+      keyboard-operable with no client script. */}
   <section class="section">
-    <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Frequently asked questions</h2>
-      <div class="faq mt-10">
+    <div class="shell grid gap-x-16 gap-y-10 lg:grid-cols-[5fr_7fr] lg:items-start">
+      <div class="faq-rail flex flex-col gap-5">
+        <p class="t-label" style="color: var(--color-accent);">Answers</p>
+        <h2 class="t-h2" style="max-width: 14ch;">Frequently asked questions</h2>
+        <p class="t-sm" style="color: var(--color-muted); max-width: 42ch;">
+          The things institutions ask us first — on data residency, the agents, pricing and how a
+          deployment actually runs.
+        </p>
+
+        <div class="card p-6 flex flex-col gap-3 mt-2">
+          <h3 class="t-h4">Still have a question?</h3>
+          <p class="t-sm" style="color: var(--color-body);">
+            Ask us directly — we reply within one business day.
+          </p>
+          <div class="flex flex-wrap gap-3 mt-1">
+            <a href="/contact/" class="btn btn-primary tx-fast">
+              Book a demo <Icon name="arrow-right" class="arrow" />
+            </a>
+            <a href={`mailto:${contact.email}`} class="btn btn-secondary tx-fast">
+              <Icon name="mail" size={15} /> Email us
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq">
         {faqs.map((f, i) => (
           <details open={i === 0}>
             <summary>
-              {f.q}
-              <Icon name="chevron-down" class="chev" size={18} />
+              <span>{f.q}</span>
+              <span class="faq-toggle">
+                <Icon name="plus" class="chev" size={16} />
+              </span>
             </summary>
             <p class="answer t-body">{f.a}</p>
           </details>
