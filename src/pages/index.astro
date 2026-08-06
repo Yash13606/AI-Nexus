@@ -2,7 +2,6 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
-import CardNav from '../components/react/CardNav';
 import ScrollExpand from '../components/react/ScrollExpand';
 import GradualBlur from '../components/react/GradualBlur';
 import MagicBento from '../components/react/MagicBento';
@@ -10,56 +9,18 @@ import { platforms } from '../content/platforms';
 import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
 import {
-  hero, standards, showcase, proof, disciplineBody, governance,
+  hero, standards, showcase, proof, governance,
   deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs, aboutBlock,
 } from '../content/home';
 import { entities, contact } from '../content/site';
 
 const agentsPlanned = isPlanned('/ai-agents/');
-
-/** CardNav's three panels. Tinted from the system rather than the
- *  component's stock #1B1722 / #2F293A darks. */
-const navCards = [
-  {
-    label: 'Platforms',
-    bgColor: '#f4f7fc',
-    textColor: '#0b1220',
-    links: [
-      { label: 'MedOrbit — hospitals', href: '/platforms/medorbit/', ariaLabel: 'MedOrbit for hospitals' },
-      { label: 'Edvation — schools', href: '/platforms/edvation/', ariaLabel: 'Edvation for schools' },
-      { label: 'AdvoHub — law practices', href: '/platforms/advohub/', ariaLabel: 'AdvoHub for law practices' },
-      { label: 'TrustProperty — property', href: '/platforms/trustproperty/', ariaLabel: 'TrustProperty for property' },
-    ],
-  },
-  {
-    label: 'Solutions',
-    bgColor: '#eaeeff',
-    textColor: '#0b1220',
-    links: [
-      { label: 'For hospitals', href: '/solutions/hospitals/', ariaLabel: 'Solutions for hospitals' },
-      { label: 'For schools', href: '/solutions/schools/', ariaLabel: 'Solutions for schools' },
-      { label: 'For law firms', href: '/solutions/law-firms/', ariaLabel: 'Solutions for law firms' },
-      { label: 'For property', href: '/solutions/property/', ariaLabel: 'Solutions for property' },
-    ],
-  },
-  {
-    label: 'Company',
-    bgColor: '#2b46d4',
-    textColor: '#ffffff',
-    links: [
-      { label: 'Security & data residency', href: '/security/', ariaLabel: 'Security and data residency' },
-      { label: 'About', href: '/about/', ariaLabel: 'About AI Nexus' },
-      { label: 'Contact', href: '/contact/', ariaLabel: 'Contact AI Nexus' },
-    ],
-  },
-];
 ---
 
 <Base
   title="AI Nexus Innovations Hub — AI Platforms for Health, Education, Law, Property"
   description={hero.lede}
   jsonldFaq
-  ownNav
 >
   {/* ══════════════ HERO ══════════════
       An inset card: white where the type sits, blue pooling at the bottom,
@@ -67,21 +28,6 @@ const navCards = [
       at final opacity in the HTML — the gradient is the only decoration and
       it is CSS, so there is no image to wait for and nothing to crop. */}
   <section class="relative" style="padding: clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.5rem) 0;">
-    {/* React Bits CardNav, floating over the gradient. Paper base, Nexus
-        Indigo CTA, panel tints from the system rather than its stock darks. */}
-    <CardNav
-      client:load
-      logo="/logo-wordmark.svg"
-      logoAlt="AI Nexus Innovations Hub"
-      items={navCards}
-      baseColor="#ffffff"
-      menuColor="#0b1220"
-      buttonBgColor="#2b46d4"
-      buttonTextColor="#ffffff"
-      ctaLabel="Book a demo"
-      ctaHref="/contact/"
-    />
-
     <div class="hero-card">
       <div class="hero-inner">
         <p class="t-label" style="color: var(--color-muted);">{hero.eyebrow}</p>
@@ -264,56 +210,6 @@ const navCards = [
           ))}
         </div>
       </div>
-    </div>
-  </section>
-
-  {/* ══════════════ FOUR PLATFORMS ══════════════ */}
-  <section class="section band">
-    <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Four platforms, one engineering discipline</h2>
-      <p class="t-lede mt-5">{disciplineBody}</p>
-
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {platforms.map((p) => (
-          <article class="card card-hover tx-fast p-6 flex flex-col gap-4" style={`border-top: 3px solid ${p.hue};`}>
-            <div>
-              <p class="t-h3" style="color: var(--color-ink);">{p.name}</p>
-              <p class="t-sm mt-1" style="color: var(--color-muted);">{p.subtitle}</p>
-            </div>
-
-            <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
-              {p.bullets.map((b) => (
-                <li class="t-sm flex gap-2.5">
-                  <Icon name="check" class="mt-1 shrink-0" size={14} />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* Hue sits on paper, not accent-wash: on the tinted fill MedOrbit
-                teal and Edvation ochre measured 4.34/4.35:1 — below AA. */}
-            <p
-              class="pill mono self-start"
-              style={`background: var(--color-paper); color: ${p.hue}; border: 1px solid ${p.hue}33;`}
-            >
-              {p.agentCount} AI agents
-            </p>
-
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-              <a href={`/platforms/${p.slug}/`} class="link-accent group/link">
-                Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
-              </a>
-              <a href={p.site} target="_blank" rel="noopener" class="t-sm no-underline inline-flex items-center gap-1 tx-fast" style="color: var(--color-muted);">
-                {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-              </a>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <a href="/platforms/" class="link-accent mt-10 group/link">
-        Compare all four platforms <Icon name="arrow-right" class="arrow" size={14} />
-      </a>
     </div>
   </section>
 

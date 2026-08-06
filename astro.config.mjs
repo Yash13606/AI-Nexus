@@ -9,4 +9,5 @@ export default defineConfig({
   build: { format: 'directory' },
   vite: { plugins: [tailwind()] },
   integrations: [react()],
+  devToolbar: { enabled: false },
 });

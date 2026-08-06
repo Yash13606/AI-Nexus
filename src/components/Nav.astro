@@ -1,6 +1,14 @@
 ---
+/** The one nav, every page including home. Plain sticky bar by default;
+ *  Platforms and Solutions — the two items with real children — reveal a
+ *  plain dropdown on hover/focus. No color-blocked cards, no GSAP: the
+ *  reveal is a CSS opacity/transform transition, same budget as everything
+ *  else in the motion system. */
 import Icon from './Icon.astro';
-import { nav, isPlanned } from '../content/site';
+import { nav, footerCols, isPlanned } from '../content/site';
+
+const platformLinks = footerCols.find((c) => c.title === 'Platforms')!.links;
+const solutionLinks = footerCols.find((c) => c.title === 'Solutions')!.links;
 ---
 
 <header
@@ -14,18 +22,44 @@ import { nav, isPlanned } from '../content/site';
     </a>
 
     <nav aria-label="Primary" class="hidden lg:flex items-center gap-7">
+      <div class="nav-dropdown">
+        <a href="/platforms/" class="t-sm no-underline tx-fast nav-link" style="color: var(--color-body);">
+          Platforms <Icon name="chevron-down" size={12} class="nav-chevron" />
+        </a>
+        <div class="nav-dropdown-panel">
+          {platformLinks.map((l) => (
+            <a href={l.href}>{l.label}</a>
+          ))}
+        </div>
+      </div>
+
+      <a href="/ai-agents/" class="t-sm no-underline tx-fast" style="color: var(--color-body);">AI agents</a>
+
+      <div class="nav-dropdown">
+        <span class="t-sm nav-link" style="color: var(--color-body);">
+          Solutions <Icon name="chevron-down" size={12} class="nav-chevron" />
+        </span>
+        <div class="nav-dropdown-panel">
+          {solutionLinks.map((l) => (
+            <a href={l.href}>{l.label}</a>
+          ))}
+        </div>
+      </div>
+
       {
-        nav.map((item) =>
-          isPlanned(item.href) ? (
-            <span class="t-sm" style="color: var(--color-muted);" title="Coming soon">
-              {item.label}
-            </span>
-          ) : (
-            <a href={item.href} class="t-sm no-underline tx-fast hover:text-[--color-ink]" style="color: var(--color-body);">
-              {item.label}
-            </a>
+        nav
+          .filter((item) => item.label !== 'Platforms' && item.label !== 'Solutions')
+          .map((item) =>
+            isPlanned(item.href) ? (
+              <span class="t-sm" style="color: var(--color-muted);" title="Coming soon">
+                {item.label}
+              </span>
+            ) : (
+              <a href={item.href} class="t-sm no-underline tx-fast hover:text-[--color-ink]" style="color: var(--color-body);">
+                {item.label}
+              </a>
+            )
           )
-        )
       }
     </nav>
 
@@ -53,22 +87,38 @@ import { nav, isPlanned } from '../content/site';
     style="border-top: 1px solid var(--color-hairline);"
   >
     <nav aria-label="Primary, mobile" class="flex flex-col pt-2">
+      <span class="t-cap mt-3 mb-1" style="color: var(--color-muted);">Platforms</span>
+      {platformLinks.map((l) => (
+        <a href={l.href} class="t-h4 py-2.5 no-underline" style="color: var(--color-ink); border-bottom: 1px solid var(--color-hairline);">
+          {l.label}
+        </a>
+      ))}
+
+      <span class="t-cap mt-4 mb-1" style="color: var(--color-muted);">Solutions</span>
+      {solutionLinks.map((l) => (
+        <a href={l.href} class="t-h4 py-2.5 no-underline" style="color: var(--color-ink); border-bottom: 1px solid var(--color-hairline);">
+          {l.label}
+        </a>
+      ))}
+
       {
-        nav.map((item) =>
-          isPlanned(item.href) ? (
-            <span class="t-h4 py-3" style="color: var(--color-muted); border-bottom: 1px solid var(--color-hairline);">
-              {item.label}
-            </span>
-          ) : (
-            <a
-              href={item.href}
-              class="t-h4 py-3 no-underline"
-              style="color: var(--color-ink); border-bottom: 1px solid var(--color-hairline);"
-            >
-              {item.label}
-            </a>
+        nav
+          .filter((item) => item.label !== 'Platforms' && item.label !== 'Solutions')
+          .map((item) =>
+            isPlanned(item.href) ? (
+              <span class="t-h4 py-3" style="color: var(--color-muted); border-bottom: 1px solid var(--color-hairline);">
+                {item.label}
+              </span>
+            ) : (
+              <a
+                href={item.href}
+                class="t-h4 py-3 no-underline"
+                style="color: var(--color-ink); border-bottom: 1px solid var(--color-hairline);"
+              >
+                {item.label}
+              </a>
+            )
           )
-        )
       }
       <a href="/login/" class="t-h4 py-3 no-underline" style="color: var(--color-ink); border-bottom: 1px solid var(--color-hairline);">Log in</a>
       <a href="/contact/" class="btn btn-primary mt-5 justify-center">Book a demo</a>
@@ -76,8 +126,73 @@ import { nav, isPlanned } from '../content/site';
   </div>
 </header>
 
+<style>
+  .nav-dropdown {
+    position: relative;
+  }
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: default;
+  }
+  .nav-chevron {
+    transition: transform var(--dur-state) var(--ease-out);
+    color: var(--color-control);
+  }
+  .nav-dropdown:hover .nav-chevron,
+  .nav-dropdown:focus-within .nav-chevron {
+    transform: rotate(180deg);
+  }
+
+  .nav-dropdown-panel {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    margin-top: 8px;
+    min-width: 210px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    background: var(--color-paper);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-sticky);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity var(--dur-feedback) var(--ease-out),
+      transform var(--dur-feedback) var(--ease-out);
+  }
+  .nav-dropdown:hover .nav-dropdown-panel,
+  .nav-dropdown:focus-within .nav-dropdown-panel {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+  .nav-dropdown-panel a {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: var(--text-body-sm);
+    color: var(--color-body);
+    text-decoration: none;
+    transition: background-color var(--dur-feedback) var(--ease-out), color var(--dur-feedback) var(--ease-out);
+  }
+  .nav-dropdown-panel a:hover,
+  .nav-dropdown-panel a:focus-visible {
+    background: var(--color-mist);
+    color: var(--color-ink);
+  }
+</style>
+
 <script>
-  // The only JavaScript on this page. Everything else is HTML and CSS.
+  // The only JavaScript in this component: mobile menu toggle + scroll shadow.
+  // The dropdown reveal above is pure CSS (:hover / :focus-within).
   const btn = document.getElementById('menu-btn');
   const menu = document.getElementById('mobile-menu');
   btn?.addEventListener('click', () => {
@@ -86,7 +201,6 @@ import { nav, isPlanned } from '../content/site';
     if (menu) menu.hidden = open;
   });
 
-  // Nav gets its shadow only once it has left the top — a real state change.
   const navEl = document.getElementById('site-nav');
   const onScroll = () => {
     if (!navEl) return;

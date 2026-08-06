@@ -1,4 +1,9 @@
 ---
+import '@fontsource-variable/ibm-plex-sans/wght.css';
+import '@fontsource/ibm-plex-sans-devanagari/devanagari-400.css';
+import '@fontsource/ibm-plex-sans-devanagari/devanagari-600.css';
+import '@fontsource/ibm-plex-mono/latin-400.css';
+import '@fontsource/ibm-plex-mono/latin-500.css';
 import '../styles/theme.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -10,11 +15,8 @@ interface Props {
   title: string;
   description: string;
   jsonldFaq?: boolean;
-  /** The home page supplies its own floating CardNav, so it opts out of the
-   *  standard sticky header. Every other route keeps Nav.astro. */
-  ownNav?: boolean;
 }
-const { title, description, jsonldFaq = false, ownNav = false } = Astro.props;
+const { title, description, jsonldFaq = false } = Astro.props;
 
 const org = {
   '@context': 'https://schema.org',
@@ -68,7 +70,7 @@ const faqLd = {
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
-    {!ownNav && <Nav />}
+    <Nav />
     <main id="main">
       <slot />
     </main>

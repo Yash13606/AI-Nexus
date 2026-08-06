@@ -12,6 +12,10 @@ export interface BentoCardProps {
   title?: string;
   description?: string;
   label?: string;
+  /** Decorative accent image for a large tile. Only cards 3 and 4 in
+   *  cardData (below) get the 2x2 grid treatment, so only they have
+   *  room for one — see the grid-position comment above cardData. */
+  image?: string;
   textAutoHide?: boolean;
   disableAnimations?: boolean;
 }
@@ -38,6 +42,12 @@ const MOBILE_BREAKPOINT = 768;
 
 const CARD_SURFACE = '#ffffff';
 
+/** Card 3 and card 4 get the 2x2 grid treatment (see .card-responsive
+ *  rules below) — that's a position, not a label. Whatever sits at
+ *  index 2 or 3 in this array is the one with room to breathe, so put
+ *  the two proof points with the most to say there. Reordering this
+ *  array without knowing that is exactly how Residency ended up in
+ *  a 2x2 box with one line of text in it. */
 const cardData: BentoCardProps[] = [
   {
     color: CARD_SURFACE,
@@ -47,22 +57,25 @@ const cardData: BentoCardProps[] = [
   },
   {
     color: CARD_SURFACE,
-    title: 'Four platforms',
-    description: 'One per regulated industry',
-    label: 'Products'
+    title: 'ap-south-1',
+    description: 'AWS Mumbai — your data never leaves India, under the DPDP Act 2023.',
+    label: 'Residency'
   },
   {
     color: CARD_SURFACE,
     title: 'Every answer shows its source',
     description:
       'Page citations in education, Indian Kanoon verification in law, chart-grounded outputs in health, explainable scores in property. Checkable by the person relying on it.',
-    label: 'Evidence'
+    label: 'Evidence',
+    image: '/proof/evidence.png'
   },
   {
     color: CARD_SURFACE,
-    title: 'ap-south-1',
-    description: 'AWS Mumbai — your data never leaves India, under the DPDP Act 2023.',
-    label: 'Residency'
+    title: 'Four platforms',
+    description:
+      'MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices, TrustProperty for property — one engineering discipline across four regulated industries.',
+    label: 'Products',
+    image: '/proof/products.png'
   },
   {
     color: CARD_SURFACE,
@@ -716,6 +729,18 @@ const MagicBento: React.FC<BentoProps> = ({
                   <div className="card__header flex justify-between gap-3 relative">
                     <span className="card__label text-xs">{card.label}</span>
                   </div>
+                  {card.image && (
+                    <div className="card__image relative flex-1 min-h-0 my-2 overflow-hidden rounded-[8px]">
+                      <img
+                        src={card.image}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={e => {
+                          (e.currentTarget.parentElement as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                   <div className="card__content flex flex-col relative">
                     <h3 className={`card__title font-medium text-base m-0 mb-1 ${textAutoHide ? 'text-clamp-1' : ''}`}>
                       {card.title}
