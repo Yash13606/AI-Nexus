@@ -14,7 +14,19 @@ import { nav, footerCols, isPlanned } from '../content/site';
 import { platforms } from '../content/platforms';
 
 const solutionLinks = footerCols.find((c) => c.title === 'Solutions')!.links;
-const flatLinks = nav.filter((item) => item.label !== 'Platforms' && item.label !== 'Solutions');
+/** The three links that are rendered from content, in content order.
+ *
+ *  Platforms and Solutions are excluded because they are written out by hand
+ *  above, with their panels. AI agents is excluded for the same reason and was
+ *  missing from this list — it is hard-coded between Platforms and Solutions to
+ *  hold that position, and then this map rendered it a second time. Both menus
+ *  listed it twice on all 19 routes.
+ *
+ *  Matched on href, not label: a label is copy and copy gets edited, at which
+ *  point a filter keyed to it silently stops matching and the duplicate comes
+ *  back. The href is the identity. */
+const handWritten = new Set(['/platforms/', '/ai-agents/', '/solutions/hospitals/']);
+const flatLinks = nav.filter((item) => !handWritten.has(item.href));
 ---
 
 <div class="nav-wrap" id="site-nav">
