@@ -664,6 +664,11 @@ WCAG 2.1 AA is a published compliance claim (§1.6). It ships or the claim is fa
 - Don't use more than two Ink blocks per page.
 - Don't let a platform hue touch a button, a background, or body text.
 
+**Hover may reveal decoration from `opacity: 0`** — `aria-hidden`, arrow or rule
+only. **Hover may not reveal content.** Content that appears on hover must exist
+at rest: change its colour (`--color-muted` → `--color-ink`), never its opacity
+from zero. A count or a sublabel is content. An arrow is not.
+
 ---
 
 ## 12. No dark mode
