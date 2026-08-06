@@ -181,124 +181,74 @@ const roleAngles = [45, -45, 135, 90];
   </section>
 
   {/* ══════════════ WHAT EACH PLATFORM DOES ══════════════
-      Sticky-scroll reveal: the worked-example proof (timeline + evidence)
-      stays pinned while the text scrolls through all four platforms, swapping
-      to match whichever one is centered. Below 1024px there's no room for a
-      pinned side panel, so each platform's evidence renders inline instead,
-      right after its own text — nothing drops on mobile, it just stops being
-      sticky. */}
+      One platform holds the screen while the next scrolls in behind it —
+      copy and worked example on the left, the platform's glass tile on the
+      right. Native `position: sticky` inside an N × 100vh track (the
+      Hyperiux sticky-content-wrapper structure); GSAP only scrubs the
+      crossfade. Content per platform is deliberately short: identity row,
+      headline, one sentence, the worked example. The features list, stat
+      grid and timeline rows that used to bloat this section live on each
+      platform's own page already.
+      No JS / reduced motion / narrow / short / printing: plain stacked
+      list, same content, no overlay — see platform-pin.js and the
+      [data-pinned] gate in theme.css. */}
   <section class="section">
     <div class="shell">
       <h2 class="t-h2" style="max-width: 20ch;">What each platform actually does</h2>
       <p class="t-lede mt-5">
-        Every platform below ships with a worked example: the input a real user gives, the output the
-        agent produces, and the guardrail that constrains it.
+        Every platform ships with a worked example: the input a real user gives, the output the agent
+        produces, and the guardrail that constrains it.
       </p>
-
-      <nav aria-label="Jump to a platform" class="mt-7 flex flex-wrap gap-2">
-        {platforms.map((p) => (
-          <a
-            href={`#${p.slug}`}
-            class="hov t-sm no-underline inline-flex items-center rounded-[999px] px-4 py-2"
-            style="border: 1px solid var(--color-hairline); color: var(--color-body);"
-          >
-            {p.name}
-          </a>
-        ))}
-      </nav>
     </div>
 
-    <div class="shell" style="margin-top: clamp(3rem, 6vw, 5rem);">
-      <div class="ssr">
-        <div class="ssr-list">
-          {platforms.map((p, idx) => (
-            <div id={p.slug} class="ssr-item" style="scroll-margin-top: 88px;" data-ssr-index={idx} data-reveal>
-              <div class="flex items-center gap-3">
-                <span class="mono t-cap shrink-0" style="color: var(--color-muted);" aria-hidden="true">
-                  {String(idx + 1).padStart(2, '0')}
-                </span>
-                <span class="shrink-0" style="height: 28px; display: flex; align-items: center;">
-                  <img
-                    src={`/platforms/${p.slug}.png`}
-                    alt=""
-                    style="height: 100%; width: auto; max-width: 120px; object-fit: contain;"
-                  />
-                </span>
-                <p class="t-label m-0" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
-              </div>
-              <h3 class="t-h2 mt-3">{p.headline}</h3>
-              <p class="t-lede mt-5">{p.body}</p>
-
-              <div class="mt-9 flex flex-col gap-7">
-                {p.features.map((f) => (
-                  <div class="flex flex-col gap-2">
-                    <h4 class="t-h4">{f.title}</h4>
-                    <p class="t-sm prose">{f.body}</p>
+    <div id="platform-pin" class="pp-track mt-10" style={`--pp-count: ${platforms.length};`}>
+      <div class="pp-sticky">
+        {platforms.map((p, idx) => (
+          <div class="pp-panel" data-pp-index={idx}>
+            <div class="shell w-full">
+              <div class="pp-panel-grid">
+                <div class="pp-copy">
+                  <div class="flex items-center gap-3">
+                    <span class="mono t-cap shrink-0" style="color: var(--color-muted);" aria-hidden="true">
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    <span class="shrink-0" style="height: 26px; display: flex; align-items: center;">
+                      <img
+                        src={`/platforms/${p.slug}.png`}
+                        alt=""
+                        style="height: 100%; width: auto; max-width: 110px; object-fit: contain;"
+                      />
+                    </span>
+                    <p class="t-label m-0" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
                   </div>
-                ))}
-              </div>
 
-              <dl class="mt-9 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5 m-0">
-                {p.stats.map((s) => (
-                  <div class="flex flex-col gap-1" style="border-top: 1px solid var(--color-hairline); padding-top: 0.75rem;">
-                    {/* A count and a region string are not the same kind of value.
-                        'ap-south-1' at h3 overflows a 2-col grid at 320px. */}
-                    <dd
-                      class="m-0 mono"
-                      style={`color: var(--color-ink); font-weight: 500; overflow-wrap: anywhere; ${
-                        s.figure.length > 4
-                          ? 'font-size: var(--text-h4); line-height: 1.3;'
-                          : 'font-size: var(--text-h3); line-height: 1.2; letter-spacing: -0.018em;'
-                      }`}
-                    >
-                      {s.figure}
-                    </dd>
-                    <dt class="t-cap" style="color: var(--color-muted);">{s.label}</dt>
+                  <h3 class="t-h2 mt-4">{p.headline}</h3>
+                  <p class="t-lede mt-4">{p.pinSummary}</p>
+
+                  <div class="mt-7">
+                    <EvidenceCard evidence={p.evidence} />
                   </div>
-                ))}
-              </dl>
 
-              <div class="mt-9 flex flex-wrap gap-3">
-                <a href={`/platforms/${p.slug}/`} class="btn btn-primary tx-fast">
-                  Explore {p.name} <Icon name="arrow-right" class="arrow" />
-                </a>
-                <a href={p.site} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
-                  Visit {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={14} />
-                </a>
-              </div>
-
-              {/* Rail is hidden below 1024px — this is the proof's only home there. */}
-              <div class="ssr-mobile-evidence">
-                <EvidenceCard evidence={p.evidence} />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div class="ssr-rail">
-          <div class="ssr-sticky">
-            {platforms.map((p, idx) => (
-              <div class="ssr-visual" data-ssr-panel={idx} {...(idx === 0 ? { 'data-active': '' } : {})}>
-                <div class="card p-6">
-                  <p class="t-cap m-0 mb-4" style="color: var(--color-muted);">{p.panel.title}</p>
-                  {p.panel.rows.map((r, i) => (
-                    <div
-                      class="flex gap-4 items-baseline py-3"
-                      style={`border-top: ${i > 0 ? '1px' : '0'} solid var(--color-hairline);`}
-                    >
-                      <span class="mono t-cap shrink-0" style="color: var(--color-muted); width: 62px;">{r.when}</span>
-                      <span class="t-sm flex-1" style="color: var(--color-ink);">{r.what}</span>
-                      <span class="t-cap text-right" style="color: var(--color-muted);">{r.outcome}</span>
-                    </div>
-                  ))}
-                  <p class="t-cap italic mt-4 m-0" style="color: var(--color-muted);">{p.panel.note}</p>
+                  <a href={`/platforms/${p.slug}/`} class="link-accent mt-6">
+                    Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
+                  </a>
                 </div>
 
-                <EvidenceCard evidence={p.evidence} />
+                <div class="pp-visual">
+                  {/* Not lazy: all four are ~10KB, and three of them are
+                      behind an opacity-0 panel where a lazy load can be
+                      deferred indefinitely and leave the slot empty. */}
+                  <img src={`/platforms/tile-${p.slug}.webp`} alt="" decoding="async" />
+                </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+        ))}
+
+        <p class="pp-progress mono t-cap" aria-hidden="true">
+          <span class="pp-progress-current">01</span>
+          <span>/ {String(platforms.length).padStart(2, '0')}</span>
+        </p>
       </div>
     </div>
   </section>
@@ -455,7 +405,7 @@ const roleAngles = [45, -45, 135, 90];
           </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-7">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-6">
           {roleFamilies.map((r, idx) => {
             const stat = r.meta.match(/^\d+/)?.[0] ?? '';
             const unit = r.meta.replace(/^\d+\s*/, '');
@@ -587,30 +537,11 @@ const roleAngles = [45, -45, 135, 90];
   import { initReveal } from '../scripts/reveal.js';
   import { initGlowCards } from '../scripts/glow-cards.js';
   import { initTabs } from '../scripts/tabs.js';
+  import { initPlatformPin } from '../scripts/platform-pin.js';
   initReveal();
   initGlowCards();
+  initPlatformPin();
 
   const deploymentTabs = document.getElementById('deployment-tabs');
   if (deploymentTabs) initTabs(deploymentTabs);
-
-  // Sticky-scroll reveal: swap the pinned worked-example panel to match
-  // whichever platform's text block is centered in the viewport.
-  const ssrItems = document.querySelectorAll('.ssr-item');
-  const ssrPanels = document.querySelectorAll('.ssr-visual');
-  if (ssrItems.length && ssrPanels.length) {
-    const setActive = (index) => {
-      ssrPanels.forEach((panel) => {
-        panel.toggleAttribute('data-active', Number(panel.dataset.ssrPanel) === index);
-      });
-    };
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActive(Number(entry.target.dataset.ssrIndex));
-        });
-      },
-      { rootMargin: '-45% 0px -45% 0px' }
-    );
-    ssrItems.forEach((el) => io.observe(el));
-  }
 </script>

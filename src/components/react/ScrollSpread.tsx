@@ -77,6 +77,13 @@ function SpreadCard({
               {platform.name} · {platform.sector}
             </p>
             <p className="ssc-front__headline">{platform.headline}</p>
+            {/* Fills the lower half — the card is 450px tall and the three
+                lines above left most of it empty. */}
+            <ul className="ssc-front__bullets">
+              {platform.bullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
+            </ul>
           </div>
 
           {/* .flip-card-back — revealed after flip */}
@@ -89,6 +96,7 @@ function SpreadCard({
             </p>
             <p className="ssc-back__count mono">{platform.agentCount}</p>
             <p className="ssc-back__label">AI agents</p>
+            <p className="ssc-back__subtitle">{platform.subtitle}</p>
             <a className="ssc-back__link" href={`/platforms/${platform.slug}/`}>
               Explore {platform.name} →
             </a>

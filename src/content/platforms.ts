@@ -36,6 +36,8 @@ export type Platform = {
   /** Alternating product row */
   headline: string;
   body: string;
+  /** One sentence, for the pinned scroll sequence on the homepage. */
+  pinSummary: string;
   features: { title: string; body: string }[];
   stats: Stat[];
   /** Dark timeline panel */
@@ -63,6 +65,7 @@ export const platforms: Platform[] = [
       'ABDM-native, NHCX cashless claims',
     ],
     headline: 'Run your hospital. Staff it with AI.',
+    pinSummary: '11 AI agents answer patient calls, follow up after discharge and draft notes, every action logged and approved by staff.',
     body: 'MedOrbit runs OPD, IPD, lab, pharmacy, billing and 100+ modules on one platform, with 11 AI agents that answer patient calls, follow up after discharge, draft clinical notes and fight claim denials. Every AI action is PHI-redacted, audit-logged and approved by your staff. The platform ships as 23 facility-type editions, each with its own preset modules, seeded role catalogue and regulatory checklist.',
     features: [
       {
@@ -121,6 +124,7 @@ export const platforms: Platform[] = [
       'Any board — you upload the syllabus',
     ],
     headline: 'AI that teaches from your textbook.',
+    pinSummary: "20 AI agents teach from the school's own uploaded textbooks, and every answer carries the page number it came from.",
     body: "Edvation is a complete school platform for Indian K-12 education — admissions, attendance, fees, timetable, assessments, report cards and parent communication — with 20 AI agents that teach from the school's own uploaded textbooks. Every AI answer carries the page number it came from, so a child, a parent or a teacher can open the printed book and check it. There is no bundled content library to outgrow: any board works, because you supply the syllabus.",
     features: [
       {
@@ -179,6 +183,7 @@ export const platforms: Platform[] = [
       'eCourts sync by CNR, GST billing in paise',
     ],
     headline: 'The AI copilot built for Indian lawyers.',
+    pinSummary: 'Ten AI agents each carry one job and their own guardrails, and every citation is verified against Indian Kanoon before it reaches an advocate.',
     body: 'AdvoHub syncs matters from eCourts by CNR, drafts in 22 Indian languages, and bills in paise-precise GST — with every AI citation verified against Indian Kanoon before it reaches an advocate. Twelve modules cover an Indian engagement from intake to invoice, and ten purpose-built agents each carry their own guardrails, their own audit trail and their own cost ceiling in rupees.',
     features: [
       {
@@ -239,6 +244,7 @@ export const platforms: Platform[] = [
       'Lawyer-verified title checks from ₹1,499',
     ],
     headline: 'Find your home. Just ask TrustLine.',
+    pinSummary: "TrustLine answers from a listing's own verified facts in text or voice, and books the site visit straight into the owner's calendar.",
     body: 'TrustProperty is an AI-native property platform for India where every listing answers you — in text or voice, in English, हिंदी or Hinglish, at any hour. Seven AI agents run the marketplace: a concierge that answers from the listing’s own verified facts and books the site visit, lead scoring that shows its reasoning, voice-dictated listing intake, and a pipeline watchdog for agents. Legal title verification sits alongside it, reviewed by a qualified lawyer rather than an automated scan.',
     features: [
       {
