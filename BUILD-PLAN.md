@@ -61,7 +61,7 @@ Going with **(a)** since that's the scope you set. Say the word and (b) is a sam
 
 `DESIGN.md` §13 said Next.js static export. **Changing it to Astro**, for one reason that matters more than familiarity:
 
-The site's defining rule (§1.1–§1.2) is that content exists in HTML and nothing animates from zero. Astro's default output for a page with no client directive is **literally 0 KB of JavaScript** — pure HTML and CSS. Next.js static export still hydrates React on every route, shipping ~90 KB gzipped to render text that never changes.
+A defining goal for this site is that content exists in HTML and nothing animates from zero. Astro's default output for a page with no client directive is **literally 0 KB of JavaScript** — pure HTML and CSS. Next.js static export still hydrates React on every route, shipping ~90 KB gzipped to render text that never changes.
 
 For a brand whose stated argument is *"a competitor's homepage reads to every crawler as 0% increase because its metrics are JS count-up scripts"* — shipping a React runtime to render static prose is the exact irony the design exists to avoid. Astro makes the design contract the default instead of a discipline.
 

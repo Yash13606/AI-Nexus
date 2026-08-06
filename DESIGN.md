@@ -19,25 +19,6 @@ Every section below is a decision, already made. Do not re-open them per page.
 
 ---
 
-## 1. The brand's non-negotiables
-
-These are not style preferences. They were extracted from the site's own copy and its original build comments, and they constrain the design more than any aesthetic choice.
-
-| # | Rule | Where it comes from |
-|---|---|---|
-| 1 | **Every number renders in HTML at its final value.** No count-up animation, ever. | Original build note: *"A competitor's homepage reads to every crawler and LLM as '0% increase' because its metrics are JS count-up scripts starting at zero."* |
-| 2 | **No content is hidden behind scroll-triggered reveal.** | Same principle. Content that starts at `opacity: 0` is content an AI crawler may never see. |
-| 3 | **Tables are real `<table>` with real `<th>`.** | Build note: *"header cells are what make a row self-describing once serialized for retrieval."* |
-| 4 | **Capability statements, never certification logos.** No badge wall. No trust-seal row. | Site copy: *"What certifications does AI Nexus hold? None yet, and we say so plainly."* |
-| 5 | **Every worked example is labelled illustrative.** | `/terms/`: *"They are not recordings of real patients, students, clients or transactions."* |
-| 6 | **WCAG 2.1 AA is a published compliance claim.** It is therefore a contract, not an aspiration. | AdvoHub compliance list. |
-| 7 | **Devanagari must render properly.** हिंदी, हिन्दी and 22 Indian languages appear in body copy. | Throughout. |
-| 8 | **The four platforms need four identities inside one system.** | Four sub-brands, one parent. |
-
-**Consequence:** this site is engineered for retrieval first and read by humans second — and both audiences want the same thing, which is why it works. Semantic HTML, no JS-dependent content, no decoration that carries meaning.
-
----
-
 ## 2. Direction
 
 ### The thesis
@@ -265,7 +246,7 @@ Four well-separated hues, each deep enough to hold white text *and* to sit on wh
 
 ## 7. Motion
 
-**Motion budget: near zero, by rule (§1.1, §1.2).**
+**Motion budget: near zero.**
 
 ### Permitted
 
@@ -397,7 +378,7 @@ Breadcrumbs sit above the eyebrow on every page except home, at `caption` in `--
 
 4-up on a Wash band, hairline dividers between. Figure in `--font-mono` `mono-lg` in `--color-ink`; label below at `caption` in `--color-muted`.
 
-**Server-rendered at final value. No animation.** (§1.1 — this is the single most important rule in the file.)
+**Server-rendered at final value. No animation.**
 
 Mobile: 2×2.
 
@@ -458,7 +439,7 @@ Eight controls. Appears three times (home, `/security/`, `/ai-agents/`) — iden
 
 4×2 desktop, 2×4 tablet, 1×8 mobile. Each cell: no card chrome, just a 2px left rule in `--color-accent`, 16px padding-left. `h4` heading → `body-sm` in `--color-body`.
 
-Borderless is deliberate: eight bordered cards would read as a badge wall, which is exactly what §1.4 forbids.
+Borderless is deliberate: eight bordered cards would read as a badge wall.
 
 ---
 
@@ -491,7 +472,7 @@ Emit `FAQPage` JSON-LD from the same source data.
 
 ### 8.14 Comparison Table
 
-**Real `<table>`, real `<th scope="col">`.** Non-negotiable (§1.3).
+**Real `<table>`, real `<th scope="col">`.**
 
 `<caption>` (visually hidden). Header row on Wash, `caption` size 600 in `--color-ink`. Cells `body-sm`, 16px/20px padding, 1px hairline between rows. Numeric columns right-aligned in `--font-mono`. Each row gets a 3px left rule in its platform hue. Zebra in `--color-mist`.
 
@@ -588,13 +569,13 @@ Never centered except inside §8.18.
 
 ## 10. Accessibility contract
 
-WCAG 2.1 AA is a published compliance claim (§1.6). It ships or the claim is false.
+WCAG 2.1 AA is a published compliance claim. It ships or the claim is false.
 
 - **Contrast** — every pair in §3 is measured. Muted `#5f6c85` is the floor; nothing lighter carries text.
 - **Focus** — `--ring-focus` on every interactive element. Never `outline: none` without a replacement.
 - **Landmarks** — one `<h1>` per page; `header`/`nav`/`main`/`footer`; skip-link first in tab order.
 - **Headings** — no level skipped. Agent card names are `<h3>` under a section `<h2>`.
-- **Tables** — `<th scope>` + `<caption>`. Serves both a11y and §1.3.
+- **Tables** — `<th scope>` + `<caption>`.
 - **Forms** — visible `<label>` on every field, `aria-describedby` for errors, never color alone.
 - **Images** — platform lockups carry the product name; watermark and decorative marks are `aria-hidden`.
 - **Language** — `<html lang="en">`, Devanagari runs wrapped in `<span lang="hi">`. This makes screen readers switch voice correctly, and it's why §4 pairs a real Devanagari cut.
@@ -649,7 +630,7 @@ The Ink surface (`#0b1220`) already provides tonal contrast where it earns its p
 
 | Decision | Choice | Why |
 |---|---|---|
-| Framework | **Next.js (App Router), `output: 'export'`** | 19 static pages, no backend. Static export gives real HTML per route — which §1 requires. |
+| Framework | **Next.js (App Router), `output: 'export'`** | 19 static pages, no backend. Static export gives real HTML per route. |
 | Styling | **Tailwind v4 `@theme`** | Tokens in §14 drop straight in. |
 | Components | **Plain React. No component library.** | These 22 are bespoke marketing components. shadcn/Radix solves app primitives this site doesn't have. The two places a library would be reached for — accordion and select — are better served natively (§8.13, §8.19). |
 | Animation | **None** | §7. |
