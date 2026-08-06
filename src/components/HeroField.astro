@@ -80,7 +80,16 @@ const { hues, tone = 'quad' } = Astro.props;
   .hf {
     position: absolute;
     inset: 0 0 auto 0;
-    height: min(100%, 40rem);
+    /* A FIXED height, not min(100%, 40rem). With the min, a hero shorter than
+       40rem shrank the canvas — and field.js scales from the canvas, so the
+       form came out smaller and higher on those pages. Measured: the top edge
+       drifted from a 8px spread to 19px once the heroes were tightened.
+
+       Fixed, the canvas is always 640px whatever the hero does, so u_fit and
+       the top anchor are both constant. The hero's `overflow: hidden` clips
+       whatever hangs below, and the form itself ends around 520px so nothing
+       of it is ever cut. */
+    height: 40rem;
     z-index: 0;
     pointer-events: none;
     overflow: hidden;

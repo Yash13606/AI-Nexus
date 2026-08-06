@@ -4,7 +4,7 @@ import Icon from '../../components/Icon.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import PlatformSubnav from '../../components/PlatformSubnav.astro';
-import EvidenceCard from '../../components/EvidenceCard.astro';
+import EvidenceSection from '../../components/EvidenceSection.astro';
 import AgentCard from '../../components/AgentCard.astro';
 import Faq from '../../components/Faq.astro';
 import RevealRoot from '../../components/ui/RevealRoot.astro';
@@ -86,7 +86,7 @@ const groups = grouped
       <Breadcrumbs trail={trail} />
 
       <p class="t-label rise" style={`--i: 0; color: ${hueVar};`}>{p.name} · {p.sector}</p>
-      <h1 class="t-h1 mt-3" style="max-width: 20ch;">
+      <h1 class="t-h1 mt-3">
         {
           p.pageH1.split(' ').map((w, i) => (
             <Fragment>
@@ -96,9 +96,9 @@ const groups = grouped
         }
       </h1>
 
-      <p class="t-lede rise mt-6" style="--i: 2;" set:html={markIndic(p.pageLede)} />
+      <p class="t-lede rise mt-5" style="--i: 2;" set:html={markIndic(p.pageLede)} />
 
-      <div class="rise mt-9 flex flex-wrap gap-3" style="--i: 3;">
+      <div class="rise mt-7 flex flex-wrap gap-3" style="--i: 3;">
         <a href="/contact/" class="btn btn-primary p-btn tx-fast" data-magnetic>
           Book a demo <Icon name="arrow-right" class="arrow" />
         </a>
@@ -145,11 +145,14 @@ const groups = grouped
 
       <CapabilitySection layout={p.capabilityLayout} modules={d.modules} name={p.name} />
 
-      <div class="mt-12 max-w-[560px]">
-        <EvidenceCard evidence={p.evidence} class="max-w-none" />
-      </div>
     </div>
   </section>
+
+  {/* The worked example, its own section now with an illustration beside it.
+      --page-accent is set here so the drawing takes this platform's hue. */}
+  <div style={`--page-accent: ${hueVar};`}>
+    <EvidenceSection evidence={p.evidence} name={p.name} />
+  </div>
 
   {/* ── The agents. The authored moment lives here: selecting a seat brings
         its agents to the front. Nothing is hidden — emphasis and order only,
@@ -334,8 +337,12 @@ const groups = grouped
     position: relative;
     overflow: hidden;
     isolation: isolate;
-    padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
-    min-height: clamp(30rem, 58vh, 40rem);
+    /* Tightened so the hero clears the viewport under the 68px nav and the
+       56px sub-nav. The 3D field is unaffected: it is anchored to the hero's
+       TOP at a fixed box, and u_fit scales from a constant reference rather
+       than from the hero — so the form keeps the size and position it had. */
+    padding-block: clamp(2rem, 4vw, 3.25rem) clamp(1.75rem, 3.5vw, 2.75rem);
+    min-height: 0;
     display: flex;
     align-items: center;
     /* A length, never 68ch — see the note in /platforms/index.astro. */
@@ -343,7 +350,6 @@ const groups = grouped
   }
   @media (max-width: 1099px) {
     .hero {
-      min-height: clamp(34rem, 74vh, 44rem);
       align-items: flex-start;
     }
   }
@@ -353,7 +359,11 @@ const groups = grouped
     z-index: 1;
     width: 100%;
   }
-  .hero-text :where(p, dl) {
+  /* The h1 shares the measure now. It was capped at 20ch, which at 52px is
+     ~520px — AdvoHub's 58-character headline wrapped to three lines there and
+     two at the full measure, and that third line is 55px the hero cannot
+     afford if it is to clear the viewport. */
+  .hero-text :where(h1, p, dl) {
     max-width: var(--hero-measure);
   }
 
@@ -370,7 +380,10 @@ const groups = grouped
      variants; it just no longer sets this. Not a copy change — every word is
      where it was. */
   .hero {
-    --hero-measure: 660px;
+    /* 720, up from 660. Wider measure means fewer lines, which is height the
+       hero does not have to spend — and it is the cheapest of the three ways
+       to shorten it, because it changes no copy and no type size. */
+    --hero-measure: 720px;
   }
 
   @keyframes rise {

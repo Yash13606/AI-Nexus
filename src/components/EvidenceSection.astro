@@ -1,0 +1,208 @@
+---
+/** The worked example, promoted from a 560px block at the foot of the
+ *  capability band to a section of its own, with an illustration beside it.
+ *
+ *  WHY THE ILLUSTRATION IS ABSTRACT rather than a picture of a hospital, a
+ *  classroom, a courtroom and a flat. The card underneath is the same shape on
+ *  all four pages — an input, an output, and the control that sat between them
+ *  — and that shape IS the product argument. Drawing the industry instead
+ *  would decorate the card; drawing the mechanism describes it. It also means
+ *  one illustration serves four pages honestly rather than four stock scenes
+ *  serving none of them.
+ *
+ *  It is `aria-hidden` and carries no text. Every word a reader needs is in
+ *  the card beside it, so with images off, CSS off or a screen reader the
+ *  section loses nothing.
+ *
+ *  Colour comes from --page-accent, which each platform page sets to its own
+ *  hue — so it matches the page without any of it being hard-coded here. */
+import EvidenceCard from './EvidenceCard.astro';
+import type { Evidence } from '../content/platforms';
+
+interface Props {
+  evidence: Evidence;
+  name: string;
+}
+const { evidence, name } = Astro.props;
+---
+
+<section class="section evi">
+  <div class="shell evi-grid">
+    <div class="evi-art" data-reveal data-rv="left" aria-hidden="true">
+      <svg viewBox="0 0 420 340" fill="none" role="presentation">
+        <!-- The system boundary. Everything the agent does happens inside it. -->
+        <rect
+          x="14" y="52" width="392" height="252" rx="20"
+          class="a-plate"
+        />
+
+        <!-- Incoming: a call arriving from outside the system. -->
+        <circle cx="62" cy="150" r="15" class="a-fill" />
+        <circle cx="62" cy="150" r="15" class="a-line" />
+        <path d="M62 143v9M62 156.5v.5" class="a-tick" />
+        <path d="M32 132c-7 11-7 25 0 36M18 122c-11 17-11 39 0 56" class="a-wave" />
+
+        <!-- Into the agent. -->
+        <path d="M84 150h44" class="a-flow" />
+        <circle cx="106" cy="150" r="2.5" class="a-dot" />
+
+        <!-- The agent itself. -->
+        <rect x="130" y="118" width="64" height="64" rx="16" class="a-node" />
+        <path d="M156 137l6 11 11 6-11 6-6 11-6-11-11-6 11-6z" class="a-spark" />
+
+        <!-- Down into the control gate. Nothing leaves without passing it. -->
+        <path d="M162 182v28" class="a-flow" />
+        <rect x="118" y="210" width="88" height="34" rx="10" class="a-gate" />
+        <path d="M143 227l7 7 14-14" class="a-check" />
+
+        <!-- And back up, then out. -->
+        <path d="M206 227h34v-77h48" class="a-flow" />
+        <circle cx="240" cy="188" r="2.5" class="a-dot" />
+
+        <!-- Outgoing: the answer, with its citation lines. -->
+        <rect x="288" y="106" width="94" height="88" rx="12" class="a-node" />
+        <path d="M304 130h62M304 148h62M304 166h38" class="a-rule" />
+
+        <!-- The audit trail underneath: every step written down. -->
+        <path d="M288 268h94M288 282h62" class="a-rule" />
+        <circle cx="276" cy="268" r="3" class="a-dot" />
+        <circle cx="276" cy="282" r="3" class="a-dot" />
+      </svg>
+    </div>
+
+    <div class="evi-card" data-reveal data-rv="right" style="--i: 1;">
+      <p class="t-label evi-eyebrow">How {name} shows its work</p>
+      <EvidenceCard evidence={evidence} class="max-w-none" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .evi-grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .evi-grid {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: 4rem;
+    }
+  }
+
+  .evi-art {
+    /* Below the card on narrow screens — the words come first there. */
+    order: 2;
+    max-width: 26rem;
+    margin-inline: auto;
+    width: 100%;
+  }
+  .evi-card {
+    order: 1;
+    min-width: 0;
+  }
+  @media (min-width: 1024px) {
+    .evi-art {
+      order: 0;
+      max-width: none;
+    }
+    .evi-card {
+      order: 0;
+    }
+  }
+  .evi-eyebrow {
+    color: var(--color-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .evi-art svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Flat: strokes and low-alpha fills, no gradients and no shading. Every
+     colour is derived from --page-accent, so the drawing is in the platform's
+     own hue on every page without a single value being repeated here. */
+  .a-plate {
+    fill: color-mix(in oklab, var(--page-accent) 4%, transparent);
+    stroke: color-mix(in oklab, var(--page-accent) 18%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-node {
+    fill: var(--color-paper);
+    stroke: color-mix(in oklab, var(--page-accent) 34%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-gate {
+    fill: color-mix(in oklab, var(--page-accent) 12%, var(--color-paper));
+    stroke: color-mix(in oklab, var(--page-accent) 40%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-fill {
+    fill: color-mix(in oklab, var(--page-accent) 14%, var(--color-paper));
+  }
+  .a-line {
+    fill: none;
+    stroke: color-mix(in oklab, var(--page-accent) 45%, transparent);
+    stroke-width: 1.5;
+  }
+  .a-flow {
+    stroke: color-mix(in oklab, var(--page-accent) 30%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .a-wave {
+    stroke: color-mix(in oklab, var(--page-accent) 26%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .a-tick {
+    stroke: color-mix(in oklab, var(--page-accent) 70%, var(--color-ink));
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .a-spark {
+    fill: var(--page-accent);
+  }
+  .a-check {
+    fill: none;
+    stroke: var(--page-accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .a-rule {
+    stroke: color-mix(in oklab, var(--page-accent) 22%, transparent);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .a-dot {
+    fill: var(--page-accent);
+  }
+
+  /* The two dots travel their own paths, so the drawing reads as a flow rather
+     than a diagram. Decoration only: the drawing is aria-hidden and says the
+     same thing standing still. */
+  @media (prefers-reduced-motion: no-preference) {
+    .a-dot {
+      animation: evi-pulse 3.2s var(--ease-entrance) infinite;
+    }
+    .a-dot:nth-of-type(2n) {
+      animation-delay: 0.8s;
+    }
+    .a-spark {
+      animation: evi-pulse 3.2s var(--ease-entrance) infinite 0.4s;
+    }
+  }
+  @keyframes evi-pulse {
+    0%,
+    70%,
+    100% {
+      opacity: 0.35;
+    }
+    35% {
+      opacity: 1;
+    }
+  }
+</style>
