@@ -1114,7 +1114,11 @@ a:hover > .arrow {
 /* ── Stage — the element GSAP pins (mirrors .cards in the zip) ── */
 .ssc-stage {
   position: relative;
-  width: 100vw;
+  /* 100% not 100vw: 100vw includes the scrollbar gutter, so on any desktop
+     with a visible scrollbar the stage ran ~15px wider than the content box
+     and put a horizontal scrollbar on the whole page. The stage already
+     fills a full-bleed section, so 100% is the same width without the bug. */
+  width: 100%;
   height: 100vh;
   overflow: hidden;
   /* Wash background matches the outer section */
@@ -1714,6 +1718,177 @@ html[data-reveal-ready] .hiw:not([data-ready]) .hiw-panel:not(:first-of-type) {
   }
   .hiw-panel {
     animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CLOSING CTA — copy left, a running platform right
+   The device is decorative chrome around real content: MedOrbit's agent
+   day, the same rows the platform section renders in prose. The whole
+   device is aria-hidden, so nothing here is content only a sighted user
+   can reach. ═══════════════════════════════════════════════════════ */
+.cta-live {
+  background: var(--color-wash);
+  overflow: hidden;
+}
+.cta-live__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(2.5rem, 6vw, 4rem);
+  align-items: center;
+}
+.cta-live__device {
+  display: flex;
+  justify-content: center;
+}
+
+/* ── The phone ── */
+.phone {
+  position: relative;
+  width: 300px;
+  max-width: 100%;
+  border-radius: 2.75rem;
+  padding: 10px;
+  background: var(--color-ink);
+  box-shadow: var(--shadow-3);
+}
+.phone__notch {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  z-index: 2;
+}
+.phone__bar {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 0.28);
+  z-index: 2;
+}
+.phone__screen {
+  border-radius: 2.15rem;
+  background: var(--color-paper);
+  padding: 2.75rem 1.15rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.phone__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.phone__logo {
+  height: 20px;
+  width: auto;
+  max-width: 108px;
+  object-fit: contain;
+}
+
+.phone__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.625rem;
+}
+.phone__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-card);
+  background: var(--color-mist);
+}
+.phone__stat-fig {
+  font-size: var(--text-h4);
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+.phone__stat-lab {
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: var(--color-muted);
+}
+
+.phone__title {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+}
+.phone__rows {
+  display: flex;
+  flex-direction: column;
+}
+.phone__row {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  gap: 0.15rem 0.5rem;
+  padding-block: 0.5rem;
+  border-top: 1px solid var(--color-hairline);
+}
+.phone__row:first-child {
+  border-top: 0;
+}
+.phone__when {
+  grid-row: span 2;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.phone__what {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.phone__out {
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: var(--color-muted);
+}
+.phone__note {
+  margin: 0.25rem 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+@media (min-width: 900px) {
+  .cta-live__grid {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(3rem, 7vw, 6rem);
+  }
+  .cta-live__device {
+    justify-content: flex-end;
+  }
+  /* Sits low in the band and rises slightly on hover — transform only. */
+  .phone {
+    transform: translateY(6%);
+    transition: transform var(--dur-section) var(--ease-entrance);
+  }
+  .cta-live:hover .phone {
+    transform: translateY(2%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone,
+  .cta-live:hover .phone {
+    transition: none;
+    transform: none;
   }
 }
 

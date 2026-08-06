@@ -46,7 +46,8 @@ import { contact, entities } from '../content/site';
       <div>
         <h2 class="t-h2">Send us a message</h2>
 
-        <form id="demo-form" novalidate class="mt-8 flex flex-col gap-5" aria-describedby="form-note">
+        <div class="form-card mt-8">
+        <form id="demo-form" novalidate class="flex flex-col gap-5" aria-describedby="form-note">
           <div class="grid gap-5 sm:grid-cols-2">
             <p class="field">
               <label for="name">Name</label>
@@ -91,8 +92,19 @@ import { contact, entities } from '../content/site';
             <span class="err" id="message-err" hidden></span>
           </p>
 
+          {/* Consent is a real gate, not decoration — it blocks submit and is
+              announced like any other field error. */}
+          <div class="consent">
+            <input id="consent" name="consent" type="checkbox" class="consent__box" />
+            <label for="consent" class="consent__label t-sm">
+              I agree that AI Nexus may use these details to reply to this enquiry, as described in the
+              <a href="/privacy/" style="color: var(--color-accent);">privacy policy</a>.
+            </label>
+            <span class="err consent__err" id="consent-err" hidden></span>
+          </div>
+
           <div class="flex flex-wrap items-center gap-4">
-            <button type="submit" class="btn btn-primary tx-fast">
+            <button type="submit" class="btn btn-primary tx-fast form-send">
               Send message <Icon name="arrow-right" class="arrow" />
             </button>
             <span id="form-status" role="status" aria-live="polite" class="t-cap" style="color: var(--color-muted);"></span>
@@ -104,6 +116,7 @@ import { contact, entities } from '../content/site';
             directly.
           </p>
         </form>
+        </div>
 
         <div id="demo-sent" hidden class="card p-6 flex flex-col gap-3 mt-8">
           <div class="flex items-center gap-2.5">
@@ -231,13 +244,34 @@ import { contact, entities } from '../content/site';
     document.getElementById(id)?.addEventListener('blur', () => check(id));
   }
 
+  /* Consent is a checkbox, so it reads .checked rather than .value and
+     cannot go through `rules`, which is typed for text. Same error
+     plumbing though: message, hidden toggle, aria-invalid. */
+  const consent = document.getElementById('consent') as HTMLInputElement | null;
+  const consentErr = document.getElementById('consent-err');
+  const checkConsent = () => {
+    if (!consent || !consentErr) return true;
+    const ok = consent.checked;
+    consentErr.textContent = ok ? '' : 'Please agree before sending, so we may reply.';
+    consentErr.hidden = ok;
+    consent.setAttribute('aria-invalid', ok ? 'false' : 'true');
+    if (ok) consent.removeAttribute('aria-describedby');
+    else consent.setAttribute('aria-describedby', 'consent-err');
+    return ok;
+  };
+  consent?.addEventListener('change', () => {
+    if (consent.checked) checkConsent();
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const results = Object.keys(rules).map(check);
-    if (results.includes(false)) {
+    const consentOk = checkConsent();
+    if (results.includes(false) || !consentOk) {
       const bad = Object.keys(rules).find((id) => !check(id));
       status.textContent = 'Check the highlighted fields.';
       if (bad) document.getElementById(bad)?.focus();
+      else if (!consentOk) consent?.focus();
       return;
     }
     status.textContent = '';
@@ -255,6 +289,18 @@ import { contact, entities } from '../content/site';
 </script>
 
 <style>
+  /* ── Form card ──
+     The form sits on its own surface rather than loose on the page. Wash
+     rather than a translucent fill: this page is Paper, so a see-through
+     card would have nothing to separate from. */
+  .form-card {
+    border: 1px solid var(--color-hairline);
+    border-radius: clamp(16px, 2vw, 24px);
+    background: var(--color-wash);
+    padding: clamp(1.25rem, 3.5vw, 2.25rem);
+    box-shadow: var(--shadow-1);
+  }
+
   .field {
     display: flex;
     flex-direction: column;
@@ -274,8 +320,10 @@ import { contact, entities } from '../content/site';
     color: var(--color-ink);
     background: var(--color-paper);
     border: 1px solid var(--color-control);
-    border-radius: var(--radius-button);
-    padding: 0.75rem 0.875rem;
+    /* Taller, softer controls than the 8px button radius — these are the
+       page's primary surface, so they get their own step on the ladder. */
+    border-radius: var(--radius-card);
+    padding: 0.8125rem 1rem;
     width: 100%;
     transition:
       border-color var(--dur-micro) var(--ease-entrance),
@@ -309,6 +357,44 @@ import { contact, entities } from '../content/site';
   .err {
     font-size: var(--text-caption);
     color: var(--color-withheld);
+  }
+
+  /* ── Consent row ── */
+  .consent {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 0.75rem;
+    align-items: start;
+  }
+  /* accent-color styles the native control — a real checkbox keeps the
+     keyboard, screen-reader and form semantics a div would throw away. */
+  .consent__box {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0.15rem 0 0;
+    accent-color: var(--color-accent);
+    flex: none;
+  }
+  .consent__label {
+    color: var(--color-body);
+  }
+  .consent__err {
+    grid-column: 2;
+  }
+  .consent__box[aria-invalid='true'] {
+    outline: 2px solid var(--color-withheld);
+    outline-offset: 2px;
+  }
+
+  /* Full-width on narrow screens, natural width once there is room. */
+  .form-send {
+    width: 100%;
+    justify-content: center;
+  }
+  @media (min-width: 480px) {
+    .form-send {
+      width: auto;
+    }
   }
 
   /* Hero "what to expect" row — three facts as bordered cells sharing a rail. */
