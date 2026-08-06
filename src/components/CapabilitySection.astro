@@ -190,8 +190,12 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     padding-block: 1.75rem;
     border-top: 1px solid var(--color-hairline);
   }
+  /* --color-control is 3.57:1 on paper and 3.32:1 on the Wash band this
+     section sits on — §3 marks it non-text for exactly that reason. These
+     numerals are decorative and aria-hidden, but they are still visible text,
+     and aria-hidden does not exempt anything from 1.4.3. Muted is the floor. */
   .alt-n {
-    color: var(--color-control);
+    color: var(--color-muted);
   }
   .alt-body {
     max-width: var(--prose-max-width);

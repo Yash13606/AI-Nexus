@@ -825,6 +825,52 @@ styles/theme.css          # §14 verbatim
 
 ---
 
+## 14b. Amendment log — platform section redesign
+
+Every change made to this file during the platform-section work, in one place,
+with what it replaced and why. Each was ruled on individually; this is the
+reconciliation so the file is actually a source of truth rather than a claim.
+
+| § | Was | Is | Why |
+|---|---|---|---|
+| **5** | Section gap 96 / 64 / 48px | `--section-y: clamp(3.5rem, 7.5vw, 7.5rem)` — 120px desktop, 56px floor | 96px read tight against the reference set; 160px would desync from the other 13 routes. Applied through one token so every route moves together. |
+| **5** | — | `--subnav-h: 56px` | The sub-nav sets its row height from it and the comparison table's sticky `<thead>` offsets by it. Two components computing the same number independently is a drift bug waiting to happen. |
+| **7** | "No scroll-triggered fade/slide reveals of any content" | Enter-once reveals permitted; **scroll-scrubbed** effects forbidden | §1.2 exists to stop content being unreachable, not to stop a page acknowledging arrival. The distinction is arrival vs. driving. The hidden state is scoped to a root attribute only an inline script sets, so JS-off and crawlers never see it. |
+| **8.14** | `<caption>` (visually hidden) | Caption present and accessible, **not necessarily visible** | A `<caption>` must be a child of `<table>`, so it cannot leave the scroll wrapper. A visible one scrolls sideways and clips — measured at 390px. |
+| **8.14** | "Zebra in `--color-mist`" | Zebra only over ~8 rows, and only where rows have no hover | Zebra in mist and row hover in mist cannot coexist, and hover carries information. |
+| **8.14** | — | Sticky `<thead>` and sticky first column are mutually exclusive | `overflow-x: auto` forces computed `overflow-y: auto`; a sticky header then pins to the wrapper, not the viewport. Split by viewport instead. |
+| **8.14** | Header row at `caption` size | Header row in the **eyebrow** role | A column label is what eyebrow is for; `caption` size read as shrunken body. |
+| **9** | Sticky jump-nav exception is `/ai-agents/` only | Exception also covers `/platforms/` | Five pages whose only lateral navigation is a strip at the foot of each. Build-time active state, no JS. |
+| **11** | — | Hover may reveal **decoration** from `opacity: 0`; never content | A count or sublabel is content and must exist at rest — colour steps muted → ink. An arrow is decoration. |
+
+### Fragilities recorded, not defended against
+
+Two places where the code is correct today and would break silently if edited
+without knowing why:
+
+1. **`Reveal.astro` depends on margin collapse.** It is a plain block box, so a
+   child's top margin collapses through it. `/platforms/` relies on that — its
+   lede is `mt-7` and is the first child. Giving `Reveal` `overflow`,
+   `display: flow-root`, padding or a border stops the collapse and makes 28px
+   appear on a page nobody was editing.
+
+2. **A scoped class passed to a child component is dead CSS.** Astro does not
+   add the parent's `data-astro-cid` to a child component's root element, so
+   `<Reveal class="bento-lead">` renders a div the parent's scoped rule cannot
+   match. This shipped: `grid-column` resolved to `auto` instead of `span 2`,
+   and two `display: flex` rules resolved to `block`. Put the behaviour
+   attribute on the styled element instead of wrapping it.
+
+### A verification method that produces false passes
+
+Checking which layout variant rendered by grepping the page for its class name
+matches the **inlined stylesheet**, which contains every variant's rules. It
+reported all four platform pages as `left-mock-right`. Verify variants from the
+rendered element (`<section class="hero section hero-…">`), never from a
+substring search over the whole document.
+
+---
+
 ## 15. Acceptance checklist
 
 Ship gate. All must pass.
