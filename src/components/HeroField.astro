@@ -1,0 +1,170 @@
+---
+/** The /platforms/ hero field: a static four-hue gradient, with a WebGL
+ *  particle structure drawn over it when the machine and the reader both want
+ *  one. Derived from the earlier CSS-only HeroField (commit 667770e) — its
+ *  placement contract, its double-gated reduced-motion handling and its
+ *  "resting state is the finished state" rule all carry forward unchanged.
+ *
+ *  PLACEMENT CONTRACT. Must be the first child of a hero that is
+ *  `position: relative` and `overflow: hidden`, with its own content in a
+ *  sibling that establishes a stacking context above this one. This element
+ *  positions itself; the hero only has to clip it.
+ *
+ *  THE STATIC LAYER IS NOT A FALLBACK. It renders on every path, always, and
+ *  the canvas fades in on top of it — so the four bail cases are not degraded
+ *  versions of a hero, they are the hero with one layer fewer. There is no path
+ *  where something is visibly missing. The four hues appear in both layers, in
+ *  the same arrangement, so the argument the field makes survives all four.
+ *
+ *  THE FOUR BAILS, all resolved before the module is fetched, except the last:
+ *    · prefers-reduced-motion: reduce   — the field is motion and nothing else
+ *    · hardwareConcurrency < 4          — measured, not sniffed. Undefined is
+ *                                         treated as capable; only an explicit
+ *                                         low count bails, so old Safari (which
+ *                                         does not report it) is not punished
+ *    · viewport <= 768px                — gated in the loader, so the module is
+ *                                         never even downloaded on a phone
+ *    · WebGL context/link failure       — the only one that cannot be predicted.
+ *                                         initField returns false and data-live
+ *                                         is never set, leaving the static layer
+ *                                         at full strength
+ *
+ *  aria-hidden, empty, pointer-events: none. It carries no content, so nothing
+ *  it does can hide anything from a crawler or a screen reader. */
+---
+
+<div class="hf" aria-hidden="true">
+  <span class="hf-static"></span>
+  <canvas class="hf-canvas" data-hero-field></canvas>
+</div>
+
+<script>
+  const el = document.querySelector<HTMLCanvasElement>('[data-hero-field]');
+  if (
+    el &&
+    matchMedia('(min-width: 769px)').matches &&
+    !matchMedia('(prefers-reduced-motion: reduce)').matches &&
+    (navigator.hardwareConcurrency ?? 8) >= 4
+  ) {
+    /* Dynamic, so the field is its own chunk and the three cheap gates above
+       decide whether it is ever requested. A phone, a throttled machine and a
+       reduced-motion reader all pay zero bytes for it. */
+    import('../scripts/motion/field.js')
+      .then((m) => {
+        if (m.initField(el)) el.parentElement?.setAttribute('data-live', '');
+      })
+      .catch(() => {});
+  }
+</script>
+
+<style>
+  .hf {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .hf-static,
+  .hf-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* The same object, unlit. A tall mist spindle at the axis the particle form
+     turns on, with four hue nodes on it at the heights the strands cross — so
+     the count is legible without the canvas, and the bail paths inherit the
+     argument rather than a smear. Percentages are token mixes rather than
+     rgba() so the hues stay single-sourced. */
+  .hf-static {
+    background:
+      radial-gradient(11% 21% at 69% 19%, color-mix(in oklab, var(--color-medorbit) 30%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 79% 40%, color-mix(in oklab, var(--color-edvation) 27%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 68% 63%, color-mix(in oklab, var(--color-advohub) 26%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 78% 84%, color-mix(in oklab, var(--color-trustproperty) 30%, transparent), transparent 72%),
+      radial-gradient(13% 44% at 73% 50%, var(--color-mist), transparent 74%),
+      radial-gradient(34% 78% at 74% 50%, var(--color-wash), transparent 76%);
+    transition: opacity var(--dur-section) var(--ease-entrance);
+  }
+
+  /* Once the canvas is genuinely drawing, the static layer steps back to being
+     a ground for it rather than the subject. */
+  .hf[data-live] .hf-static {
+    opacity: 0.42;
+  }
+
+  .hf-canvas {
+    opacity: 0;
+    transition: opacity var(--dur-section) var(--ease-entrance);
+  }
+  .hf[data-live] .hf-canvas {
+    opacity: 1;
+  }
+
+  /* The scrim is what carries text legibility, and it is a flat paper plate
+     under the reading column — not a soft veil that merely reduces the problem.
+     Text never sits on a partially transparent particle wash. */
+  .hf::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      96deg,
+      var(--color-paper) 0%,
+      var(--color-paper) 48%,
+      color-mix(in oklab, var(--color-paper) 55%, transparent) 64%,
+      transparent 84%
+    );
+  }
+
+  /* Between 769 and 1099 there is no empty right of the text, so the whole
+     field drops beneath it and the scrim turns vertical. Same object, different
+     room for it. */
+  @media (max-width: 1099px) {
+    .hf {
+      inset: auto 0 0 0;
+      height: 56%;
+    }
+    /* Turned on its side: the spindle lies down and the four nodes read left to
+       right. Same object, same count, rotated into the room it has. */
+    .hf-static {
+      background:
+        radial-gradient(13% 26% at 17% 56%, color-mix(in oklab, var(--color-medorbit) 32%, transparent), transparent 72%),
+        radial-gradient(13% 26% at 39% 47%, color-mix(in oklab, var(--color-edvation) 29%, transparent), transparent 72%),
+        radial-gradient(13% 26% at 61% 56%, color-mix(in oklab, var(--color-advohub) 28%, transparent), transparent 72%),
+        radial-gradient(13% 26% at 83% 47%, color-mix(in oklab, var(--color-trustproperty) 32%, transparent), transparent 72%),
+        radial-gradient(46% 15% at 50% 52%, var(--color-mist), transparent 74%),
+        radial-gradient(76% 46% at 50% 52%, var(--color-wash), transparent 78%);
+    }
+    .hf::after {
+      background: linear-gradient(
+        to bottom,
+        var(--color-paper) 0%,
+        color-mix(in oklab, var(--color-paper) 55%, transparent) 26%,
+        transparent 58%
+      );
+    }
+  }
+
+  /* Phones never load the module, so this is the whole hero field there. It is
+     designed as its own thing rather than as a leftover: a low four-hue sweep
+     under the buttons, which is the same statement the spindle makes. */
+  @media (max-width: 768px) {
+    .hf {
+      height: 44%;
+    }
+  }
+
+  /* Belt and braces, exactly as the CSS field did it: the loader already
+     refuses to start under reduce, and this would flatten it regardless. */
+  @media (prefers-reduced-motion: reduce) {
+    .hf-static,
+    .hf-canvas {
+      transition: none;
+    }
+  }
+</style>

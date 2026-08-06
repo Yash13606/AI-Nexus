@@ -7,6 +7,7 @@ import RevealRoot from '../../components/ui/RevealRoot.astro';
 import PlatformSubnav from '../../components/PlatformSubnav.astro';
 import PlatformLockup from '../../components/PlatformLockup.astro';
 import Reveal from '../../components/ui/Reveal.astro';
+import HeroField from '../../components/HeroField.astro';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
 import { markIndic } from '../../content/indic';
@@ -37,9 +38,16 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 
       Entrance is CSS @keyframes staggered from --i. Nothing imperative, and it
       self-completes: CSS runs without JavaScript, so a JS-off reader still sees
-      it finish, and a crawler reads finished text out of the HTML either way. */}
+      it finish, and a crawler reads finished text out of the HTML either way.
+
+      HeroField is decorative and self-positioning; this section only has to be
+      the relative, clipping box it asks for. Prose is capped at --hero-measure,
+      a LENGTH — 68ch resolves against each element's own font-size, so the same
+      declaration produced ~833px on .t-lede against ~728px elsewhere and the
+      two disagreed by 105px. Measured, not assumed. */}
   <section class="hero section">
-    <div class="shell">
+    <HeroField />
+    <div class="shell hero-inner">
       <Breadcrumbs trail={trail} />
 
       <p class="t-label rise" style="--i: 0; color: var(--color-muted);">
@@ -213,7 +221,42 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 <style>
   /* ── Hero ─────────────────────────────────────────────────────────────── */
   .hero {
+    position: relative;
+    /* Clips the field's bleed. `isolation` keeps the whole hero one stacking
+       context, so the field's z-index cannot reach past the section. The
+       sub-nav is a SIBLING, not a child, so `overflow: hidden` cannot break its
+       sticky — verified by scrolling and measuring, not by reading the tree. */
+    overflow: hidden;
+    isolation: isolate;
+    /* 660, not §4's 720: the scrim's opaque paper plate ends at 48% of the
+       viewport, and 660 is what keeps the longest lede line inside it. Measured
+       against the darkest frame of the field — every hero line reads on
+       rgb(253-255) at worst. */
+    --hero-measure: 660px;
     padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
+    /* Room for the field to be an object rather than a stripe. Below 1100px it
+       moves under the text, which needs more height still. */
+    min-height: clamp(30rem, 58vh, 40rem);
+    display: flex;
+    align-items: center;
+  }
+  @media (max-width: 1099px) {
+    .hero {
+      min-height: clamp(34rem, 74vh, 44rem);
+      align-items: flex-start;
+    }
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+  /* A length, never 68ch — see the note above the markup. Paragraphs only: the
+     h1 carries its own tighter headline measure inline and is well inside this
+     one, so both are capped, just not by the same rule. */
+  .hero-inner p {
+    max-width: var(--hero-measure);
   }
 
   /* Load entrance, 60ms per step. Self-completing: if it never runs, the page
