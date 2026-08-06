@@ -8,47 +8,22 @@ All five routes already existed and were complete. This is a revision, not a bui
 
 ## Commits
 
-| | Commit | Merges |
-|---|---|---|
-| 1 | `7ba1d19` — corrections overlay, Devanagari, JSON-LD, `/platforms/` | ✅ |
-| 2 | `90a1010` — detail template, proven on medorbit | ✅ |
-| 3 | `8c94a6f` — verify the remaining three, sweep solutions Devanagari | ✅ |
-| 4 | `e2fc600` — wrap the four remaining Devanagari runs on the home page | ✅ |
-| 5 | `94ee66c` — **pill border → `--color-hairline`** | ⛔ **HELD — needs Yash** |
+| | Commit |
+|---|---|
+| 1 | `7ba1d19` — corrections overlay, Devanagari, JSON-LD, `/platforms/` |
+| 2 | `90a1010` — detail template, proven on medorbit |
+| 3 | `8c94a6f` — verify the remaining three, sweep solutions Devanagari |
+| 4 | `e2fc600` — wrap the four remaining Devanagari runs on the home page |
 
-Commit 5 is deliberately last and self-contained so commits 1–4 can merge without waiting on a visual review. The Devanagari work in commit 4 touches `index.astro` too, and was split out for exactly this reason — an accessibility fix should not sit behind a visual sign-off.
+All four merge together. This is correctness work — corrupted content, a dead accessibility rule, missing structured data — and contains no visual decision.
 
----
+### Scope change: the pill fix has moved out of this PR
 
-## ⛔ Held for Yash — the pill border
+An earlier draft carried a fifth commit, the agent-count pill border (`${hue}33` → `--color-hairline`). **It is no longer here.** It is the only change in this section that alters how something looks, it needs a visual sign-off, and it should not hold up an accessibility fix. It now sits on its own held PR based on this branch:
 
-`border: 1px solid ${hue}33` emitted `border: 1px solid var(--color-medorbit)33`. CSS custom-property substitution does not merge adjacent tokens, so this resolved to `1px solid #0e7c7b 33` — **invalid at computed-value time**. `border-color` fell back to `currentColor`, which the same rule sets to the hue. So 104 pills have been rendering a **full-hue** border where the code asked for a 20% tint.
+> **`platform-section-pill` → `platform-section-revision`**, body in `PR-PILL.md`, written to stand alone.
 
-### Before / after — one pill per platform
-
-| Platform | Before (as rendered) | After |
-|---|---|---|
-| **MedOrbit** — `11 AI agents` | border `#0e7c7b` — full hue, **5.01:1** | border `#dde5f0` — **1.27:1** |
-| **Edvation** — `20 AI agents` | border `#b45309` — full hue, **5.02:1** | border `#dde5f0` — **1.27:1** |
-| **AdvoHub** — `10 AI agents` | border `#8e1f3f` — full hue, **8.69:1** | border `#dde5f0` — **1.27:1** |
-| **TrustProperty** — `7 AI agents` | border `#6d28d9` — full hue, **7.10:1** | border `#dde5f0` — **1.27:1** |
-
-Emitted declaration, MedOrbit:
-
-```diff
-- background: var(--color-paper); color: var(--color-medorbit); border: 1px solid var(--color-medorbit)33;
-+ background: var(--color-paper); color: var(--color-medorbit); border: 1px solid var(--color-hairline);
-```
-
-**Fill and text are unchanged on every pill.** Paper fill, hue text at 5.01–8.69:1 — all AA, all §3-measured. Only the 1px outline changes, from a clearly coloured ring to the system's standard hairline. **This is a visible change on 104 pills across 7 pages** and it is what needs signing off.
-
-### Why hairline rather than a 20% tint
-
-- **No spec asks for a hue border.** §8.7 says *"agent-count pill (platform hue on `--color-accent-wash`)"*; §8.10 says *"audience tag (999px pill, platform hue **text** on `--color-accent-wash`)"*; §6 slots 2 and 5 name the location without naming a property. The border was never specified — it appeared when the §6 retraction moved the fill from accent-wash to paper and the pill lost its only boundary.
-- **A 20% tint measures 1.31–1.43:1** on paper. At that ratio it decorates rather than identifies, so non-negotiable **8** applies — *platform colour identifies; it never decorates*. The hue stays where the specs put it: the text.
-- **`--color-hairline` is already measured in §3** and marked decorative, so no new colour pair enters the system. §8.15 is the precedent — compliance chips are *"`--color-mist` fill, 1px hairline"*.
-
-Pill counts verified unchanged: `/platforms/` 4 · medorbit 11 · edvation 20 · advohub 10 · trustproperty 7 · `/ai-agents/` 48 · `/` 4 = **104**. Zero `)33` occurrences remain.
+Nothing in this PR depends on it and it can merge before or after — verified by trial merge in both orders. The Devanagari work in commit 4 touches `index.astro` as well, and was deliberately split from the pill change in that same file for the same reason.
 
 ---
 
@@ -114,8 +89,7 @@ Each approved individually:
 - `src/pages/solutions/[slug].astro` — repoint to the corrections overlay, import line only.
 - `src/pages/solutions/[slug].astro` — `markIndic` on `p.body` (approved sweep).
 - `src/pages/solutions/[slug].astro` — `markIndic` on the role-card evidence output. **Scope call:** beyond "repoint plus `p.body`", but the identical one-line fix in a file already open, and leaving it meant handing over *"zero bare Devanagari except two"*. Trivially reversible.
-- `src/pages/index.astro` — `markIndic` on 4 runs (commit 4, merges independently).
-- `src/pages/index.astro` — pill border (commit 5, **held**).
+- `src/pages/index.astro` — `markIndic` on 4 runs (commit 4). The pill border in this same file is **not** in this PR; it moved to `platform-section-pill`.
 - `src/components/AgentCard.astro`, `EvidenceCard.astro`, `Faq.astro` — `markIndic`; shared components, so the fix reaches every page that renders those strings.
 - `src/layouts/Base.astro` — the two JSON-LD props.
 - `src/styles/theme.css` — the font-stack line.
