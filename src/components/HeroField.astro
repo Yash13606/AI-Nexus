@@ -31,11 +31,21 @@
  *
  *  aria-hidden, empty, pointer-events: none. It carries no content, so nothing
  *  it does can hide anything from a crawler or a screen reader. */
+interface Props {
+  /** Comma-separated custom-property names for the strand colours. One name
+   *  makes the four strands four tones of it — see strandHues in field.js.
+   *  Defaults to the four platform hues, which is what /platforms/ wants. */
+  hues?: string;
+  /** `quad` tints the static layer in all four hues; `single` uses the page
+   *  accent, so a platform page's fallback stays in its own colour. */
+  tone?: 'quad' | 'single';
+}
+const { hues, tone = 'quad' } = Astro.props;
 ---
 
-<div class="hf" aria-hidden="true">
+<div class={`hf hf-${tone}`} aria-hidden="true">
   <span class="hf-static"></span>
-  <canvas class="hf-canvas" data-hero-field></canvas>
+  <canvas class="hf-canvas" data-hero-field data-hues={hues}></canvas>
 </div>
 
 <script>
@@ -89,6 +99,30 @@
       radial-gradient(13% 44% at 73% 50%, var(--color-mist), transparent 74%),
       radial-gradient(34% 78% at 74% 50%, var(--color-wash), transparent 76%);
     transition: opacity var(--dur-section) var(--ease-entrance);
+  }
+
+  /* A single platform page has one hue, so its static layer is four steps of
+     that hue rather than four different ones. Same arrangement, same spindle,
+     same count — just in the page's own colour. */
+  .hf-single .hf-static {
+    background:
+      radial-gradient(11% 21% at 69% 19%, color-mix(in oklab, var(--page-accent) 30%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 79% 40%, color-mix(in oklab, var(--page-accent) 20%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 68% 63%, color-mix(in oklab, var(--page-accent) 26%, transparent), transparent 72%),
+      radial-gradient(11% 21% at 78% 84%, color-mix(in oklab, var(--page-accent) 16%, transparent), transparent 72%),
+      radial-gradient(13% 44% at 73% 50%, var(--color-mist), transparent 74%),
+      radial-gradient(34% 78% at 74% 50%, var(--color-wash), transparent 76%);
+  }
+  @media (max-width: 1099px) {
+    .hf-single .hf-static {
+      background:
+        radial-gradient(13% 26% at 17% 56%, color-mix(in oklab, var(--page-accent) 32%, transparent), transparent 72%),
+        radial-gradient(13% 26% at 39% 47%, color-mix(in oklab, var(--page-accent) 21%, transparent), transparent 72%),
+        radial-gradient(13% 26% at 61% 56%, color-mix(in oklab, var(--page-accent) 28%, transparent), transparent 72%),
+        radial-gradient(13% 26% at 83% 47%, color-mix(in oklab, var(--page-accent) 17%, transparent), transparent 72%),
+        radial-gradient(46% 15% at 50% 52%, var(--color-mist), transparent 74%),
+        radial-gradient(76% 46% at 50% 52%, var(--color-wash), transparent 78%);
+    }
   }
 
   /* Once the canvas is genuinely drawing, the static layer steps back to being

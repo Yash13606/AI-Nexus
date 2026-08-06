@@ -827,12 +827,25 @@
 
   /* The group you are currently inside. A ring rather than the pressed state,
      because pressed means "you chose this" and current means "you are here" —
-     they are different facts and can disagree. */
-  .reorder-btn[data-current] {
+     they are different facts and can disagree.
+
+     The :not() is load-bearing. Without it this rule's `color: var(--color-ink)`
+     is (0,2,0), exactly tying theme.css's
+     `.reorder-btn[aria-pressed='true'] { color: var(--color-paper) }`, and the
+     tie goes to source order — this file loads later. A button that was both
+     pressed and current rendered ink text on an ink plate and its label
+     disappeared completely. Measured at 1:1 contrast.
+
+     Scoping by state rather than raising specificity is the fix, for the same
+     reason as every other instance in §14b: the two rules stop competing for
+     the property instead of one of them winning louder. */
+  .reorder-btn[data-current]:not([aria-pressed='true']) {
     border-color: var(--page-accent);
     color: var(--color-ink);
     box-shadow: inset 0 -2px 0 0 var(--page-accent);
   }
+  /* Pressed and current at once: the plate is already ink, so "here" is a
+     light underline on it rather than any colour change. */
   .reorder-btn[aria-pressed='true'][data-current] {
     box-shadow: inset 0 -2px 0 0 var(--color-paper);
   }
@@ -852,5 +865,21 @@
 @media (prefers-reduced-motion: reduce) {
   .reorder-bar[data-spy] {
     backdrop-filter: none;
+  }
+}
+
+@layer components {
+  /* The CTA band read as a flat Wash rectangle — the one section on the page
+     with no surface of its own. It gets the same grainy bloom the platform
+     band has, mirrored so the two do not read as the same image twice, and
+     pulled back because this band is centred text and a bloom under the middle
+     of it is a contrast problem rather than an atmosphere. */
+  .p-cta::before {
+    inset: -45% -30% -45% 30%;
+    opacity: 0.75;
+  }
+  .p-cta > * {
+    position: relative;
+    z-index: 1;
   }
 }

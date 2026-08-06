@@ -8,11 +8,15 @@ import { contact } from '../content/site';
  *  load no extra script. */
 interface Props {
   magnetic?: boolean;
+  /** Opt-in grainy four-hue bloom behind the band. Off by default: this band
+   *  renders on nine routes and only /platforms/* is in §16's scope, so the
+   *  six that do not pass it emit byte-identical HTML. */
+  atmos?: boolean;
 }
-const { magnetic = false } = Astro.props;
+const { magnetic = false, atmos = false } = Astro.props;
 ---
 
-<section class="section" style="background: var(--color-wash);">
+<section class={`section${atmos ? ' p-bloom p-grain p-cta' : ''}`} style="background: var(--color-wash);">
   <div class="shell text-center flex flex-col items-center gap-5">
     <h2 class="t-h2">See a platform in action.</h2>
     <p class="t-lede" style="margin-inline: auto;">

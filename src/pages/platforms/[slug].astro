@@ -13,7 +13,7 @@ import CapabilitySection from '../../components/CapabilitySection.astro';
 import RolesSection from '../../components/RolesSection.astro';
 import StatsBand from '../../components/StatsBand.astro';
 import LockupMarquee from '../../components/LockupMarquee.astro';
-import HeroMock from '../../components/HeroMock.astro';
+import HeroField from '../../components/HeroField.astro';
 /* §16's vocabulary. Imported by the platform pages only — see the note on
    /platforms/index.astro. */
 import '../../styles/platform.css';
@@ -68,6 +68,11 @@ const groups = grouped
       Same architecture on all four — eyebrow → h1 → lede → CTA → stat strip.
       Only the arrangement moves, from `heroLayout` in content. */}
   <section class={`hero section hero-${p.heroLayout}`} style={`--page-accent: ${hueVar};`}>
+    {/* Same object as /platforms/, in this platform's own colour: `single`
+        makes the four strands four TONES of --page-accent rather than the four
+        platform hues, so the structure reads the same while §6's "colour
+        identifies" still holds on a page about one product. */}
+    <HeroField hues="--page-accent" tone="single" />
     <div class="shell hero-grid">
       <div class="hero-text">
       <Breadcrumbs trail={trail} />
@@ -125,12 +130,6 @@ const groups = grouped
       )}
       </div>
 
-      <div class="hero-mock rise" style="--i: 4;">
-        <HeroMock platform={p} shape={mockShape} />
-        <p class="t-cap mt-3 m-0" style="color: var(--color-muted);">
-          Illustrative — every step is a shipped capability.
-        </p>
-      </div>
     </div>
   </section>
 
@@ -296,7 +295,7 @@ const groups = grouped
     </div>
   </section>
 
-  <CtaBand magnetic={p.motion.magneticCta} />
+  <CtaBand magnetic={p.motion.magneticCta} atmos />
 </Base>
 
 <script>
@@ -337,21 +336,55 @@ const groups = grouped
 </script>
 
 <style>
-  /* ── Hero compositions ─────────────────────────────────────────────────
-     One architecture, four arrangements, chosen by `heroLayout` in content.
-     Every one of them keeps the text left-aligned: §8.5 says the hero is
-     "left-aligned, never centered" and §8.18 makes the CTA band the only
-     centred block in the system. `mock-below` centres the MOCK, not the copy. */
+  /* ── Hero ──────────────────────────────────────────────────────────────
+     The illustrative mock card that used to sit on the right is gone; the
+     hero now carries the same WebGL field /platforms/ does, tinted to this
+     page's own hue. `heroLayout` no longer positions a mock — it positions
+     the READING COLUMN against the field, so the four pages still differ and
+     the variation is still driven from content rather than from slug.
+
+     NOTE: p.panel — the four illustrative timeline rows — no longer renders
+     on these pages. It still renders on the home page, which is where that
+     data was first used. Raised rather than quietly dropped. */
   .hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
     padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
+    min-height: clamp(30rem, 58vh, 40rem);
+    display: flex;
+    align-items: center;
+    /* A length, never 68ch — see the note in /platforms/index.astro. */
+    --hero-measure: 660px;
   }
+  @media (max-width: 1099px) {
+    .hero {
+      min-height: clamp(34rem, 74vh, 44rem);
+      align-items: flex-start;
+    }
+  }
+
   .hero-grid {
-    display: grid;
-    gap: 3rem;
-    align-items: start;
+    position: relative;
+    z-index: 1;
+    width: 100%;
   }
-  .hero-mock {
-    min-width: 0;
+  .hero-text :where(p, dl) {
+    max-width: var(--hero-measure);
+  }
+
+  /* The four arrangements, now of the column rather than of a mock. Each page
+     keeps the measure it had: the two that were narrow stay narrow. */
+  @media (min-width: 1024px) {
+    .hero-left-narrow-refs-right {
+      --hero-measure: 560px;
+    }
+    .hero-split {
+      --hero-measure: 600px;
+    }
+    .hero-mock-below {
+      --hero-measure: 700px;
+    }
   }
 
   @keyframes rise {

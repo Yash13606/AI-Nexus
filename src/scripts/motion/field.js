@@ -56,11 +56,38 @@ const radiusAt = (t) => R0 * (0.16 + 0.84 * Math.pow(Math.sin(Math.PI * t), 0.75
 
 /** #rrggbb from a custom property, to 0..1 float triples. Falls back to the
  *  literal only if the token has gone missing, which would itself be a bug. */
-function hue(name, fallback) {
-  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+function hue(el, name, fallback) {
+  const raw = getComputedStyle(el).getPropertyValue(name).trim();
   const m = /^#?([0-9a-f]{6})$/i.exec(raw);
   const n = parseInt(m ? m[1] : fallback, 16);
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+}
+
+const DEFAULT_HUES = '--color-medorbit,--color-edvation,--color-advohub,--color-trustproperty';
+const FALLBACK = ['0e7c7b', 'b45309', '8e1f3f', '6d28d9'];
+
+/** Four strand colours, from `data-hues` on the canvas.
+ *
+ *  /platforms/ names all four platform tokens — four products, one spine, and
+ *  §16.5 argues why four hues at once is identification there rather than
+ *  decoration. A single platform page names one token instead, and the four
+ *  strands become four TONES of it: the structure still reads as four wound
+ *  strands, but the page stays in its own colour, which is what §6 requires
+ *  everywhere except the page whose subject is the set.
+ *
+ *  Tones vary in BOTH directions — negative toward ink, positive toward paper.
+ *  Blending only toward paper was the first attempt and it washed three of the
+ *  four strands out: at 0.5 a strand is half white and all but disappears on a
+ *  Paper hero. One darker, one at full strength and two lighter keeps four
+ *  distinguishable filaments while the page stays in one colour. */
+const TONES = [-0.26, 0, 0.2, 0.4];
+
+function strandHues(el) {
+  const names = (el.dataset.hues || DEFAULT_HUES).split(',').map((n) => n.trim()).filter(Boolean);
+  const base = names.map((n, i) => hue(el, n, FALLBACK[i] || FALLBACK[0]));
+  if (base.length >= STRANDS) return base.slice(0, STRANDS);
+  const c = base[0];
+  return TONES.map((t) => c.map((v) => (t >= 0 ? v + (1 - v) * t : v * (1 + t))));
 }
 
 const VERT = `
@@ -196,12 +223,7 @@ export function initField(canvas) {
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
   gl.useProgram(prog);
 
-  const hues = [
-    hue('--color-medorbit', '0e7c7b'),
-    hue('--color-edvation', 'b45309'),
-    hue('--color-advohub', '8e1f3f'),
-    hue('--color-trustproperty', '6d28d9'),
-  ];
+  const hues = strandHues(canvas);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, build(hues), gl.STATIC_DRAW);
