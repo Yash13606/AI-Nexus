@@ -11,6 +11,13 @@ import HeroField from '../../components/HeroField.astro';
 import { platforms } from '../../content/platforms';
 import { detail } from '../../content/platform-detail-fixed';
 import { markIndic } from '../../content/indic';
+/* §16's vocabulary — elevation, beam, roster scan, row hover, sort caret.
+   Imported by this page only for now ([slug].astro picks it up in unit 4), so
+   it cannot reach the other thirteen routes. Verified against the built CSS,
+   not the source: zero platform.css rules appear in the shared bundle, and its
+   only delta is 136 bytes of --lift/--shadow-1/--shadow-2, which Tailwind had
+   been tree-shaking out of @theme until something referenced them. */
+import '../../styles/platform.css';
 
 /** From the comparison table in ainexushub/platforms/index.md. MedOrbit and
  *  AdvoHub publish no language count there, so neither claims one here. */
@@ -22,6 +29,15 @@ const languages: Record<string, string> = {
 };
 
 const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
+
+/** Summed from the content, never typed. check:content asserts the same four
+ *  numbers, so a regenerated platform-detail.ts cannot leave the stats band
+ *  claiming something the pages no longer ship. */
+const totals = {
+  agents: platforms.reduce((n, p) => n + p.agentCount, 0),
+  roles: platforms.reduce((n, p) => n + detail[p.slug].roles.length, 0),
+  modules: platforms.reduce((n, p) => n + detail[p.slug].modules.length, 0),
+};
 ---
 
 <Base
@@ -88,20 +104,24 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
         </p>
       </Reveal>
 
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Bento, not a four-up. The first tile carries more weight because it
+          holds the live roster, and an even grid would flatten that back out.
+          Reading order is unchanged from the sub-nav and the table — the
+          bento rearranges emphasis, never sequence. */}
+      <div class="bento mt-12">
         {
           platforms.map((p, i) => (
             <article
               data-reveal
-              class="pcard card hov p-6 flex flex-col gap-4"
-              style={`--i: ${i}; border-top: 3px solid ${p.hue};`}
+              class={`pcard card hov p-elev p-6 ${i === 0 ? 'lead p-beam' : ''}`}
+              style={`--i: ${Math.min(i, 3)}; --beam-hue: ${p.hue}; border-top: 3px solid ${p.hue};`}
             >
-                <div>
+                <div class="cardhead">
                   <PlatformLockup name={p.name} as="h3" />
                   <p class="t-sm mt-1.5" style="color: var(--color-muted);">{p.subtitle}</p>
                 </div>
 
-                <ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
+                <ul class="bullets list-none m-0 p-0 flex flex-col gap-2">
                   {p.bullets.map((b) => (
                     <li class="t-sm flex gap-2.5">
                       <Icon name="check" class="mt-1 shrink-0" size={14} />
@@ -110,31 +130,85 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
                   ))}
                 </ul>
 
-                {/* §11 as amended: a count is content, so it exists at rest —
-                    muted mono stepping to ink. Never opacity 0. */}
-                <p class="count mono t-cap m-0">{p.agentCount} AI agents</p>
+                {/* The lead tile's micro-demo: this platform's actual roster,
+                    with a scan running down it. Every name is server-rendered
+                    at full opacity — the scan steps colour, never presence, so
+                    §11's "hover reveals decoration, never content" is not bent
+                    and neither is "content may not start at opacity 0". CSS
+                    off, JS off or reduced motion all leave a plain readable
+                    list. Six of eleven; the count below says eleven. */}
+                {i === 0 && (
+                  <ul class="roster list-none m-0 p-0">
+                    {detail[p.slug].agents.slice(0, 6).map((a, r) => (
+                      <li class="p-roster-row roster-row t-sm" style={`--r: ${r};`}>
+                        <span class="roster-name">{a.name}</span>
+                        <span class="p-roster-seat roster-seat mono t-cap">{a.audience}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-                <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-                  {/* The card is the link; this is its visible label, so the
-                      anchor text is the product name, never "read more". */}
-                  <a href={`/platforms/${p.slug}/`} class="explore link-accent stretch">
-                    Explore {p.name}
-                    <Icon name="arrow-right" class="hov-affordance" size={14} />
-                  </a>
-                  <a
-                    href={p.site}
-                    target="_blank"
-                    rel="noopener"
-                    class="site t-sm no-underline inline-flex items-center gap-1 tx-fast"
-                    style="color: var(--color-muted);"
-                  >
-                    {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
-                  </a>
+                {/* Grouped so the wide fourth tile can move the whole block to
+                    the right of the bullets instead of leaving ~1000px of the
+                    card empty. In the column layout `margin-top: auto` on this
+                    puts it at the bottom, which is what the old flex-1 spacer
+                    was for. */}
+                <div class="cardfoot">
+                  {/* §11 as amended: a count is content, so it exists at rest —
+                      muted mono stepping to ink. Never opacity 0. */}
+                  <p class="count mono t-cap m-0">{p.agentCount} AI agents</p>
+
+                  <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+                    {/* The card is the link; this is its visible label, so the
+                        anchor text is the product name, never "read more". */}
+                    <a href={`/platforms/${p.slug}/`} class="explore link-accent stretch">
+                      Explore {p.name}
+                      <Icon name="arrow-right" class="hov-affordance" size={14} />
+                    </a>
+                    <a
+                      href={p.site}
+                      target="_blank"
+                      rel="noopener"
+                      class="site t-sm no-underline inline-flex items-center gap-1 tx-fast"
+                      style="color: var(--color-muted);"
+                    >
+                      {p.site.replace('https://www.', '')} <Icon name="arrow-up-right" size={13} />
+                    </a>
+                  </div>
                 </div>
             </article>
           ))
         }
       </div>
+    </div>
+  </section>
+
+  {/* ══════════════ STATS ══════════════
+      Four totals, each derived from the content at build time rather than
+      typed — none of them can drift from what the pages actually ship, and
+      scripts/check-content.mjs asserts the same four numbers.
+
+      §1.1's count-up ban is lifted here on one condition, and the condition is
+      the point: the server renders the FINAL value as text. View-source shows
+      48. JS off, reduced motion, or a crawler and that text stands. The script
+      only animates a display value up to a number already in the HTML. */}
+  <section class="section stats">
+    <div class="shell">
+      <ul class="statgrid list-none m-0 p-0">
+        {
+          [
+            { n: totals.agents, label: 'named AI agents' },
+            { n: platforms.length, label: 'industry platforms' },
+            { n: totals.roles, label: 'documented roles' },
+            { n: totals.modules, label: 'product modules' },
+          ].map((s, i) => (
+            <li class="stat" data-reveal style={`--i: ${i};`}>
+              <span class="statnum mono" data-countup>{s.n}</span>
+              <span class="statlab t-sm">{s.label}</span>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -159,13 +233,17 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
           <caption>
             The four AI Nexus platforms compared by industry, AI agent count, role count and languages.
           </caption>
+          {/* data-sort marks a sortable column; data-num makes it sort
+              biggest-first on the first press. Both headers ship as plain
+              text — reorder.js upgrades them into buttons, so JS off leaves a
+              readable header rather than a control that does nothing. */}
           <thead>
             <tr>
-              <th scope="col">Platform</th>
+              <th scope="col" data-sort="name">Platform</th>
               <th scope="col">Industry</th>
-              <th scope="col" class="num">AI agents</th>
-              <th scope="col" class="num">Roles</th>
-              <th scope="col" class="num">Languages</th>
+              <th scope="col" class="num" data-sort="agents" data-num>AI agents</th>
+              <th scope="col" class="num" data-sort="roles" data-num>Roles</th>
+              <th scope="col" class="num" data-sort="languages" data-num>Languages</th>
               <th scope="col">Product site</th>
             </tr>
           </thead>
@@ -173,6 +251,7 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
             {
               platforms.map((p) => (
                 <tr
+                  class="p-row"
                   data-name={p.name}
                   data-agents={String(p.agentCount)}
                   data-roles={String(detail[p.slug].roles.length)}
@@ -207,15 +286,19 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
     </div>
   </section>
 
-  <CtaBand />
+  <CtaBand magnetic />
 </Base>
 
 <script>
   import { initTableSort } from '../../scripts/reorder.js';
   import { initReveal } from '../../scripts/reveal.js';
+  import { initCountUp } from '../../scripts/motion/countup.js';
+  import { initMagnetic } from '../../scripts/motion/magnetic.js';
   const root = document.getElementById('compare');
   if (root) initTableSort(root);
   initReveal();
+  initCountUp();
+  initMagnetic();
 </script>
 
 <style>
@@ -276,10 +359,164 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
     animation-delay: calc(var(--i, 0) * var(--reveal-stagger));
   }
 
+  /* ── Bento ────────────────────────────────────────────────────────────────
+     Three arrangements, one reading order.
+
+       <700    one column, plain stack.
+       700+    two columns; the lead and the LAST tile each span both, so the
+               four never leave an orphan sitting alone in a half row.
+       1024+   four columns. Lead takes two, the next two take one each, and
+               the fourth runs the full width beneath. Uneven spans are the
+               point — an even four-up would flatten the lead's extra weight
+               straight back out.
+
+     The lead deliberately does NOT span two rows, which was the first shape
+     tried. A grid row equalises to its tallest cell, and two stacked tiles
+     come to ~1280px against ~800px of lead content even with the roster in it
+     — MedOrbit has eleven agents, and listing every one still left ~480px of
+     dead space inside the tile. Measured at 1440. One row band, one wide cell
+     underneath, and every tile is close enough to its natural height that the
+     existing flex spacer absorbs the rest invisibly. */
+  .bento {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 700px) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .lead,
+    .pcard:last-child {
+      grid-column: span 2;
+    }
+  }
+  @media (min-width: 1024px) {
+    .bento {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .lead {
+      grid-column: span 2;
+    }
+    .pcard:last-child {
+      grid-column: span 4;
+    }
+  }
+
   /* ── Platform cards ───────────────────────────────────────────────────── */
   .pcard {
     position: relative;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .cardfoot {
+    /* Pins the block to the bottom of a stretched cell, so a tile that is
+       taller than its content keeps its links on the baseline of the row
+       rather than floating mid-card. */
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* The full-width tile turns horizontal. Vertically it would put its three
+     bullets in the left quarter and leave the rest of a 1440px card empty —
+     measured, and it looked like a rendering fault rather than a layout. */
+  @media (min-width: 1024px) {
+    .bento > .pcard:last-child {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 2.5rem;
+    }
+    .bento > .pcard:last-child .cardhead {
+      flex: 0 0 16rem;
+    }
+    .bento > .pcard:last-child .bullets {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem 2rem;
+      align-content: start;
+    }
+    /* Fixed, and narrow. Left to size itself the links sit on one line at
+       ~430px, which starves the bullet columns down to ~100px each and wraps
+       every one of them to three lines. Stacking the two links costs a row and
+       buys the bullets back ~200px. */
+    .bento > .pcard:last-child .cardfoot {
+      margin-top: 0;
+      flex: 0 0 14rem;
+      align-items: flex-start;
+    }
+    .bento > .pcard:last-child .cardfoot > div {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+
+  /* ── The lead tile's live roster ──────────────────────────────────────── */
+  .roster {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-hairline);
+    margin-top: 0.25rem;
+  }
+  .roster-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.5rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-hairline) 55%, transparent);
+  }
+  .roster-row:last-child {
+    border-bottom: 0;
+  }
+  .roster-name {
+    font-weight: 450;
+  }
+  .roster-seat {
+    flex: none;
+  }
+
+  /* ── Stats ────────────────────────────────────────────────────────────────
+     A ledger strip between two sections rather than a third full band — the
+     page already alternates Paper and Wash, and a third treatment here would
+     be a new colour rule rather than a new object. Hairlines top and bottom do
+     the separating instead. */
+  .stats {
+    padding-block: clamp(2rem, 4vw, 3rem);
+  }
+  .statgrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+    border-block: 1px solid var(--color-hairline);
+    padding-block: clamp(1.75rem, 3.5vw, 2.5rem);
+  }
+  @media (min-width: 800px) {
+    .statgrid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  /* Tabular figures so the count-up does not jitter its own column width as
+     the digit count changes. */
+  .statnum {
+    font-size: var(--text-mono-lg);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .statlab {
+    color: var(--color-muted);
   }
   /* The visible Explore label is the link, stretched over the whole card. No
      duplicate anchor, so the card contributes one link, not two, and the

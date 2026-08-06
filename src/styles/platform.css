@@ -1,0 +1,225 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   §16 — the Platform section's own vocabulary.
+
+   Imported ONLY by src/pages/platforms/*, so nothing here reaches the other
+   thirteen routes. That is the mechanism §16 relies on: the overrides are
+   scoped by import, not by a selector prefix that could be copied elsewhere by
+   accident.
+
+   Everything is inside `@layer components` so Tailwind utilities still win
+   over it, exactly as theme.css arranges. Where a rule must beat a theme.css
+   rule it does so on SPECIFICITY (`.card.p-elev` over `.card`), never on source
+   order — bundling decides source order and that is not something to bet on.
+   The last pass lost three hours to a media block that landed before the rule
+   it was meant to override.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── Elevation ────────────────────────────────────────────────────────────
+     §11 banned resting shadows and hover lift; §16 permits both here. This is
+     ADDITIVE to the .hov vocabulary, not a replacement — the surface step, the
+     accent border and the arrow affordance all still fire. A card that only
+     lifted would have thrown away three signals to gain one. */
+  .card.p-elev {
+    box-shadow: var(--shadow-1);
+    transition:
+      background-color var(--dur-micro) var(--ease-entrance),
+      border-color var(--dur-micro) var(--ease-entrance),
+      box-shadow var(--dur-micro) var(--ease-entrance),
+      translate var(--dur-micro) var(--ease-entrance);
+  }
+  /* The lift is `translate`, NOT `transform`, and that is not a style choice.
+     Every tile is also a [data-reveal], and the reveal's finished state is
+     `html[data-reveal-ready] [data-reveal][data-revealed] { transform: none }`
+     — specificity (0,3,1) against this rule's (0,3,0), so a transform-based
+     lift is silently cancelled the moment the card finishes revealing.
+     Measured: hover produced matrix(1,0,0,1,0,0.0004) instead of -4px.
+
+     `translate` is an independent property, so the two no longer contend and
+     neither rule has to be weakened to accommodate the other. */
+  .card.p-elev:hover,
+  .card.p-elev:focus-within {
+    box-shadow: var(--shadow-2);
+    translate: 0 calc(-1 * var(--lift));
+  }
+
+  /* ── Border beam ──────────────────────────────────────────────────────────
+     One tile only. On every tile it is wallpaper, and the whole point of the
+     bento is that one cell carries more weight than the others.
+
+     The ring is a conic gradient masked to the padding box: `mask-composite`
+     subtracts the content box, leaving a 1.5px band. Rotating it needs the
+     angle to be a real animatable type, which is what @property buys.
+
+     Where @property is unsupported the custom property is an unanimatable
+     token, so the gradient renders once at its initial angle: a static hue arc
+     on the top-left corner. That is a still frame of the intended thing, not a
+     missing thing. */
+  @property --p-beam-a {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  /* `isolation` is load-bearing, not decoration. The ring is a z-index:-1
+     child so the tile's own content paints over it without any of that content
+     needing to be positioned — and a negative z-index only lands above its
+     stacking context's background, so without an explicit context here the
+     card's Paper background would swallow the ring entirely.
+
+     The alternative — positioning every child instead — silently breaks the
+     stretched card link: `.stretch::after` resolves against its nearest
+     positioned ancestor, so promoting the tile's inner divs would shrink a
+     whole-card click target down to one row of it. */
+  .p-beam {
+    position: relative;
+    isolation: isolate;
+  }
+  .p-beam::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--p-beam-a),
+      transparent 0deg 232deg,
+      color-mix(in oklab, var(--beam-hue, var(--page-accent)) 70%, transparent) 300deg,
+      var(--beam-hue, var(--page-accent)) 330deg,
+      transparent 358deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: p-beam 7s linear infinite;
+  }
+
+  /* ── Magnetic CTA ─────────────────────────────────────────────────────────
+     magnetic.js writes --mx/--my; this is the only thing that reads them. The
+     transition is what makes it a spring rather than a leash: the button
+     trails the pointer and takes 320ms to come home on pointerleave. Capped at
+     6px in the script, so it stays a button.
+
+     Lives here rather than in the page, because CtaBand is a separate
+     component and an Astro scoped style would not reach it. */
+  [data-magnetic] {
+    transform: translate3d(var(--mx, 0px), var(--my, 0px), 0);
+    transition: transform 320ms var(--ease-entrance);
+  }
+
+  /* ── The live roster ──────────────────────────────────────────────────────
+     A scan runs down the hero tile's real agent roster, stepping each row from
+     muted to ink as it passes.
+
+     §11 is not bent here: every name is server-rendered at full opacity and
+     stays legible with CSS or JS off. The scan changes COLOUR, never presence
+     — nothing on this panel starts hidden and nothing is revealed by it. That
+     is the same rule the agent-count already follows ("muted mono stepping to
+     ink. Never opacity 0"). */
+  .p-roster-row {
+    color: var(--color-muted);
+    animation: p-scan 6s var(--ease-entrance) infinite;
+    animation-delay: calc(var(--r) * 400ms);
+  }
+  .p-roster-row .p-roster-seat {
+    color: var(--color-control);
+  }
+
+  /* ── Table rows ───────────────────────────────────────────────────────────
+     A <tr> is not a reliable box-shadow host, so the shadow is painted by the
+     cells. Both offsets in --shadow-2 are purely vertical, so adjacent cells
+     produce one continuous band rather than a seam per column — verified by
+     screenshot at 1440, not assumed. */
+  .p-row th,
+  .p-row td {
+    transition:
+      background-color var(--dur-micro) var(--ease-entrance),
+      box-shadow var(--dur-micro) var(--ease-entrance);
+  }
+  tr.p-row:hover th,
+  tr.p-row:hover td,
+  tr.p-row:focus-within th,
+  tr.p-row:focus-within td {
+    box-shadow: var(--shadow-2);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Sort caret ───────────────────────────────────────────────────────────
+     Rotates rather than swapping glyphs, so ascending and descending are the
+     same object at two angles. Dim until its column is the sorted one. */
+  .p-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .p-caret {
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.28;
+    transition:
+      transform var(--dur-micro) var(--ease-entrance),
+      opacity var(--dur-micro) var(--ease-entrance);
+  }
+  .p-sort:hover .p-caret {
+    opacity: 0.6;
+  }
+  [aria-sort='ascending'] .p-caret {
+    opacity: 1;
+    transform: rotate(180deg);
+  }
+  [aria-sort='descending'] .p-caret {
+    opacity: 1;
+  }
+}
+
+@keyframes p-beam {
+  to {
+    --p-beam-a: 360deg;
+  }
+}
+
+/* Muted for most of the cycle, ink for the sixth of it the scan is on the row.
+   Resting state (no animation) is the muted end, which is the readable one. */
+@keyframes p-scan {
+  0%,
+  8%,
+  100% {
+    color: var(--color-muted);
+  }
+  2%,
+  5% {
+    color: var(--color-ink);
+  }
+}
+
+/* Unlayered, matching theme.css's kill switch: the section's two loops and the
+   hover lift all stop. The resting frame of each is already the correct one. */
+@media (prefers-reduced-motion: reduce) {
+  .p-beam::before,
+  .p-roster-row {
+    animation: none !important;
+  }
+  .card.p-elev:hover,
+  .card.p-elev:focus-within {
+    translate: none !important;
+  }
+}

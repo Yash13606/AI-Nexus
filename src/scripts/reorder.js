@@ -66,40 +66,77 @@ function controls(host, options, onPick, label) {
 
 /* ── /platforms/ — the comparison table re-ranks ──────────────────────────
    The page's job is comparison, so the authored moment is the comparison
-   changing its mind. Every row stays in the DOM the whole time. */
+   changing its mind. Every row stays in the DOM the whole time.
+
+   The controls moved from an injected button bar onto the column headers,
+   which is where a reader looks for them and where `aria-sort` can say which
+   column is sorted and which way. The bar's one real virtue is kept: the
+   header ships as plain text and is UPGRADED into a button here, so JS off
+   leaves a readable header rather than a control that does nothing.
+
+   Not done: scrambling the numerals on re-sort. Four rows and a 460ms FLIP
+   already read as a re-rank; adding a digit scramble on top would be motion
+   competing with the thing it is supposed to be clarifying, and the numerals
+   are the one part of this table a reader is checking. */
 export function initTableSort(root) {
   const table = root.querySelector('table[data-sortable]');
   if (!table) return;
   const tbody = table.tBodies[0];
-  if (!tbody) return;
+  const head = table.tHead && table.tHead.rows[0];
+  if (!tbody || !head) return;
 
-  const keys = [
-    { label: 'Platform', key: 'name', dir: 1 },
-    { label: 'AI agents', key: 'agents', dir: -1 },
-    { label: 'Roles', key: 'roles', dir: -1 },
-    { label: 'Languages', key: 'languages', dir: -1 },
-  ];
+  const heads = [...head.cells].filter((th) => th.dataset.sort);
+  if (!heads.length) return;
 
-  const apply = (opt) => {
+  const value = (row, key) => row.dataset[key] ?? '';
+  const compare = (a, b, key) => {
+    const av = value(a, key);
+    const bv = value(b, key);
+    const an = Number(av);
+    const bn = Number(bv);
+    if (av !== '' && bv !== '' && !Number.isNaN(an) && !Number.isNaN(bn)) return an - bn;
+    return av.localeCompare(bv);
+  };
+
+  let active = null;
+
+  const apply = (th, dir) => {
+    const key = th.dataset.sort;
     const rows = [...tbody.rows];
     flip(rows, () => {
       rows
         .slice()
-        .sort((a, b) => {
-          const av = a.dataset[opt.key] ?? '';
-          const bv = b.dataset[opt.key] ?? '';
-          const an = Number(av);
-          const bn = Number(bv);
-          if (!Number.isNaN(an) && !Number.isNaN(bn) && av !== '' && bv !== '') {
-            return (an - bn) * opt.dir;
-          }
-          return av.localeCompare(bv) * opt.dir;
-        })
+        .sort((a, b) => compare(a, b, key) * dir)
         .forEach((r) => tbody.appendChild(r));
     });
+    for (const h of heads) h.setAttribute('aria-sort', 'none');
+    th.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+    active = th;
   };
 
-  controls(root, keys, apply, 'Sort the comparison');
+  for (const th of heads) {
+    // A count sorts biggest-first on the first press; a name sorts A-Z. Both
+    // are what someone reaches for the control expecting.
+    const first = 'num' in th.dataset ? -1 : 1;
+    let dir = first;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'p-sort';
+    const caret = document.createElement('span');
+    caret.className = 'p-caret';
+    caret.setAttribute('aria-hidden', 'true');
+    btn.append(th.textContent.trim(), caret);
+
+    th.textContent = '';
+    th.append(btn);
+    th.setAttribute('aria-sort', 'none');
+
+    btn.addEventListener('click', () => {
+      dir = active === th ? -dir : first;
+      apply(th, dir);
+    });
+  }
 }
 
 /* ── /platforms/[slug] — the roster answers "what does my seat get?" ──────
