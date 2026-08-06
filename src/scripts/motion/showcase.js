@@ -13,7 +13,14 @@ export function initShowcase(root = document) {
     if (steps.length < 2) return;
     el.setAttribute('data-showcase-ready', '');
 
-    const set = (i) => el.style.setProperty('--step', String(i));
+    /* --step drives the pinned counter and rail; data-current marks the step
+       itself. The pin alone was the whole feedback, and it is a number in a
+       column a reader is not looking at — the step they ARE reading has to be
+       the thing that changes. */
+    const set = (i) => {
+      el.style.setProperty('--step', String(i));
+      steps.forEach((s, k) => s.toggleAttribute('data-current', k === i));
+    };
     set(0);
 
     const io = new IntersectionObserver(

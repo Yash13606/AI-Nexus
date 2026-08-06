@@ -689,7 +689,15 @@
   .p-bloom {
     position: relative;
     isolation: isolate;
-    overflow: hidden;
+    /* `clip`, NOT `hidden`. overflow:hidden makes the section a scroll
+       container, and position:sticky does not work inside one — the showcase's
+       pinned counter scrolled away with the page instead of pinning, measured
+       at top:-471px where it should have held at 172. overflow:clip clips the
+       bloom without creating a scroll container, so descendants can still
+       stick. Safari below 16 does not support it and falls back to visible,
+       where the worst case is a soft gradient bleeding a few percent past the
+       band — a cosmetic loss against a broken sticky. */
+    overflow: clip;
   }
   .p-bloom::before {
     content: '';

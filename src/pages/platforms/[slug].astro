@@ -64,6 +64,14 @@ const groups = grouped
 >
   <RevealRoot />
 
+  {/* Above the hero, not below it. It is sticky either way, but placed after
+      the hero a reader has to scroll a full viewport before the four platforms
+      are reachable — which is the one thing this strip exists to fix. At the
+      top it is on screen from the first frame and pins from the first pixel of
+      scroll. Everything that offsets by `68px + var(--subnav-h)` is unaffected;
+      the strip still pins in the same place. */}
+  <PlatformSubnav />
+
   {/* ══════════════ HERO ══════════════
       Same architecture on all four — eyebrow → h1 → lede → CTA → stat strip.
       Only the arrangement moves, from `heroLayout` in content. */}
@@ -109,7 +117,6 @@ const groups = grouped
     </div>
   </section>
 
-  <PlatformSubnav />
 
   {/* The four figures as their own section, matching /platforms/ — they were a
       bordered strip inside the hero, which made the hero carry two jobs and
@@ -350,18 +357,20 @@ const groups = grouped
     max-width: var(--hero-measure);
   }
 
-  /* The four arrangements, now of the column rather than of a mock. Each page
-     keeps the measure it had: the two that were narrow stay narrow. */
-  @media (min-width: 1024px) {
-    .hero-left-narrow-refs-right {
-      --hero-measure: 560px;
-    }
-    .hero-split {
-      --hero-measure: 600px;
-    }
-    .hero-mock-below {
-      --hero-measure: 700px;
-    }
+  /* ONE measure on all four, deliberately.
+
+     Per-layout measures were carried over from when a mock card sat on the
+     right and the narrow ones existed to leave room for it. With the mock gone
+     they had no job left, and they were actively distorting the set: AdvoHub
+     has the longest lede at 644 characters and had the narrowest column at
+     560px, so the same architecture produced a 1096px hero against MedOrbit's
+     925px and read as a different page rather than a sibling.
+
+     `heroLayout` still exists and still drives the capability and roles
+     variants; it just no longer sets this. Not a copy change — every word is
+     where it was. */
+  .hero {
+    --hero-measure: 660px;
   }
 
   @keyframes rise {

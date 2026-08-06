@@ -56,6 +56,14 @@ const totals = {
 >
   <RevealRoot />
 
+  {/* Above the hero, not below it. It is sticky either way, but placed after
+      the hero a reader has to scroll a full viewport before the four platforms
+      are reachable — which is the one thing this strip exists to fix. At the
+      top it is on screen from the first frame and pins from the first pixel of
+      scroll. Everything that offsets by `68px + var(--subnav-h)` is unaffected;
+      the strip still pins in the same place. */}
+  <PlatformSubnav />
+
   {/* ══════════════ HERO ══════════════
       eyebrow → h1 → lede → primary + secondary. Breadcrumbs sit above the
       eyebrow, per §8.5 — every page but home. The rule that used to sit between
@@ -104,7 +112,6 @@ const totals = {
     </div>
   </section>
 
-  <PlatformSubnav />
 
   {/* ══════════════ THE FOUR ══════════════ */}
   <section class="section band p-bloom p-grain">

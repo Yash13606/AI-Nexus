@@ -261,9 +261,16 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   }
 
   /* ── Sticky showcase ──────────────────────────────────────────────────────
-     One column pins, the other scrolls. `--step` comes from initShowcase; the
-     counter is drawn from it with a CSS counter, so the number is generated
-     rather than being six spans that take turns being visible. */
+     The pin was 13rem of column holding a two-digit number, with the steps
+     squeezed into the right half and everything below the counter empty. Three
+     changes:
+
+       · the pin is vertical — number, a rail running DOWN the column, total —
+         so it occupies the height it is given instead of floating at the top
+       · the reading column gets the width back
+       · the step you are on is marked IN that column, which is where a reader
+         is looking. Colour and a rule, never opacity: every step stays fully
+         legible whether or not it is current, so nothing here is revealed. */
   .show {
     display: grid;
     gap: 2.5rem;
@@ -273,13 +280,41 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     flex-direction: column;
   }
   .show-step {
+    position: relative;
     padding-block: 2rem;
+    padding-inline-start: 1.5rem;
     border-top: 1px solid var(--color-hairline);
     max-width: var(--prose-max-width);
   }
   .show-step:first-child {
     border-top: 0;
-    padding-top: 0;
+  }
+  /* The current step's marker. A rule down its inside edge — present at every
+     step, accent only on the one being read. */
+  .show-step::before {
+    content: '';
+    position: absolute;
+    inset-block: 1.25rem;
+    inset-inline-start: 0;
+    width: 2px;
+    border-radius: var(--radius-pill);
+    background: var(--color-hairline);
+    transition: background-color var(--dur-element) var(--ease-entrance);
+  }
+  .show-step[data-current]::before {
+    background: var(--page-accent);
+  }
+  .show-step h3 {
+    color: var(--color-muted);
+    transition: color var(--dur-element) var(--ease-entrance);
+  }
+  .show-step[data-current] h3 {
+    color: var(--color-ink);
+  }
+  /* No JS: no step is ever marked current, so every heading must read as a
+     heading rather than as a dimmed one. */
+  .show:not([data-showcase-ready]) .show-step h3 {
+    color: var(--color-ink);
   }
   .show-pin {
     display: none;
@@ -287,30 +322,29 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 
   @media (min-width: 1024px) {
     .show {
-      grid-template-columns: 13rem minmax(0, 1fr);
-      gap: 4rem;
+      grid-template-columns: 7rem minmax(0, 1fr);
+      gap: 3.5rem;
     }
     .show-pin {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 1rem;
       position: sticky;
-      /* Clear of the 68px main nav and the platform sub-nav. */
       top: calc(68px + var(--subnav-h) + 3rem);
       align-self: start;
-      height: 4rem;
+      height: 18rem;
     }
-    /* Steps get room to be scrolled past, so a step is genuinely the thing in
-       the middle of the viewport when the observer picks it. */
     .show-step {
-      padding-block: 3.5rem;
+      padding-block: 3.25rem;
+      padding-inline-start: 2rem;
     }
   }
 
   .show-count {
-    font-size: var(--text-mono-lg);
-    line-height: 1;
-    letter-spacing: -0.02em;
+    font-size: var(--text-display);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
     color: var(--color-ink);
     font-variant-numeric: tabular-nums;
     counter-reset: show-s calc(var(--step, 0) + 1);
@@ -321,21 +355,22 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   .show-total {
     color: var(--color-muted);
   }
+  /* Vertical, so it fills the column rather than sitting as a 6rem dash. */
   .show-rail {
     position: relative;
     flex: 1;
-    height: 2px;
+    width: 2px;
     background: var(--color-hairline);
     border-radius: var(--radius-pill);
   }
   .show-mark {
     position: absolute;
-    inset-block: 0;
-    left: 0;
-    width: calc(100% / var(--n));
+    inset-inline: 0;
+    top: 0;
+    height: calc(100% / var(--n));
     background: var(--page-accent);
     border-radius: inherit;
-    transform: translateX(calc(var(--step, 0) * 100%));
+    transform: translateY(calc(var(--step, 0) * 100%));
     transition: transform var(--dur-element) var(--ease-entrance);
   }
 
