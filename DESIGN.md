@@ -882,9 +882,23 @@ false` at both ends and never fires, so a working reveal reports `0/8` and
 looks like content stranded at `opacity: 0`. **Step-scroll** — increments of
 roughly a third of the viewport with a frame between — or the test lies.
 
-All three of these produced a confident, wrong result during the platform
-section work. Each was caught only because a second measurement disagreed with
-the first.
+**4. A preview-only verification loop cannot see dev-path failures.**
+`astro build` and `astro dev` do not agree. The compiler will extract a script
+from prose that merely *contains* the characters of a script tag — inside a
+`{/* … */}` comment, where JSX semantics say it is a comment. `astro build`
+tolerates the resulting malformed script and emits correct output; `astro dev`
+hands it to esbuild and errors on every start. Verifying only against
+`astro preview` over `dist/` — which is otherwise the right choice, because dev
+injects HMR client code and changes pre-paint script ordering — means the dev
+path is never exercised at all.
+
+**Process fix:** run `npm run dev` once **per unit**, not once per branch. And
+never write a run-locally guide containing a command you have not executed
+against the current tree.
+
+All four of these produced a confident, wrong result during the platform section
+work. Each was caught only because a second measurement — or a second person —
+disagreed with the first.
 
 ---
 
