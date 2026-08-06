@@ -1449,23 +1449,8 @@ a:hover > .arrow {
   }
   .scw[data-ready] .scw-sticky {
     position: sticky;
-    /* Under the nav, not behind it. The nav pill is sticky at the top of the
-       viewport, so a box at `top: 0` puts its first 89px behind frosted glass —
-       and a panel centred in that box has its identity row sitting in the
-       covered strip. Offsetting makes the box the SCREEN, which is what "fits
-       the screen" has to mean when something is pinned over it.
-
-       The offset is the PILL's bottom edge, not the nav wrapper's — --nav-h
-       minus its own bottom padding. That padding is transparent: content
-       scrolling through it is visible, so treating it as covered would throw
-       away 14px of screen for nothing.
-
-       svh, not vh: on a phone `vh` is the largest viewport, so the box would be
-       taller than the screen until the browser chrome retracted. The pin does
-       not run below 1025px today, but the unit should not be the reason. */
-    --scw-chrome: calc(var(--nav-h) - var(--nav-pad-y));
-    top: var(--scw-chrome);
-    height: calc(100svh - var(--scw-chrome));
+    top: 0;
+    height: 100vh;
     display: flex;
     flex-direction: row;
     align-items: center;
