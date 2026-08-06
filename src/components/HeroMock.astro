@@ -1,0 +1,149 @@
+---
+/** The hero's product visual. DOM and CSS only — there are no product
+ *  screenshots in this repo and none can be exported (README, known gaps).
+ *
+ *  Every value shown comes from `src/content/`. Nothing is invented: no
+ *  plausible-looking counts, no fake names, no sample dashboards. Where a mock
+ *  would need a number that content does not have, the number is absent rather
+ *  than guessed.
+ *
+ *  Each mock carries the §1.5 illustrative label, which is not optional —
+ *  `/terms/` commits to it: "They are not recordings of real patients,
+ *  students, clients or transactions."
+ *
+ *  Two shapes:
+ *    `timeline`  the Ink agent panel — §8.9, one of the two permitted dark
+ *                blocks per page. Rows are p.panel.rows verbatim.
+ *    `citations` a verification panel. Rows come from the same p.panel data;
+ *                --color-verified and --color-withheld are the system's only
+ *                status colours and this is exactly what §3 reserves them for.
+ */
+import type { Platform } from '../content/platforms';
+
+interface Props {
+  platform: Platform;
+  shape: 'timeline' | 'citations';
+  class?: string;
+}
+const { platform: p, shape, class: cls = '' } = Astro.props;
+
+/** A row reads as withheld if the product itself describes it as blocked. The
+ *  wording is content, not a flag invented here. */
+const withheld = (s: string) => /removed|unresolved|not on file|stripped|declin/i.test(s);
+const verified = (s: string) => /verified|approved|signed|booked|cited/i.test(s);
+---
+
+{
+  shape === 'timeline' && (
+    <figure class={`mock mock-ink ${cls}`}>
+      <figcaption class="t-cap m-0 mb-4" style="color: #a8b4c8;">
+        {p.panel.title}
+      </figcaption>
+      {p.panel.rows.map((r, i) => (
+        <div
+          class="mock-row flex gap-4 items-baseline py-3"
+          style={`border-top: ${i > 0 ? '1px' : '0'} solid rgb(255 255 255 / 0.10);`}
+        >
+          <span class="mono t-cap shrink-0" style="color: #a8b4c8; width: 62px;">
+            {r.when}
+          </span>
+          <span class="t-sm flex-1" style="color: #fff;">
+            {r.what}
+          </span>
+          <span class="t-cap text-right" style="color: #a8b4c8;">
+            {r.outcome}
+          </span>
+        </div>
+      ))}
+      <p class="t-cap italic mt-4 m-0" style="color: #7c8ba5;">
+        {p.panel.note}
+      </p>
+    </figure>
+  )
+}
+
+{
+  shape === 'citations' && (
+    <figure class={`mock card p-6 m-0 ${cls}`}>
+      <figcaption class="t-label m-0 mb-4" style="color: var(--color-muted);">
+        {p.panel.title}
+      </figcaption>
+      <ul class="list-none m-0 p-0 flex flex-col">
+        {p.panel.rows.map((r, i) => (
+          <li
+            class="cite-row"
+            style={`border-top: ${i > 0 ? '1px' : '0'} solid var(--color-hairline);`}
+          >
+            <span
+              class="cite-dot"
+              aria-hidden="true"
+              style={`background: ${
+                withheld(r.outcome) ? 'var(--color-withheld)' : verified(r.outcome) ? 'var(--color-verified)' : 'var(--color-control)'
+              };`}
+            />
+            <span class="mono t-cap cite-when">{r.when}</span>
+            <span class="t-sm cite-what">{r.what}</span>
+            <span
+              class="t-cap cite-out"
+              style={`color: ${
+                withheld(r.outcome) ? 'var(--color-withheld)' : verified(r.outcome) ? 'var(--color-verified)' : 'var(--color-muted)'
+              };`}
+            >
+              {r.outcome}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p class="t-cap italic mt-4 m-0" style="color: var(--color-muted);">
+        {p.panel.note}
+      </p>
+    </figure>
+  )
+}
+
+<style>
+  .mock {
+    width: 100%;
+  }
+  /* §8.9 — the dark block. No shadow: the dark fill is the elevation. */
+  .mock-ink {
+    background: var(--color-ink);
+    border-radius: var(--radius-panel);
+    padding: 1.5rem;
+    margin: 0;
+  }
+
+  .cite-row {
+    display: grid;
+    grid-template-columns: 10px 4.25rem 1fr auto;
+    align-items: baseline;
+    gap: 0 0.875rem;
+    padding-block: 0.875rem;
+  }
+  .cite-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    align-self: center;
+  }
+  .cite-when {
+    color: var(--color-muted);
+  }
+  .cite-what {
+    color: var(--color-body);
+  }
+  .cite-out {
+    text-align: right;
+    white-space: nowrap;
+  }
+  @media (max-width: 560px) {
+    .cite-row {
+      grid-template-columns: 10px 1fr;
+    }
+    .cite-when,
+    .cite-out {
+      text-align: left;
+      grid-column: 2;
+    }
+  }
+</style>

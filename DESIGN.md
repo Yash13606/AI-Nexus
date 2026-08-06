@@ -169,7 +169,7 @@ Negative tracking, opening toward zero as size drops. Plex Sans runs slightly wi
 | Page max-width | `1200px` |
 | Prose max-width | `68ch` (~720px) |
 | Gutter | 24px mobile / 32px tablet / 48px desktop |
-| Section gap | 96px desktop · 64px tablet · 48px mobile |
+| Section gap | `clamp(3.5rem, 7.5vw, 7.5rem)` — 120px desktop · 56px mobile floor |
 | Card padding | 24px (32px on large panels) |
 | Grid gap | 24px |
 
@@ -258,9 +258,28 @@ Four well-separated hues, each deep enough to hold white text *and* to sit on wh
 | Nav shadow on scroll | `160ms` opacity |
 | Mobile menu | `200ms` slide |
 
+### Enter-once reveals — permitted, and the line they must not cross
+
+**Amended.** §1.2 exists to stop content being unreachable, not to stop a page
+acknowledging that you arrived. Those are different things, and the original
+wording collapsed them. The distinction that matters is **arrival vs. driving**:
+
+| Permitted | Forbidden |
+|---|---|
+| Enter-once reveal: `opacity 0→1` + `translateY 12px→0`, `400ms`, 60ms stagger | Anything where scroll **position** sets progress |
+| Fired by `IntersectionObserver`, element unobserved once revealed | Re-triggering on scroll back up |
+| Hidden state scoped to a root attribute an inline script sets | Hidden state in the stylesheet unconditionally |
+
+The scoping is the load-bearing part. `html[data-reveal-ready] [data-reveal]`
+carries the hidden state, and only an inline script sets that attribute — so
+with JavaScript off, or for a crawler, the attribute never appears, nothing is
+ever hidden, and §1.2 holds exactly as written. Under
+`prefers-reduced-motion: reduce` every element is marked revealed immediately.
+
 ### Forbidden
 
-- Scroll-triggered fade/slide reveals of any content
+- Scroll-**scrubbed** reveals — any effect where scroll position drives progress
+- Sticky product showcases that swap visuals as you scroll
 - Count-up / odometer / `NumberFlow` on any figure
 - Parallax, pinned sections, scroll-scrubbed anything
 - Marquees, auto-carousels, typewriter effects
@@ -474,7 +493,26 @@ Emit `FAQPage` JSON-LD from the same source data.
 
 **Real `<table>`, real `<th scope="col">`.**
 
-`<caption>` (visually hidden). Header row on Wash, `caption` size 600 in `--color-ink`. Cells `body-sm`, 16px/20px padding, 1px hairline between rows. Numeric columns right-aligned in `--font-mono`. Each row gets a 3px left rule in its platform hue. Zebra in `--color-mist`.
+`<caption>` **present and accessible, not necessarily visible.** Amended: a
+`<caption>` must be a child of `<table>`, so it cannot be lifted out of the
+horizontal-scroll wrapper — a visible one scrolls sideways with the table and
+clips. Measured at 390px. Keep it as the accessible name and let a visible lede
+above the table carry the sighted version.
+
+Header row on Wash, in the `eyebrow` role — a column label is what eyebrow is
+for, and `caption` size reads as shrunken body. Cells `body-sm`. **Row height on
+the 8-scale, 48px minimum.** Numeric columns right-aligned in `--font-mono`.
+
+**Zebra: only on tables over ~8 rows, and only where rows have no hover state.**
+Amended: zebra in `--color-mist` and row hover in `--color-mist` cannot coexist,
+and hover is the one carrying information. Four rows with a hairline between each
+do not need banding to track across.
+
+**Sticky `<thead>` and a sticky first column are mutually exclusive**, because
+`overflow-x: auto` forces computed `overflow-y: auto` and a sticky header then
+pins to the wrapper rather than the viewport. Split them by viewport: header
+sticks where the table fits without scrolling, first column pins where it does
+not.
 
 Wrapper: `overflow-x: auto`, 16px radius, 1px hairline. The page body never scrolls sideways.
 
@@ -563,7 +601,17 @@ Never centered except inside §8.18.
 | **/privacy/, /terms/** | Prose block + entity block |
 | **/sitemap/** | Grouped link lists, 3-up; the 48 agents in 4 columns |
 
-**Sticky jump-nav** on `/ai-agents/` is the one exception to the no-extra-chrome rule — 48 cards on one page needs it. Wash bar under the nav, `top: 68px`, four anchors with mono counts, active state via `IntersectionObserver`. Links work with JS off.
+**Sticky jump-nav** on `/ai-agents/` is an exception to the no-extra-chrome rule — 48 cards on one page needs it. Wash bar under the nav, `top: 68px`, four anchors with mono counts, active state via `IntersectionObserver`. Links work with JS off.
+
+**Amended — the exception now also covers `/platforms/`.** A five-page section
+whose only lateral navigation is a cross-link strip at the foot of each page
+makes the reader scroll a full page to discover the other four exist. That is a
+real usability gap, not a decoration. The platform sub-nav pins below the main
+nav after the hero, uses `--shadow-sticky` — the one elevation token already
+sanctioned for pinned chrome — and collapses to a horizontal scroll-snap chip
+row below 900px. Active state is computed at build time from
+`Astro.url.pathname`, so it costs no JavaScript. It is not sticky-on-scroll-up
+and it does not hide and reappear.
 
 ---
 
@@ -615,6 +663,11 @@ WCAG 2.1 AA is a published compliance claim. It ships or the claim is false.
 - Don't install GSAP, Lenis, or Motion (§7).
 - Don't use more than two Ink blocks per page.
 - Don't let a platform hue touch a button, a background, or body text.
+
+**Hover may reveal decoration from `opacity: 0`** — `aria-hidden`, arrow or rule
+only. **Hover may not reveal content.** Content that appears on hover must exist
+at rest: change its colour (`--color-muted` → `--color-ink`), never its opacity
+from zero. A count or a sublabel is content. An arrow is not.
 
 ---
 
@@ -750,6 +803,83 @@ styles/theme.css          # §14 verbatim
   }
 }
 ```
+
+---
+
+## 14b. Amendment log — platform section redesign
+
+Every change made to this file during the platform-section work, in one place,
+with what it replaced and why. Each was ruled on individually; this is the
+reconciliation so the file is actually a source of truth rather than a claim.
+
+| § | Was | Is | Why |
+|---|---|---|---|
+| **5** | Section gap 96 / 64 / 48px | `--section-y: clamp(3.5rem, 7.5vw, 7.5rem)` — 120px desktop, 56px floor | 96px read tight against the reference set; 160px would desync from the other 13 routes. Applied through one token so every route moves together. |
+| **5** | — | `--subnav-h: 56px` | The sub-nav sets its row height from it and the comparison table's sticky `<thead>` offsets by it. Two components computing the same number independently is a drift bug waiting to happen. |
+| **7** | "No scroll-triggered fade/slide reveals of any content" | Enter-once reveals permitted; **scroll-scrubbed** effects forbidden | §1.2 exists to stop content being unreachable, not to stop a page acknowledging arrival. The distinction is arrival vs. driving. The hidden state is scoped to a root attribute only an inline script sets, so JS-off and crawlers never see it. |
+| **8.14** | `<caption>` (visually hidden) | Caption present and accessible, **not necessarily visible** | A `<caption>` must be a child of `<table>`, so it cannot leave the scroll wrapper. A visible one scrolls sideways and clips — measured at 390px. |
+| **8.14** | "Zebra in `--color-mist`" | Zebra only over ~8 rows, and only where rows have no hover | Zebra in mist and row hover in mist cannot coexist, and hover carries information. |
+| **8.14** | — | Sticky `<thead>` and sticky first column are mutually exclusive | `overflow-x: auto` forces computed `overflow-y: auto`; a sticky header then pins to the wrapper, not the viewport. Split by viewport instead. |
+| **8.14** | Header row at `caption` size | Header row in the **eyebrow** role | A column label is what eyebrow is for; `caption` size read as shrunken body. |
+| **9** | Sticky jump-nav exception is `/ai-agents/` only | Exception also covers `/platforms/` | Five pages whose only lateral navigation is a strip at the foot of each. Build-time active state, no JS. |
+| **11** | — | Hover may reveal **decoration** from `opacity: 0`; never content | A count or sublabel is content and must exist at rest — colour steps muted → ink. An arrow is decoration. |
+
+### Fragilities recorded, not defended against
+
+Two places where the code is correct today and would break silently if edited
+without knowing why:
+
+1. **`Reveal.astro` depends on margin collapse.** It is a plain block box, so a
+   child's top margin collapses through it. `/platforms/` relies on that — its
+   lede is `mt-7` and is the first child. Giving `Reveal` `overflow`,
+   `display: flow-root`, padding or a border stops the collapse and makes 28px
+   appear on a page nobody was editing.
+
+2. **A scoped class passed to a child component is dead CSS.** Astro does not
+   add the parent's `data-astro-cid` to a child component's root element, so
+   `<Reveal class="bento-lead">` renders a div the parent's scoped rule cannot
+   match. This shipped: `grid-column` resolved to `auto` instead of `span 2`,
+   and two `display: flex` rules resolved to `block`. Put the behaviour
+   attribute on the styled element instead of wrapping it.
+
+### Verification methods that produce false passes
+
+Checking which layout variant rendered by grepping the page for its class name
+matches the **inlined stylesheet**, which contains every variant's rules. It
+reported all four platform pages as `left-mock-right`. Verify variants from the
+rendered element (`<section class="hero section hero-…">`), never from a
+substring search over the whole document.
+
+**2. Focusing elements to test tab order.** Calling `.focus()` scrolls the
+element into view, which moves every subsequent measurement. Comparing
+viewport-relative positions across a focus walk reports breaks that are not
+there. Measure absolute document position (`rect.top + scrollY`) captured
+without focusing.
+
+**3. Instant-jump scrolling defeats `IntersectionObserver`.**
+`scrollTo(0, document.body.scrollHeight)` moves elements from below the
+viewport to above it in a single frame. The observer sees `isIntersecting:
+false` at both ends and never fires, so a working reveal reports `0/8` and
+looks like content stranded at `opacity: 0`. **Step-scroll** — increments of
+roughly a third of the viewport with a frame between — or the test lies.
+
+**4. A preview-only verification loop cannot see dev-path failures.**
+`astro build` and `astro dev` do not agree. The compiler will extract a script
+from prose that merely *contains* the characters of a script tag — inside a
+`{/* … */}` comment, where JSX semantics say it is a comment. `astro build`
+tolerates the resulting malformed script and emits correct output; `astro dev`
+hands it to esbuild and errors on every start. Verifying only against
+`astro preview` over `dist/` — which is otherwise the right choice, because dev
+injects HMR client code and changes pre-paint script ordering — means the dev
+path is never exercised at all.
+
+**Process fix:** run `npm run dev` once **per unit**, not once per branch. And
+never write a run-locally guide containing a command you have not executed
+against the current tree.
+
+All four of these produced a confident, wrong result during the platform section
+work. Each was caught only because a second measurement — or a second person —
+disagreed with the first.
 
 ---
 

@@ -1,0 +1,21 @@
+---
+/** Enter-once reveal wrapper. Zero markup cost beyond one attribute pair.
+ *
+ *  The children are server-rendered and fully visible in the HTML; the hidden
+ *  state only exists once the boot script has armed the system. See theme.css.
+ *
+ *  FRAGILITY, deliberately not defended against: this is a plain block box, so
+ *  a child's top margin collapses through it. `/platforms/` relies on that —
+ *  its lede is `mt-7` and is the first child here. Giving this component
+ *  `overflow`, `display: flow-root`, padding or a border would stop the
+ *  collapse and make 28px appear on a page nobody was editing. */
+interface Props {
+  /** Stagger index. 60ms per step, via --reveal-stagger. */
+  i?: number;
+  as?: 'div' | 'li' | 'article' | 'header';
+  class?: string;
+}
+const { i = 0, as: Tag = 'div', class: cls = '' } = Astro.props;
+---
+
+<Tag data-reveal class={cls} style={i ? `--i: ${i};` : undefined}><slot /></Tag>

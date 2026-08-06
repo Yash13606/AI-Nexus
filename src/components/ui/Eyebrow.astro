@@ -1,0 +1,14 @@
+---
+/** DESIGN.md §4: the only positive tracking in the system, always uppercase.
+ *  §6 permits the platform hue here — it is slot 1 of the exhaustive list. */
+interface Props {
+  /** `accent` uses the page accent; `muted` stays neutral. */
+  tone?: 'muted' | 'accent';
+  as?: 'p' | 'span' | 'div';
+  class?: string;
+}
+const { tone = 'muted', as: Tag = 'p', class: cls = '' } = Astro.props;
+const color = tone === 'accent' ? 'var(--page-accent)' : 'var(--color-muted)';
+---
+
+<Tag class={`t-label ${cls}`} style={`color: ${color};`}><slot /></Tag>

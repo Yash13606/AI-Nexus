@@ -1,0 +1,26 @@
+---
+/** A vertical band. DESIGN.md §5 rhythm, §5 banding rule.
+ *
+ *  `band` alternates Paper → Wash. The banding rule says never two Wash bands
+ *  adjacent, which is a page-level concern — this component does not enforce
+ *  it, the page blueprint does. */
+interface Props {
+  band?: boolean;
+  /** `lg` is for the one or two moments on a page that carry a whole chapter. */
+  size?: 'default' | 'lg';
+  id?: string;
+  class?: string;
+  /** Sets --page-accent for everything inside. Platform pages pass their hue. */
+  accent?: string;
+}
+const { band = false, size = 'default', id, class: cls = '', accent } = Astro.props;
+const style = accent ? `--page-accent: ${accent};` : undefined;
+---
+
+<section
+  id={id}
+  class={`${size === 'lg' ? 'section-lg' : 'section'} ${band ? 'band' : ''} ${cls}`}
+  style={style}
+>
+  <slot />
+</section>

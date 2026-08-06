@@ -1,0 +1,10 @@
+---
+/** The 1200px measure. DESIGN.md §5. */
+interface Props {
+  as?: 'div' | 'section' | 'header' | 'footer';
+  class?: string;
+}
+const { as: Tag = 'div', class: cls = '' } = Astro.props;
+---
+
+<Tag class={`shell ${cls}`}><slot /></Tag>

@@ -1,8 +1,26 @@
 export type Evidence = { tag: string; input: string; output: string; control: string };
 export type Stat = { figure: string; label: string };
 
+/** Hero composition. The architecture is identical on all four pages —
+ *  eyebrow, h1, lede, CTA, stat strip — and only the arrangement varies, so the
+ *  four detail pages read as a family rather than one template five times.
+ *
+ *  `mock-below` was specified as `centred-mock-below`. The mock is centred and
+ *  full-width; the TEXT is not. §8.5 says the hero is "left-aligned, never
+ *  centered" and §11 says don't centre a heading or body copy — §8.18 makes the
+ *  CTA band "the only centered block in the system". Raised rather than
+ *  silently broken. */
+export type HeroLayout = 'mock-below' | 'left-mock-right' | 'left-narrow-refs-right' | 'split';
+
+/** How the module list is presented. Assigned so no two adjacent siblings in
+ *  comparison-table order share one. */
+export type CapabilityLayout = 'bento' | 'tabs' | 'alternating';
+
 export type Platform = {
   slug: 'medorbit' | 'edvation' | 'advohub' | 'trustproperty';
+  /** Union-typed: an invalid value is a build error, not a silent fallback. */
+  heroLayout: HeroLayout;
+  capabilityLayout: CapabilityLayout;
   name: string;
   sector: string;
   hue: string;
@@ -28,6 +46,8 @@ export type Platform = {
 export const platforms: Platform[] = [
   {
     slug: 'medorbit',
+    heroLayout: 'mock-below',
+    capabilityLayout: 'bento',
     name: 'MedOrbit',
     sector: 'Healthcare',
     hue: 'var(--color-medorbit)',
@@ -84,6 +104,8 @@ export const platforms: Platform[] = [
   },
   {
     slug: 'edvation',
+    heroLayout: 'left-mock-right',
+    capabilityLayout: 'tabs',
     name: 'Edvation',
     sector: 'Education',
     hue: 'var(--color-edvation)',
@@ -140,6 +162,8 @@ export const platforms: Platform[] = [
   },
   {
     slug: 'advohub',
+    heroLayout: 'left-narrow-refs-right',
+    capabilityLayout: 'alternating',
     name: 'AdvoHub',
     sector: 'Legal',
     hue: 'var(--color-advohub)',
@@ -198,6 +222,8 @@ export const platforms: Platform[] = [
   },
   {
     slug: 'trustproperty',
+    heroLayout: 'split',
+    capabilityLayout: 'bento',
     name: 'TrustProperty',
     sector: 'Property',
     hue: 'var(--color-trustproperty)',

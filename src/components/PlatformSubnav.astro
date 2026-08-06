@@ -1,0 +1,162 @@
+---
+/** Lateral navigation for the five-page platform section. DESIGN.md §9 as
+ *  amended — the sticky-chrome exception now covers `/platforms/` too.
+ *
+ *  Zero runtime JavaScript. The active item is resolved at build time from
+ *  `Astro.url.pathname`, so there is no hydration, no observer and no flash of
+ *  the wrong item being marked current.
+ *
+ *  Semantics: the active item is NOT a link. A link to the page you are already
+ *  on is a dead control, and `aria-current` on an anchor still leaves it
+ *  focusable and clickable. It renders as a `<span>` carrying
+ *  `aria-current="page"`.
+ *
+ *  Colour: the platform hue appears once, as a 2px bottom rule on the active
+ *  item. Not on the label, not as a fill. §6's permitted list is exhaustive and
+ *  this is the tag slot, used once.
+ *
+ *  Shadow: NOT applied. §8.3 gives the main nav `--shadow-sticky` only once it
+ *  has scrolled, and detecting "stuck" needs either JavaScript or a
+ *  scroll-driven animation — the first is out of budget for chrome, the second
+ *  is scroll-scrubbed and §7 forbids it. The at-rest treatment §8.3 specifies
+ *  is a 1px bottom hairline, so that is what this carries, permanently. */
+import { platforms } from '../content/platforms';
+
+const here = Astro.url.pathname;
+
+/** Index first, then the four in the same order the comparison table lists
+ *  them — one order, used in both places, always. */
+const items = [
+  { href: '/platforms/', label: 'All platforms', hue: 'var(--color-accent)' },
+  ...platforms.map((p) => ({
+    href: `/platforms/${p.slug}/`,
+    label: p.name,
+    hue: p.hue,
+  })),
+];
+---
+
+<nav aria-label="Platform sections" class="subnav">
+  <div class="shell subnav-row">
+    {
+      items.map((it) =>
+        it.href === here ? (
+          <span class="subnav-item is-active" aria-current="page" style={`--item-hue: ${it.hue};`}>
+            {it.label}
+          </span>
+        ) : (
+          <a href={it.href} class="subnav-item">
+            {it.label}
+          </a>
+        )
+      )
+    }
+  </div>
+</nav>
+
+<style>
+  .subnav {
+    position: sticky;
+    /* Clears the 68px main nav. */
+    top: 68px;
+    z-index: 40;
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .subnav-row {
+    display: flex;
+    align-items: stretch;
+    /* Fixed, so the table's sticky thead can offset by the same token. */
+    height: var(--subnav-h);
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .subnav-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .subnav-item {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.9375rem 0.875rem;
+    font-size: var(--text-body-sm);
+    line-height: 1.55;
+    font-weight: 450;
+    color: var(--color-body);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    /* Keeps the label from shifting when weight changes on the active item. */
+    transition: color var(--dur-micro) var(--ease-entrance);
+  }
+  a.subnav-item:hover {
+    color: var(--color-ink);
+  }
+
+  .subnav-item.is-active {
+    color: var(--color-ink);
+    font-weight: 600;
+    border-bottom-color: var(--item-hue);
+  }
+
+  /* ── Under 900px: scroll-snap chip row ────────────────────────────────────
+     Edge fade only, no arrows. `scroll-margin-inline` is set on the active
+     chip so any programmatic or keyboard scroll lands it clear of the edge —
+     CSS alone cannot set a container's INITIAL scroll offset, so the row
+     starts at the left. Flagged rather than papered over. */
+  @media (max-width: 900px) {
+    .subnav-row {
+      scroll-snap-type: x proximity;
+      padding-inline: 1rem;
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        #000 1.25rem,
+        #000 calc(100% - 1.25rem),
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        #000 1.25rem,
+        #000 calc(100% - 1.25rem),
+        transparent 100%
+      );
+    }
+    .subnav-item {
+      scroll-snap-align: center;
+      scroll-margin-inline: 1.25rem;
+      padding-inline: 0.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .subnav-item {
+      transition: none;
+    }
+  }
+</style>
+
+{/* Initial scroll offset for the chip row. CSS cannot set one, so without this
+    the active chip sits off-screen below 900px — measured at 390px, the
+    TrustProperty chip lands at left: 402px in a 390px viewport, i.e. the active
+    indicator is invisible on the page it identifies.
+
+    Deliberately NOT in the shared boot script: that runs at the top of the
+    document body, before this markup exists, and deferring it to
+    DOMContentLoaded would set the offset after first paint — a visible jump. It
+    has to be here, inline, immediately after the row. That is one more inline
+    script tag than instructed; flagged rather than traded for a jump.
+
+    scrollLeft is set directly, never scrollIntoView — that walks ancestors and
+    can move the page. Instant, with no behaviour: 'smooth', so it is identical
+    under prefers-reduced-motion. This is initial state, not motion.
+
+    NOTE — never write a literal HTML script tag inside this comment. Astro's
+    compiler scans for script tags before JSX comment semantics apply, so the
+    prose following it is handed to esbuild as if it were code. It cost a hard
+    dev-server error: `Expected ";" but found "than"`. */}
+<script is:inline>var r=document.querySelector('.subnav-row'),a=r&&r.querySelector('[aria-current]');if(a&&r.scrollWidth>r.clientWidth)r.scrollLeft=a.offsetLeft-20;</script>
