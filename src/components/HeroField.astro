@@ -79,7 +79,14 @@ const { hues, tone = 'quad' } = Astro.props;
      size. Same object, same place, whichever page you arrive on. */
   .hf {
     position: absolute;
-    inset: 0 0 auto 0;
+    /* Centred, not top-anchored. Every hero is now the same height on a given
+       screen, so centring is identical across the five pages — and in a tall
+       hero a top-anchored form left the bottom third empty. The box stays a
+       fixed 40rem either way, so the form's size never changes. */
+    top: 50%;
+    translate: 0 -50%;
+    left: 0;
+    right: 0;
     /* A FIXED height, not min(100%, 40rem). With the min, a hero shorter than
        40rem shrank the canvas — and field.js scales from the canvas, so the
        form came out smaller and higher on those pages. Measured: the top edge

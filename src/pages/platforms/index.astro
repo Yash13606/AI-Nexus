@@ -282,13 +282,16 @@ const totals = {
     padding-block: clamp(3rem, 6vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
     /* Room for the field to be an object rather than a stripe. Below 1100px it
        moves under the text, which needs more height still. */
-    min-height: clamp(30rem, 58vh, 40rem);
+    /* Fills the screen under the sticky chrome — see the note in
+       [slug].astro. Composed from the tokens, and svh so mobile browser chrome
+       does not push the fold off screen. */
+    --chrome: calc(68px + 1px + var(--subnav-h) + 1px);
+    min-height: calc(100svh - var(--chrome));
     display: flex;
     align-items: center;
   }
   @media (max-width: 1099px) {
     .hero {
-      min-height: clamp(34rem, 74vh, 44rem);
       align-items: flex-start;
     }
   }

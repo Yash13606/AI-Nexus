@@ -342,7 +342,18 @@ const groups = grouped
        TOP at a fixed box, and u_fit scales from a constant reference rather
        than from the hero — so the form keeps the size and position it had. */
     padding-block: clamp(2rem, 4vw, 3.25rem) clamp(1.75rem, 3.5vw, 2.75rem);
-    min-height: 0;
+    /* The hero fills the screen under the sticky chrome, so nothing of the
+       next section shows while a reader is still in it.
+
+       --chrome is composed from the tokens rather than typed as 126px: the nav
+       is 68 plus its 1px hairline and the sub-nav is --subnav-h plus its own,
+       and the measured total was exactly 126. Composed, it tracks --subnav-h
+       if that ever moves instead of silently drifting.
+
+       svh, not vh: on mobile `vh` is the LARGEST viewport, so a 100vh hero sits
+       partly under the browser's own chrome until it retracts. */
+    --chrome: calc(68px + 1px + var(--subnav-h) + 1px);
+    min-height: calc(100svh - var(--chrome));
     display: flex;
     align-items: center;
     /* A length, never 68ch — see the note in /platforms/index.astro. */
