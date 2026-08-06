@@ -575,19 +575,38 @@ a:hover > .arrow {
   color: var(--color-paper);
 }
 
-/* Native details — zero JS, crawlable, keyboard-correct */
-.faq details {
-  border-bottom: 1px solid var(--color-hairline);
+/* FAQ accordion — native <details>, zero JS, crawlable, keyboard-correct.
+   Card items rather than a hairline list: each question is its own surface
+   so an open answer reads as a panel, not a run of rules. The toggle is a
+   single plus glyph that rotates 45° into a cross on open — one icon, two
+   states, no second asset. */
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
 }
-.faq details:first-child {
-  border-top: 1px solid var(--color-hairline);
+.faq details {
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-card);
+  background: var(--color-paper);
+  padding-inline: clamp(1rem, 2.4vw, 1.5rem);
+  transition:
+    border-color var(--dur-micro) var(--ease-entrance),
+    background-color var(--dur-micro) var(--ease-entrance);
+}
+.faq details:hover {
+  border-color: var(--color-control);
+}
+.faq details[open] {
+  border-color: color-mix(in oklab, var(--color-accent) 42%, var(--color-hairline));
+  background: var(--color-wash);
 }
 .faq summary {
   list-style: none;
   cursor: pointer;
-  padding-block: 1.125rem;
+  padding-block: 1.15rem;
   font-size: var(--text-h4);
-  line-height: 1.3;
+  line-height: 1.35;
   letter-spacing: -0.012em;
   font-weight: 500;
   color: var(--color-ink);
@@ -599,17 +618,61 @@ a:hover > .arrow {
 .faq summary::-webkit-details-marker {
   display: none;
 }
-.faq summary .chev {
+/* The toggle chip. Accent outline at rest; fills accent when the panel opens. */
+.faq summary .faq-toggle {
   flex: none;
-  transition: transform var(--dur-state) var(--ease-out);
-  color: var(--color-control);
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid color-mix(in oklab, var(--color-accent) 32%, var(--color-hairline));
+  background: var(--color-paper);
+  color: var(--color-accent);
+  transition:
+    transform var(--dur-state) var(--ease-out),
+    background-color var(--dur-micro) var(--ease-entrance),
+    border-color var(--dur-micro) var(--ease-entrance),
+    color var(--dur-micro) var(--ease-entrance);
 }
-.faq details[open] summary .chev {
-  transform: rotate(180deg);
+.faq summary .faq-toggle .chev {
+  flex: none;
+}
+.faq details[open] summary .faq-toggle {
+  transform: rotate(45deg);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
 }
 .faq .answer {
-  padding-bottom: 1.125rem;
+  padding-bottom: 1.25rem;
   max-width: var(--prose-max-width);
+  color: var(--color-body);
+}
+/* The answer slides in when the panel opens. Native <details> gives no
+   open transition, so this animates the content on appearance instead —
+   reduced-motion collapses it to the finished state via the global kill. */
+.faq details[open] .answer {
+  animation: faq-reveal var(--dur-element) var(--ease-entrance);
+}
+@keyframes faq-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The heading rail tracks the accordion on desktop; static once the columns
+   stack. 96px clears the sticky nav, matching section[id] scroll-margin. */
+@media (min-width: 1024px) {
+  .faq-rail {
+    position: sticky;
+    top: 96px;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
