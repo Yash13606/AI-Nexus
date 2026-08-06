@@ -311,3 +311,332 @@
     transition: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   §16.7 — the rich card system.
+
+   The section's cards were correct and plain. This layer makes them the
+   thing the page is looking at, without touching a word of copy and without
+   putting any content behind an interaction.
+
+   Every effect here is decoration in the §16.2 sense: at rest, with no
+   pointer, no JavaScript and no CSS animation, every card shows the same
+   text at the same size in the same order. Motion moves surfaces, never
+   presence.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── The tilt surface ─────────────────────────────────────────────────────
+     The grid holds the perspective so all its cards share one vanishing
+     point — per-card perspective makes a row look like several photographs
+     rather than one scene. */
+  [data-tilt] {
+    perspective: 1400px;
+    perspective-origin: 50% 40%;
+  }
+
+  /* Keyed off the GRID, not a class on each card. That is what lets shared
+     components — AgentCard renders on /ai-agents/ too — pick the treatment up
+     inside the platform section and nowhere else, without a single edit to
+     them. Adding `data-tilt` to a grid is the whole opt-in. */
+  [data-tilt] > *,
+  .p-tilt {
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transform-style: preserve-3d;
+    transition:
+      transform 260ms var(--ease-entrance),
+      box-shadow var(--dur-micro) var(--ease-entrance),
+      border-color var(--dur-micro) var(--ease-entrance),
+      translate var(--dur-micro) var(--ease-entrance);
+    will-change: transform;
+  }
+  /* (0,4,1), beating theme.css's `html[data-reveal-ready] [data-reveal]
+     [data-revealed] { transform: none }` at (0,3,1). Both live in
+     @layer components, so specificity decides — see §14b for the two times
+     that assumption was wrong and how it was checked here. */
+  html[data-reveal-ready] .p-tilt[data-reveal][data-revealed],
+  html[data-reveal-ready] [data-tilt] > *[data-reveal][data-revealed],
+  html[data-reveal-ready] [data-tilt] [data-reveal][data-revealed] .p-tiltc {
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  }
+
+  /* ── Pointer glow ─────────────────────────────────────────────────────────
+     A hue wash under the content, following the cursor. z-index:-1 under an
+     isolated card, the same arrangement as the border beam — so nothing in
+     the card has to be positioned and the stretched card link survives. */
+  [data-tilt] > *,
+  .p-glow {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  [data-tilt] > *::before,
+  .p-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      18rem 18rem at var(--px, 50%) var(--py, 50%),
+      color-mix(in oklab, var(--card-hue, var(--chue, var(--page-accent))) 16%, transparent),
+      transparent 68%
+    );
+    opacity: var(--lit, 0);
+    transition: opacity var(--dur-micro) var(--ease-entrance);
+    pointer-events: none;
+  }
+
+  /* ── Shine sweep ──────────────────────────────────────────────────────────
+     A single specular band crossing the card once on enter. It is a highlight
+     on glass, so it runs at a shallow angle and never repeats — a looping
+     shimmer reads as a loading state, which is the one thing this site must
+     never imply. */
+  [data-tilt] > *::after,
+  .p-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      104deg,
+      transparent 38%,
+      color-mix(in oklab, var(--color-paper) 92%, var(--card-hue, var(--chue, var(--page-accent)))) 50%,
+      transparent 62%
+    );
+    translate: -130% 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  [data-tilt] > *:hover::after,
+  .p-glow:hover::after {
+    animation: p-shine 900ms var(--ease-entrance) forwards;
+  }
+
+  /* Grid cards get the resting elevation and the lift too, so a grid that opts
+     into tilt does not also have to opt into every other part of the
+     vocabulary one class at a time. */
+  [data-tilt] > *.card {
+    box-shadow: var(--shadow-1);
+  }
+  [data-tilt] > *.card:hover,
+  [data-tilt] > *.card:focus-within {
+    box-shadow: var(--shadow-3);
+  }
+
+  /* ── Hue header ───────────────────────────────────────────────────────────
+     Replaces the flat 3px top rule. Same identification, more surface: the
+     hue washes down out of the top edge and a solid 3px line still caps it,
+     so §6's "colour identifies" reading is unchanged at a glance. */
+  .p-huehead {
+    position: relative;
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--card-hue) 11%, transparent),
+      transparent 42%
+    );
+  }
+  .p-huehead::before {
+    content: '';
+    position: absolute;
+    inset: -1px -1px auto;
+    height: 3px;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    background: linear-gradient(
+      90deg,
+      var(--card-hue),
+      color-mix(in oklab, var(--card-hue) 45%, var(--color-paper)) 55%,
+      var(--card-hue)
+    );
+    background-size: 220% 100%;
+    transition: background-position 700ms var(--ease-entrance);
+  }
+  .p-huehead:hover::before {
+    background-position: 100% 0;
+  }
+
+  /* ── Section headings ─────────────────────────────────────────────────────
+     A rule that draws itself in from the left as the heading arrives. It is
+     the only new furniture on the page and it is purely a rule — no text, so
+     nothing can be stranded by it. */
+  .p-head {
+    position: relative;
+    padding-top: 1.5rem;
+  }
+  .p-head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    max-width: 5.5rem;
+    background: linear-gradient(90deg, var(--page-accent), transparent);
+    transform-origin: left;
+    scale: 0 1;
+  }
+  html[data-reveal-ready] .p-head[data-revealed]::before,
+  html:not([data-reveal-ready]) .p-head::before {
+    scale: 1 1;
+    transition: scale var(--dur-section) var(--ease-entrance) 120ms;
+  }
+
+  /* ── Headline word stagger ────────────────────────────────────────────────
+     The words are split server-side and every one is in the HTML as text. The
+     animation is `both`-filled from a rendered state, so with CSS animation
+     unavailable the headline is simply a headline. */
+  .p-word {
+    display: inline-block;
+    animation: p-word-in 620ms var(--ease-entrance) both;
+    animation-delay: calc(var(--w) * 45ms + 80ms);
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────────────────────
+     A sweep on hover, on top of the existing colour transition. */
+  .p-btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .p-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      100deg,
+      transparent 40%,
+      rgb(255 255 255 / 0.22) 50%,
+      transparent 60%
+    );
+    translate: -120% 0;
+    pointer-events: none;
+  }
+  .p-btn:hover::after {
+    animation: p-shine 720ms var(--ease-entrance) forwards;
+  }
+  .btn-secondary.p-btn::after {
+    background: linear-gradient(
+      100deg,
+      transparent 40%,
+      color-mix(in oklab, var(--page-accent) 14%, transparent) 50%,
+      transparent 60%
+    );
+  }
+
+  /* ── Reveal variety ───────────────────────────────────────────────────────
+     One direction everywhere reads as a template. These are the same
+     enter-once mechanism with a different starting offset, and every one of
+     them resolves to the identical resting state. */
+  /* Every variant drives `translate`, `scale` and `filter` — never `transform`.
+     The first version used transform and it tied at (0,4,1) with the tilt
+     override, then won on source order: the cards wrote --rx/--ry correctly and
+     computed `transform: none` anyway. That is the same failure class as the
+     hover lift and the tab indicator, and the same fix — take the two rules off
+     the same property instead of escalating specificity between them.
+
+     `transform: none` in the hidden state is deliberate: it cancels the base
+     reveal's translateY(12px) so a variant does not compound with it. */
+  html[data-reveal-ready] [data-reveal][data-rv] {
+    transform: none;
+    transition-property: opacity, translate, scale, filter;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv='left'] {
+    translate: -26px 0;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv='right'] {
+    translate: 26px 0;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv='scale'] {
+    scale: 0.965;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv='blur'] {
+    translate: 0 14px;
+    filter: blur(7px);
+  }
+  html[data-reveal-ready] [data-reveal][data-rv][data-revealed] {
+    translate: none;
+    scale: none;
+    filter: none;
+  }
+
+  /* ── Band atmosphere ──────────────────────────────────────────────────────
+     A very slow four-hue mesh behind Wash bands, at an alpha where it reads
+     as paper stock rather than as colour. Fixed attachment is deliberately
+     avoided — it costs a full-page repaint on every scroll frame. */
+  .p-atmos {
+    position: relative;
+    isolation: isolate;
+  }
+  .p-atmos::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(38% 55% at 8% 12%, color-mix(in oklab, var(--color-medorbit) 9%, transparent), transparent 70%),
+      radial-gradient(34% 50% at 92% 22%, color-mix(in oklab, var(--color-edvation) 8%, transparent), transparent 70%),
+      radial-gradient(40% 55% at 18% 88%, color-mix(in oklab, var(--color-advohub) 7%, transparent), transparent 70%),
+      radial-gradient(36% 52% at 84% 82%, color-mix(in oklab, var(--color-trustproperty) 9%, transparent), transparent 70%);
+    animation: p-atmos 44s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+}
+
+@keyframes p-shine {
+  from {
+    translate: -130% 0;
+    opacity: 1;
+  }
+  to {
+    translate: 130% 0;
+    opacity: 1;
+  }
+}
+
+@keyframes p-word-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.5em, 0) rotateX(-42deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes p-atmos {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-2%, 1.5%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p-tilt,
+  [data-tilt] > *,
+  html[data-reveal-ready] .p-tilt[data-reveal][data-revealed],
+  html[data-reveal-ready] [data-tilt] > *[data-reveal][data-revealed] {
+    transform: none !important;
+  }
+  [data-tilt] > *:hover::after,
+  .p-glow:hover::after,
+  .p-btn:hover::after,
+  .p-atmos::before {
+    animation: none !important;
+  }
+  .p-word {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .p-head::before {
+    scale: 1 1 !important;
+    transition: none !important;
+  }
+  html[data-reveal-ready] [data-reveal][data-rv] {
+    filter: none !important;
+    translate: none !important;
+    scale: none !important;
+  }
+}

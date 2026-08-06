@@ -25,7 +25,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 <div class={`cap cap-${layout}`} id={id}>
   {
     layout === 'bento' && (
-      <div class="bento">
+      <div class="bento" data-tilt>
         {/* data-reveal sits on the styled element itself. Passing a scoped
             class to <Reveal> renders a div WITHOUT this component's
             data-astro-cid, so the scoped rule never matches — measured:

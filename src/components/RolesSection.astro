@@ -38,7 +38,7 @@ const { layout, roles, parallax = false } = Astro.props;
       /* Uneven spans, first cell doubled. data-reveal sits on the styled
          element itself — a class passed to <Reveal> renders a div without this
          component's data-astro-cid, so the scoped rule never matches. */
-      <div class="rbento">
+      <div class="rbento" data-tilt>
         {roles.map((r, i) => (
           <article
             data-reveal
@@ -59,7 +59,7 @@ const { layout, roles, parallax = false } = Astro.props;
          element driven by --px/--py, so it is decoration in the §11 sense:
          pointer-fine only, and every word of the card is already legible at
          rest with no pointer, no JS and no hover. */
-      <div class="rspot" data-spotlight>
+      <div class="rspot" data-spotlight data-tilt>
         {roles.map((r, i) => (
           <article data-reveal style={`--i: ${Math.min(i, 3)};`} class="rspot-cell card p-elev p-6">
             <h3 class="t-h4">{r.title}</h3>

@@ -33,6 +33,12 @@ const trail = [{ href: '/', label: 'Home' }, { label: 'Platforms' }];
 /** Summed from the content, never typed. check:content asserts the same four
  *  numbers, so a regenerated platform-detail.ts cannot leave the stats band
  *  claiming something the pages no longer ship. */
+/** Splits a headline into words for the staggered entrance. Every word is a
+ *  text node in the HTML and the animation is `both`-filled from a rendered
+ *  state, so the copy is byte-identical and a crawler, a JS-off reader and a
+ *  reduced-motion reader all get a plain headline. */
+const words = (line: string) => line.split(' ');
+
 const totals = {
   agents: platforms.reduce((n, p) => n + p.agentCount, 0),
   roles: platforms.reduce((n, p) => n + detail[p.slug].roles.length, 0),
@@ -70,8 +76,14 @@ const totals = {
         Platforms · four products, one system
       </p>
 
-      <h1 class="t-h1 rise mt-4" style="--i: 1; max-width: 22ch;">
-        Four platforms, four industries, one engineering discipline
+      <h1 class="t-h1 mt-4" style="max-width: 22ch;">
+        {
+          words('Four platforms, four industries, one engineering discipline').map((w, i) => (
+            <Fragment>
+              <span class="p-word" style={`--w: ${i};`}>{w}</span>{' '}
+            </Fragment>
+          ))
+        }
       </h1>
 
       <p class="t-lede rise mt-6" style="--i: 2;">
@@ -81,10 +93,10 @@ const totals = {
       </p>
 
       <div class="rise mt-9 flex flex-wrap gap-3" style="--i: 3;">
-        <a href="/contact/" class="btn btn-primary tx-fast">
+        <a href="/contact/" class="btn btn-primary p-btn tx-fast" data-magnetic>
           Book a demo <Icon name="arrow-right" class="arrow" />
         </a>
-        <a href="#compare" class="btn btn-secondary tx-fast">Compare the four</a>
+        <a href="#compare" class="btn btn-secondary p-btn tx-fast">Compare the four</a>
       </div>
     </div>
   </section>
@@ -92,29 +104,28 @@ const totals = {
   <PlatformSubnav />
 
   {/* ══════════════ THE FOUR ══════════════ */}
-  <section class="section band">
+  <section class="section band p-atmos">
     <div class="shell">
-      <Reveal>
+      <div data-reveal class="p-head">
         <h2 class="t-h2" style="max-width: 20ch;">The four platforms</h2>
-      </Reveal>
-      <Reveal i={1}>
-        <p class="t-lede mt-5">
-          One company, one engineering discipline. Each product runs its industry end to end, and each
-          carries its own agents, role catalogue and compliance surface.
-        </p>
-      </Reveal>
+      </div>
+      <p class="t-lede mt-5" data-reveal data-rv="blur" style="--i: 1;">
+        One company, one engineering discipline. Each product runs its industry end to end, and each
+        carries its own agents, role catalogue and compliance surface.
+      </p>
 
       {/* Bento, not a four-up. The first tile carries more weight because it
           holds the live roster, and an even grid would flatten that back out.
           Reading order is unchanged from the sub-nav and the table — the
           bento rearranges emphasis, never sequence. */}
-      <div class="bento mt-12">
+      <div class="bento mt-12" data-tilt>
         {
           platforms.map((p, i) => (
             <article
               data-reveal
-              class={`pcard card hov p-elev p-6 ${i === 0 ? 'lead p-beam' : ''}`}
-              style={`--i: ${Math.min(i, 3)}; --beam-hue: ${p.hue}; border-top: 3px solid ${p.hue};`}
+              class={`pcard card hov p-elev p-tilt p-glow p-6 ${i === 0 ? 'lead p-beam' : ''}`}
+              data-rv={i % 2 ? 'right' : 'left'}
+              style={`--i: ${Math.min(i, 3)}; --beam-hue: ${p.hue}; --card-hue: ${p.hue}; border-top: 3px solid ${p.hue};`}
             >
                 <div class="cardhead">
                   <PlatformLockup name={p.name} as="h3" />
@@ -218,9 +229,9 @@ const totals = {
         overrides. The FLIP re-rank stays; its controls stay JS-injected. */}
   <section class="section">
     <div class="shell" id="compare" style="scroll-margin-top: 128px;">
-      <Reveal>
+      <div data-reveal class="p-head">
         <h2 class="t-h2" style="max-width: 20ch;">How the four platforms compare</h2>
-      </Reveal>
+      </div>
       <Reveal i={1}>
         <p class="t-lede mt-5 mb-11">
           48 named AI agents across the four. Every figure below is the count the platform actually
@@ -228,7 +239,7 @@ const totals = {
         </p>
       </Reveal>
 
-      <div class="tbl-wrap">
+      <div class="tbl-wrap" data-reveal data-rv="scale">
         <table data-sortable>
           <caption>
             The four AI Nexus platforms compared by industry, AI agent count, role count and languages.
@@ -249,9 +260,10 @@ const totals = {
           </thead>
           <tbody>
             {
-              platforms.map((p) => (
+              platforms.map((p, i) => (
                 <tr
                   class="p-row"
+                  style={`--i: ${i};`}
                   data-name={p.name}
                   data-agents={String(p.agentCount)}
                   data-roles={String(detail[p.slug].roles.length)}
@@ -294,11 +306,13 @@ const totals = {
   import { initReveal } from '../../scripts/reveal.js';
   import { initCountUp } from '../../scripts/motion/countup.js';
   import { initMagnetic } from '../../scripts/motion/magnetic.js';
+  import { initTilt } from '../../scripts/motion/tilt.js';
   const root = document.getElementById('compare');
   if (root) initTableSort(root);
   initReveal();
   initCountUp();
   initMagnetic();
+  initTilt();
 </script>
 
 <style>
