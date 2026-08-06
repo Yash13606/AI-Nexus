@@ -149,9 +149,10 @@ const groups = grouped
   </section>
 
   {/* The worked example, its own section now with an illustration beside it.
-      --page-accent is set here so the drawing takes this platform's hue. */}
+      The slug picks the scene — each page draws the person in ITS example —
+      and --page-accent is set here so that drawing takes this platform's hue. */}
   <div style={`--page-accent: ${hueVar};`}>
-    <EvidenceSection evidence={p.evidence} name={p.name} />
+    <EvidenceSection evidence={p.evidence} name={p.name} slug={p.slug} />
   </div>
 
   {/* ── The agents. The authored moment lives here: selecting a seat brings
