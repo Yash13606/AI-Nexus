@@ -10,7 +10,9 @@ import { contact } from '../content/site';
   title="Contact AI Nexus Innovations Hub — Bengaluru"
   description="Book a 30-minute demo of any AI Nexus platform, run on your own facility type, board, practice area or city. We reply within one business day."
 >
-  <section class="section" style="padding-block: clamp(1.5rem, 3vw, 2.5rem) 0;">
+  {/* The bottom pad was 0, so the contact row ran straight into the footer
+      with no breathing room — this is the last section on the page. */}
+  <section class="section" style="padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(3rem, 6vw, 5rem);">
     <div class="shell">
       <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Contact' }]} />
 
@@ -534,12 +536,16 @@ import { contact } from '../content/site';
       gap: 1.5rem 2.5rem;
     }
   }
+  /* No flex `gap` here: a single gap spaces the label from its own value as
+     widely as from the icon, which broke the pairing. The icon carries the
+     space below it; label and value stay tight. */
   .contact-points__item {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.625rem;
     flex: 1 1 220px;
+    /* Keeps the short lines from sitting in a 341px void. */
+    max-width: 30ch;
   }
   .contact-points__icon {
     flex: none;
@@ -547,12 +553,13 @@ import { contact } from '../content/site';
     place-items: center;
     width: 2.75rem;
     height: 2.75rem;
+    margin-bottom: 1rem;
     border-radius: var(--radius-pill);
     background: var(--color-accent-wash);
     color: var(--color-accent);
   }
   .contact-points__label {
-    margin: 0;
+    margin: 0 0 0.25rem;
   }
   .contact-points__value {
     margin: 0;
