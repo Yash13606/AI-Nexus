@@ -1717,11 +1717,10 @@ a:hover > .arrow {
 }
 .scw-image img {
   width: 100%;
-  max-width: 320px;
-  aspect-ratio: 4 / 5;
-  object-fit: contain;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
   display: block;
-  margin-inline: auto;
+  border-radius: var(--radius-card);
 }
 .scw-progress {
   display: none;
@@ -1880,28 +1879,28 @@ a:hover > .arrow {
      reference does, and the tile sits on it at a size it can actually hold.
      The moment there are real photographs, `contain` becomes `cover` and the
      max-widths come off — one rule, and this matches the reference outright. */
+  /* The half is a window onto the photograph, cropped rather than
+     letter-boxed — which is what the reference does and what the old assets
+     could not support. Those were 331px product renders and filling this half
+     meant upscaling them 3.5x, so they sat contained on a wash panel instead.
+     These are 1600px photographs; the panel and its radial are gone. */
   .scw[data-ready] .scw-image {
-    display: grid;
-    place-items: center;
-    background: var(--color-wash);
-  }
-  .scw[data-ready] .scw-image::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(120% 90% at 50% 40%, var(--color-paper), transparent 70%);
+    display: block;
+    background: none;
   }
   .scw[data-ready] .scw-image img {
-    position: relative;
-    width: auto;
-    height: auto;
-    max-width: min(62%, 24rem);
-    max-height: 64%;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
     aspect-ratio: auto;
-    object-fit: contain;
+    object-fit: cover;
     margin-inline: 0;
     display: block;
-    filter: drop-shadow(0 24px 48px rgb(11 18 32 / 0.14));
+    border-radius: 0;
+    filter: none;
   }
   .scw[data-ready] .scw-progress {
     --shell-pad: clamp(1.5rem, 4vw, 3rem);

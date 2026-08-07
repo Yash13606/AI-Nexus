@@ -44,7 +44,18 @@ const lede =
        without them: they sit behind an isolated stacking context at z-index
        -1, so nothing here can cover the heading or the buttons. */
     <section class="section cta-wrap">
-      <div class="cta-card p-bloom p-grain">
+      <div class="cta-card p-bloom p-grain" data-cta-glow>
+        {/* The interactive layer: a wash that follows the pointer across the
+            card. Its own element rather than a pseudo-element, because
+            .p-bloom already owns ::before (the four-hue mesh) and .p-grain
+            owns ::after — both taken, and a third rule on either would
+            silently replace one of them.
+
+            aria-hidden and pointer-events: none. At rest --lit is 0, so with
+            no pointer, no JS, a touch screen or reduced motion this paints
+            nothing at all and the card is exactly what it was. */}
+        <span class="cta-glow" aria-hidden="true"></span>
+
         <div class="cta-inner">
           <div class="cta-copy">
             <h2 class="t-h2">{heading}</h2>
@@ -137,6 +148,21 @@ const lede =
     }
   }
 
+  .cta-glow {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--lit, 0);
+    transition: opacity var(--dur-state) var(--ease-entrance);
+    background: radial-gradient(
+      22rem 22rem at var(--px, 50%) var(--py, 50%),
+      color-mix(in oklab, var(--color-accent) 22%, transparent),
+      color-mix(in oklab, var(--color-accent) 8%, transparent) 42%,
+      transparent 72%
+    );
+  }
+
   .cta-copy {
     display: flex;
     flex-direction: column;
@@ -166,3 +192,38 @@ const lede =
   }
 
 </style>
+
+<script>
+  /* One listener on the card, rAF-batched, and only where a spotlight makes
+     sense: a glow that follows a finger is a glow underneath the finger, and a
+     reader who asked for less motion did not ask for this. Both gates are
+     checked before the listener is attached, so the cost on a phone is the
+     matchMedia call and nothing else. */
+  if (
+    matchMedia('(pointer: fine)').matches &&
+    !matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    for (const card of document.querySelectorAll<HTMLElement>('[data-cta-glow]')) {
+      let frame = 0;
+      let x = 0;
+      let y = 0;
+      card.addEventListener(
+        'pointermove',
+        (e) => {
+          const r = card.getBoundingClientRect();
+          x = ((e.clientX - r.left) / r.width) * 100;
+          y = ((e.clientY - r.top) / r.height) * 100;
+          if (frame) return;
+          frame = requestAnimationFrame(() => {
+            frame = 0;
+            card.style.setProperty('--px', x + '%');
+            card.style.setProperty('--py', y + '%');
+            card.style.setProperty('--lit', '1');
+          });
+        },
+        { passive: true }
+      );
+      card.addEventListener('pointerleave', () => card.style.setProperty('--lit', '0'));
+    }
+  }
+</script>

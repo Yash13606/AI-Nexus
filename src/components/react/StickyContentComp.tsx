@@ -333,9 +333,15 @@ export function StickyContentComp({
                 <img
                   src={item.image}
                   alt={item.alt || ''}
-                  width={item.width || 1080}
-                  height={item.height || 1080}
+                  width={item.width || 1600}
+                  height={item.height || 894}
                   decoding="async"
+                  /* The section sits well below the fold on every route that
+                     renders it, and the island itself is client:visible — so
+                     the four photographs should not be on the critical path
+                     either. They have a real box from width/height, which is
+                     what lazy loading needs to have something to observe. */
+                  loading="lazy"
                 />
               )}
             </div>
