@@ -1790,19 +1790,14 @@ a:hover > .arrow {
   .scw[data-ready] .scw-right {
     display: block;
   }
-  /* 58/42, not 50/50. The copy column is what runs out of vertical room, and
-     every extra pixel of WIDTH buys back a line: at 494px the tallest panel is
-     740px tall, at 590px it is short enough for the pin to run on an ordinary
-     laptop instead of only on a tall external display. */
-  .scw[data-ready] .scw-left {
-    position: relative;
-    width: 58%;
-    height: 100%;
-    gap: 0;
-  }
+  /* An even split: half the screen for the copy, half for the photograph.
+     It was 58/42 — width was being bought for the copy column because the
+     panel had to fit vertically, and the extra 8% was worth a line or two. The
+     floor below is re-measured for 50/50 rather than inherited. */
+  .scw[data-ready] .scw-left,
   .scw[data-ready] .scw-right {
     position: relative;
-    width: 42%;
+    width: 50%;
     height: 100%;
     gap: 0;
   }
