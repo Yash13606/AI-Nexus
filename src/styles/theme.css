@@ -1426,6 +1426,18 @@ a:hover > .arrow {
   flex-direction: column;
   gap: 3rem;
 }
+/* The section is the scroller and nothing else now that the heading is gone,
+   so it carries no band padding of its own — the pinned box IS the screen,
+   and 120px of section padding above it would be 120px of blank paper before
+   the first example. The stacked fallback puts its own rhythm back. */
+.scw-section {
+  padding-block: 0;
+}
+@media (max-width: 1024px) {
+  .scw-section {
+    padding-block: var(--section-y);
+  }
+}
 /* NOT PINNED — and this is the layout most windows get, so it is designed
    rather than left over. `display: contents` drops the two column wrappers out
    of the box tree, which puts all eight children into one grid; explicit
@@ -1467,24 +1479,6 @@ a:hover > .arrow {
   .scw-content { grid-column: 1; }
   .scw-image { grid-column: 2; }
 }
-/* Split header: heading left, intro right. Stacked below 900px. */
-.scw-secthead {
-  display: grid;
-  gap: 1.25rem 4rem;
-  align-items: end;
-}
-@media (min-width: 900px) {
-  .scw-secthead {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  }
-  .scw-secthead > :last-child {
-    padding-bottom: 0.35rem;
-  }
-}
-/* The columns are `display: contents` above, so they contribute no box of
-   their own — this used to redeclare them as flex columns further down the
-   file and won on source order, which put all four copies in one stack and
-   all four images in another. */
 .scw-content {
   padding-block: 0;
 }
@@ -1548,12 +1542,6 @@ a:hover > .arrow {
     margin-top: 1rem;
   }
 
-  /* The heading holds still; only the row beneath it changes. */
-  .scw[data-ready] .scw-head {
-    flex: none;
-    padding-inline: max(var(--shell-pad), calc((100vw - var(--page-max-width)) / 2 + var(--shell-pad)));
-    --shell-pad: clamp(1.5rem, 4vw, 3rem);
-  }
   /* Pinned, the wrappers come back as real boxes — the overlay needs one
      column to hold the copies and one to hold the images, each stacked on
      itself so they can crossfade in place. */
@@ -1606,12 +1594,6 @@ a:hover > .arrow {
   .scw[data-ready] .pp-copy .t-lede {
     font-size: var(--text-body);
   }
-  .scw[data-ready] .scw-head h2 {
-    font-size: var(--text-h3);
-  }
-  .scw[data-ready] .scw-head .t-lede {
-    font-size: var(--text-body-sm);
-  }
   .scw[data-ready] .pp-card figure {
     padding: 1.25rem;
   }
@@ -1649,8 +1631,8 @@ a:hover > .arrow {
        283px of padding, squeezing the copy back to 494px and undoing the
        widening it was there to enable.
 
-       Same expression as .scw-head above, so the copy and the heading it sits
-       under move together whatever a scrollbar does to 100vw. */
+       Reads the viewport, so a scrollbar shifts it the same way it shifts
+       every other .shell on the page. */
     padding-left: max(var(--shell-pad), calc((100vw - var(--page-max-width)) / 2 + var(--shell-pad)));
     padding-right: clamp(2rem, 4vw, 4rem);
   }

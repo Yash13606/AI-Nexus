@@ -204,7 +204,7 @@ const roleAngles = [45, -45, 135, 90];
       No JS / reduced motion / narrow / short / printing: plain stacked
       list, same content, no overlay — see platform-pin.js and the
       [data-pinned] gate in theme.css. */}
-  <section class="section">
+  <section class="section scw-section">
 
     {/* The Sticky Content Wrapper (Hyperiux Vault), driving the four worked
         examples. `client:visible` so the island — React, GSAP/ScrollTrigger
@@ -229,23 +229,6 @@ const roleAngles = [45, -45, 135, 90];
       client:visible
       items={platforms.map((p) => ({ image: `/platforms/tile-${p.slug}.webp`, alt: '' }))}
     >
-      {/* Anchored at the top of the sticky box, so it is on screen the whole
-          way through the four examples. It used to sit above the track in its
-          own .shell, which meant it had scrolled away before the first panel
-          arrived — the one thing this pattern exists to prevent.
-
-          Split header: heading left, intro right. Stacked they are 147px of a
-          826px box and the tallest panel needs 686; side by side they are 93,
-          which is what makes both fit. Same .p-secthead shape the platform
-          pages use. */}
-      <div slot="header" class="scw-secthead">
-        <h2 class="t-h2" style="max-width: 20ch;">What each platform actually does</h2>
-        <p class="t-lede">
-          Every platform ships with a worked example: the input a real user gives, the output the agent
-          produces, and the guardrail that constrains it.
-        </p>
-      </div>
-
       <PlatformPanelBody slot="body-0" platform={platforms[0]} index={0} />
       <PlatformPanelBody slot="body-1" platform={platforms[1]} index={1} />
       <PlatformPanelBody slot="body-2" platform={platforms[2]} index={2} />
