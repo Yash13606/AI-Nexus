@@ -302,7 +302,17 @@ const roleAngles = [45, -45, 135, 90];
       Numbered because this genuinely is a sequence — a connected rail of
       steps, click (or arrow-key) any node to bring its panel forward. */}
   <section class="section band">
-    <div class="shell">
+    {/* Pinned for four screens of scroll, one per step. The whole block goes
+        with it — heading, rail, panel and caveat — so the step you are on
+        changes while everything that explains it stays put.
+
+        The track is the scroll budget; the sticky child is what you see. CSS
+        gives it neither height nor stickiness until initStepScroll sets
+        data-step-scroll, so JS off, reduced motion, a narrow screen or a short
+        window all leave a plain tablist in normal flow. */}
+    <div class="hiw-track" style={`--hiw-steps: ${deployment.length};`}>
+      <div class="hiw-stick">
+        <div class="shell">
       <h2 class="t-h2" style="max-width: 20ch;">How a deployment works</h2>
       <p class="t-lede mt-5">The same four steps for every platform.</p>
 
@@ -324,7 +334,7 @@ const roleAngles = [45, -45, 135, 90];
           ))}
         </div>
 
-        <div class="mt-10" style="max-width: var(--prose-max-width);">
+        <div class="hiw-panels mt-10" style="max-width: var(--prose-max-width);">
           {deployment.map((d, i) => (
             <div role="tabpanel" id={`hiw-panel-${i}`} aria-labelledby={`hiw-tab-${i}`} tabindex="0" class="hiw-panel">
               <p class="t-cap mono" style="color: var(--color-muted);">{d.n}</p>
@@ -336,6 +346,9 @@ const roleAngles = [45, -45, 135, 90];
       </div>
 
       <p class="t-sm mt-9 prose" style="color: var(--color-muted);">{deploymentCaveat}</p>
+    </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -520,9 +533,13 @@ const roleAngles = [45, -45, 135, 90];
   import { initReveal } from '../scripts/reveal.js';
   import { initGlowCards } from '../scripts/glow-cards.js';
   import { initTabs } from '../scripts/tabs.js';
+  import { initStepScroll } from '../scripts/step-scroll.js';
   initReveal();
   initGlowCards();
 
   const deploymentTabs = document.getElementById('deployment-tabs');
-  if (deploymentTabs) initTabs(deploymentTabs);
+  if (deploymentTabs) {
+    const api = initTabs(deploymentTabs);
+    initStepScroll(deploymentTabs.closest('.hiw-track'), api);
+  }
 </script>

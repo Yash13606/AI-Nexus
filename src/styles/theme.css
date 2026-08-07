@@ -1382,6 +1382,40 @@ a:hover > .arrow {
   }
 }
 
+/* ── "How a deployment works" — one step per screen of scroll ─────────────
+   Everything below is gated on [data-step-scroll], which initStepScroll sets
+   only after it has confirmed the reader wants motion and the window can hold
+   the block. Without it the track is a plain wrapper and the tablist behaves
+   exactly as it did: click or arrow-key a step, all four panels in the HTML,
+   nothing pinned and nothing tall.
+
+   The track is the scroll budget. 0.78 of a screen per step rather than a
+   whole one: four full screens of scrolling to read four short paragraphs
+   makes the section feel like it is holding you hostage, and the step still
+   gets a clear, deliberate beat of travel. */
+@media (min-width: 900px) {
+  .hiw-track[data-step-scroll] {
+    position: relative;
+    height: calc(var(--hiw-steps, 4) * 78vh);
+  }
+  .hiw-track[data-step-scroll] .hiw-stick {
+    position: sticky;
+    /* The pill's bottom edge — its wrapper's lower padding is transparent and
+       content shows through it, so counting it as chrome wastes 14px. */
+    top: calc(var(--nav-h) - var(--nav-pad-y));
+    min-height: calc(100svh - (var(--nav-h) - var(--nav-pad-y)));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* A FIXED panel box. `hidden` collapses the three steps you are not on, so
+     without this the block changes height at every step and the pinned layout
+     shifts under the pointer. Sized to the tallest, measured. */
+  .hiw-track[data-step-scroll] .hiw-panels {
+    min-height: 8.5rem;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    PLATFORM PIN — "What each platform actually does"
    One platform holds the screen while the next scrolls in behind it.
