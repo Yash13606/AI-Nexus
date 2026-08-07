@@ -10,154 +10,164 @@ import { contact } from '../content/site';
   title="Contact AI Nexus Innovations Hub — Bengaluru"
   description="Book a 30-minute demo of any AI Nexus platform, run on your own facility type, board, practice area or city. We reply within one business day."
 >
-  <section class="section" style="padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);">
+  <section class="section" style="padding-block: clamp(1.5rem, 3vw, 2.5rem) 0;">
     <div class="shell">
       <Breadcrumbs trail={[{ href: '/', label: 'Home' }, { label: 'Contact' }]} />
-      <h1 class="t-h1 mt-3" style="max-width: 18ch;">Book a demo</h1>
 
-      {/* Three facts instead of a paragraph saying the same thing. */}
-      <ul class="expect mt-8 list-none m-0 p-0">
-        {
-          [
-            { k: '~30 min', v: 'A working demo, not a slide tour' },
-            { k: 'Your data', v: 'Run on your facility type or city' },
-            { k: '1 business day', v: 'We reply, every enquiry' },
-          ].map((e) => (
-            <li class="expect__item">
-              <span class="expect__k mono">{e.k}</span>
-              <span class="expect__v t-sm">{e.v}</span>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+      <p class="contact-eyebrow">Talk to us</p>
 
-  <section class="section" style="padding-top: 0;">
-    <div class="shell grid gap-12 lg:grid-cols-[7fr_5fr] lg:items-start">
-      {/* ── Form. No backend: submitting swaps in a success state that names
-            the real route. Labels are always visible — never placeholder-as-
-            label. Errors are announced, not just coloured. ── */}
-      <div>
-        <div class="form-card">
-        <form id="demo-form" novalidate class="flex flex-col gap-5" aria-describedby="form-note">
-          {/* Four fields. Organisation and phone came out — an email is enough
-              to reply, and anything else fits in the message. */}
-          <div class="grid gap-5 sm:grid-cols-2">
-            <p class="field">
-              <label for="name">Name</label>
-              <input id="name" name="name" type="text" autocomplete="name" required />
-              <span class="err" id="name-err" hidden></span>
-            </p>
-            <p class="field">
-              <label for="email">Work email</label>
-              <input id="email" name="email" type="email" autocomplete="email" required />
-              <span class="err" id="email-err" hidden></span>
-            </p>
+      <div class="contact-head">
+        <h1 class="contact-head__title">Book a demo</h1>
+        <p class="t-sm contact-head__lede">
+          Tell us what you'd like to see and which platform — we'll confirm a slot within one business day.
+        </p>
+      </div>
+
+      <div class="contact-grid mt-7">
+        {/* ── Form. No backend: submitting swaps in a success state that names
+              the real route. Labels are always visible — never placeholder-as-
+              label. Errors are announced, not just coloured. ── */}
+        <div>
+          <div class="form-card">
+            <form id="demo-form" novalidate class="flex flex-col gap-5" aria-describedby="form-note">
+              <div class="grid gap-5 sm:grid-cols-2">
+                <p class="field">
+                  <label for="name">Name</label>
+                  <input id="name" name="name" type="text" autocomplete="name" required />
+                  <span class="err" id="name-err" hidden></span>
+                </p>
+                <p class="field">
+                  <label for="email">Email</label>
+                  <input id="email" name="email" type="email" autocomplete="email" required />
+                  <span class="err" id="email-err" hidden></span>
+                </p>
+              </div>
+
+              <div class="grid gap-5 sm:grid-cols-2">
+                <p class="field">
+                  <label for="phone">Phone number</label>
+                  <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder={contact.phone} />
+                </p>
+                <p class="field">
+                  <label for="platform">Which platform?</label>
+                  <select id="platform" name="platform">
+                    <option value="">Not sure yet</option>
+                    {
+                      platforms.map((p) => (
+                        <option value={p.slug}>
+                          {p.name} — {p.subtitle}
+                        </option>
+                      ))
+                    }
+                    <option value="partnership">Partnership or something else</option>
+                  </select>
+                </p>
+              </div>
+
+              <div class="grid gap-5 sm:grid-cols-2">
+                <p class="field">
+                  <label for="date">Preferred date</label>
+                  <input id="date" name="date" type="date" />
+                </p>
+                <p class="field">
+                  <label for="attendees">Attendees</label>
+                  <input id="attendees" name="attendees" type="number" min="1" placeholder="e.g. 3" />
+                </p>
+              </div>
+
+              <p class="field">
+                <label for="message">What would you like to see?</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+                <span class="err" id="message-err" hidden></span>
+              </p>
+
+              {/* Consent is a real gate, not decoration — it blocks submit and is
+                  announced like any other field error. */}
+              <div class="consent">
+                <input id="consent" name="consent" type="checkbox" class="consent__box" />
+                <label for="consent" class="consent__label t-sm">
+                  I agree that AI Nexus may use these details to reply to this enquiry, as described in the
+                  <a href="/privacy/" style="color: var(--color-accent);">privacy policy</a>.
+                </label>
+                <span class="err consent__err" id="consent-err" hidden></span>
+              </div>
+
+              {/* The round button is decoration on the same control, not a
+                  second one: aria-hidden and out of the tab order, so the
+                  submit is still a single target for keyboard and AT. */}
+              <div class="flex flex-wrap items-center gap-4">
+                <span class="send-pair">
+                  <button type="submit" class="btn btn-primary tx-fast form-send">
+                    Book your demo
+                  </button>
+                  <span class="send-pair__go" aria-hidden="true">
+                    <Icon name="arrow-up-right" size={16} />
+                  </span>
+                </span>
+                <span id="form-status" role="status" aria-live="polite" class="t-cap" style="color: var(--color-muted);"></span>
+              </div>
+
+              <p id="form-note" class="t-cap" style="color: var(--color-muted);">
+                Or email
+                <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
+                directly.
+              </p>
+            </form>
           </div>
 
-          <p class="field">
-            <label for="platform">Which platform?</label>
-            <select id="platform" name="platform">
-              <option value="">Not sure yet</option>
-              {
-                platforms.map((p) => (
-                  <option value={p.slug}>
-                    {p.name} — {p.subtitle}
-                  </option>
-                ))
-              }
-              <option value="partnership">Partnership or something else</option>
-            </select>
-          </p>
-
-          <p class="field">
-            <label for="message">What would you like to see?</label>
-            <textarea id="message" name="message" rows="5" required></textarea>
-            <span class="err" id="message-err" hidden></span>
-          </p>
-
-          {/* Consent is a real gate, not decoration — it blocks submit and is
-              announced like any other field error. */}
-          <div class="consent">
-            <input id="consent" name="consent" type="checkbox" class="consent__box" />
-            <label for="consent" class="consent__label t-sm">
-              I agree that AI Nexus may use these details to reply to this enquiry, as described in the
-              <a href="/privacy/" style="color: var(--color-accent);">privacy policy</a>.
-            </label>
-            <span class="err consent__err" id="consent-err" hidden></span>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-4">
-            <button type="submit" class="btn btn-primary tx-fast form-send">
-              Send message <Icon name="arrow-right" class="arrow" />
+          <div id="demo-sent" hidden class="card p-6 flex flex-col gap-3 mt-8">
+            <div class="flex items-center gap-2.5">
+              <Icon name="check" size={18} />
+              <h3 class="t-h4">Message ready to send</h3>
+            </div>
+            <p class="t-sm">
+              This site has no message backend yet, so nothing was transmitted. Send the same message to
+              <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
+              and it reaches the same person — we reply within one business day.
+            </p>
+            <p class="t-cap" style="color: var(--color-muted);">
+              We would rather say this plainly than show a confirmation for something that did not happen.
+            </p>
+            <button type="button" id="form-again" class="btn btn-secondary tx-fast self-start mt-1">
+              Edit the message
             </button>
-            <span id="form-status" role="status" aria-live="polite" class="t-cap" style="color: var(--color-muted);"></span>
           </div>
-
-          <p id="form-note" class="t-cap" style="color: var(--color-muted);">
-            Or email
-            <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
-            directly.
-          </p>
-        </form>
         </div>
 
-        <div id="demo-sent" hidden class="card p-6 flex flex-col gap-3 mt-8">
-          <div class="flex items-center gap-2.5">
-            <Icon name="check" size={18} />
-            <h3 class="t-h4">Message ready to send</h3>
-          </div>
-          <p class="t-sm">
-            This site has no message backend yet, so nothing was transmitted. Send the same message to
-            <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
-            and it reaches the same person — we reply within one business day.
-          </p>
-          <p class="t-cap" style="color: var(--color-muted);">
-            We would rather say this plainly than show a confirmation for something that did not happen.
-          </p>
-          <button type="button" id="form-again" class="btn btn-secondary tx-fast self-start mt-1">
-            Edit the message
-          </button>
+        {/* ── Decorative visual. Still not stock photography of a fabricated
+              "customer" scene — it is the brand's own India globe, abstract and
+              already in the accent hue, so the illustrative-only rule holds.
+              The gradient stays underneath as the loading/fallback surface. ── */}
+        <div class="contact-visual" aria-hidden="true">
+          <img class="contact-visual__img" src="/contact-india.webp" alt="" width="880" height="1100" />
+          <span class="contact-visual__badge">Built for India</span>
         </div>
       </div>
 
-      {/* ── Details ── */}
-      <aside class="flex flex-col gap-6">
-        <div class="card p-6 flex flex-col gap-4">
-          <h2 class="t-h4">Direct</h2>
-          <ul class="list-none m-0 p-0 flex flex-col gap-3.5">
-            <li class="flex items-start gap-3">
-              <span class="contact-ic" aria-hidden="true"><Icon name="mail" size={15} /></span>
-              <a href={`mailto:${contact.email}`} class="t-sm mono no-underline hover:underline" style="color: var(--color-accent);">
-                {contact.email}
-              </a>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="contact-ic" aria-hidden="true"><Icon name="phone" size={15} /></span>
-              <a href={contact.phoneHref} class="t-sm mono no-underline hover:underline" style="color: var(--color-accent);">
-                {contact.phone}
-              </a>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="contact-ic" aria-hidden="true"><Icon name="map-pin" size={15} /></span>
-              <span class="t-sm">{contact.office}<br />India</span>
-            </li>
-          </ul>
-          <p class="t-cap mono mt-1" style="color: var(--color-muted);">{contact.hours}</p>
-          <a
-            href={contact.linkedin}
-            target="_blank"
-            rel="noopener"
-            class="link-accent mt-1"
-          >
-            Connect on LinkedIn <Icon name="arrow-up-right" size={13} />
-          </a>
-        </div>
-
-        {/* Legal entities and the product-site list came out — both are in
-            the footer on every page, this one included. */}
-      </aside>
+      {/* Icon row. Left-aligned per-item (DESIGN.md §11: no centered body copy
+          outside the CTA band) rather than the centred columns a template would
+          default to. */}
+      <ul class="contact-points list-none m-0">
+        <li class="contact-points__item">
+          <span class="contact-points__icon"><Icon name="phone" size={18} /></span>
+          <p class="t-h4 contact-points__label">Call &amp; WhatsApp</p>
+          <p class="t-sm contact-points__value">
+            <a href={contact.phoneHref} class="mono">{contact.phone}</a>
+          </p>
+        </li>
+        <li class="contact-points__item">
+          <span class="contact-points__icon"><Icon name="clock" size={18} /></span>
+          <p class="t-h4 contact-points__label">Working Hours</p>
+          <p class="t-sm contact-points__value mono">{contact.hours}</p>
+        </li>
+        <li class="contact-points__item">
+          <span class="contact-points__icon"><Icon name="mail" size={18} /></span>
+          <p class="t-h4 contact-points__label">Write to Us</p>
+          <p class="t-sm contact-points__value">
+            <a href={`mailto:${contact.email}`} class="mono">{contact.email}</a>
+          </p>
+        </li>
+      </ul>
     </div>
   </section>
 </Base>
@@ -242,13 +252,60 @@ import { contact } from '../content/site';
 </script>
 
 <style>
+  /* ── Masthead — big title left, short lede right. The one place on this
+     page text runs right-flush rather than left: an asymmetric two-up
+     header, not centered body copy, so it doesn't trip DESIGN.md §11. */
+  .contact-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .contact-head__title {
+    margin: 0;
+    max-width: 14ch;
+    font-size: clamp(2.25rem, 5.4vw, var(--text-display));
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .contact-head__lede {
+    max-width: 34ch;
+    color: var(--color-muted);
+  }
+  @media (min-width: 760px) {
+    .contact-head {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    .contact-head__lede {
+      text-align: right;
+    }
+  }
+
+  /* ── Form + visual, side by side ── */
+  .contact-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 1024px) {
+    .contact-grid {
+      grid-template-columns: 3fr 2fr;
+      align-items: stretch;
+    }
+  }
+
   /* ── Form card ──
      The form sits on its own surface rather than loose on the page. Wash
      rather than a translucent fill: this page is Paper, so a see-through
      card would have nothing to separate from. */
   .form-card {
     border: 1px solid var(--color-hairline);
-    border-radius: clamp(16px, 2vw, 24px);
+    border-radius: var(--radius-panel);
     background: var(--color-wash);
     padding: clamp(1.25rem, 3.5vw, 2.25rem);
     box-shadow: var(--shadow-1);
@@ -350,48 +407,162 @@ import { contact } from '../content/site';
     }
   }
 
-  /* Hero "what to expect" row — three facts as bordered cells sharing a rail. */
-  .expect {
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: 1fr;
-    max-width: 640px;
-  }
-  @media (min-width: 560px) {
-    .expect {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  .expect__item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.875rem 1rem;
+  /* ── Decorative visual ──
+     Same technique as the home hero card: a CSS radial gradient plus a
+     repeating-linear-gradient rule texture. Zero bytes, no third-party
+     request, and never mistaken for a real customer photo. */
+  /* Pill above the h1, the reference's "Plan Trip" slot. */
+  .contact-eyebrow {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.3rem 0.85rem;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-card);
-    background: var(--color-paper);
-    border-top: 3px solid var(--color-accent);
-  }
-  .expect__k {
-    font-size: var(--text-body-sm);
-    font-weight: 500;
-    color: var(--color-ink);
-    letter-spacing: -0.01em;
-  }
-  .expect__v {
+    background: var(--color-wash);
     color: var(--color-muted);
+    font-size: var(--text-caption);
+    font-weight: 500;
   }
 
-  /* Icon badge in the Direct card — a soft accent tile, not a bare glyph. */
-  .contact-ic {
+  /* Submit + round affordance, sharing one rounded shell. */
+  .send-pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .send-pair__go {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: none;
+    border-radius: var(--radius-pill);
+    background: var(--color-ink);
+    color: #fff;
+    transition: transform var(--dur-micro) var(--ease-entrance);
+  }
+  .send-pair:hover .send-pair__go {
+    transform: translateX(2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .send-pair__go {
+      transition: none;
+    }
+    .send-pair:hover .send-pair__go {
+      transform: none;
+    }
+  }
+
+  .contact-visual {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 280px;
+    border-radius: var(--radius-panel);
+    background: radial-gradient(
+      130% 100% at 18% 100%,
+      #2b46d4 0%,
+      #3f63e2 20%,
+      #7ea3f0 40%,
+      #bed3f8 58%,
+      #dbe7fb 72%,
+      #eff5fe 85%,
+      #ffffff 100%
+    );
+  }
+  .contact-visual::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.16) 0 1px, transparent 1px clamp(40px, 6vw, 64px));
+    mask-image: linear-gradient(180deg, transparent 0%, #000 45%, #000 100%);
+  }
+  /* No min-height override at the ≥1024px breakpoint: the grid container's
+     default `align-items: stretch` already matches this panel's height to
+     the form column. A `min-height: 100%` here previously fought that — a
+     percentage height against an auto-sized grid row resolves to nothing
+     during track sizing, so the panel could end up 0px tall with only its
+     absolutely-positioned badge visible, floating with no gradient behind
+     it. The 280px base min-height above still guards the single-column
+     mobile layout. */
+  /* Sits above the gradient, which stays as the surface while it loads. */
+  .contact-visual__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 55%;
+    z-index: -1;
+  }
+
+  .contact-visual__badge {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 1;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgb(255 255 255 / 0.5);
+    background: rgb(11 18 32 / 0.28);
+    color: #fff;
+    font-size: var(--text-caption);
+    font-weight: 500;
+    backdrop-filter: blur(6px);
+  }
+
+  /* ── Icon contact row ──
+     Left-aligned per item, not centred (DESIGN.md §11). Circular accent-wash
+     badge follows the same 999px-icon precedent as the FAQ toggle and the
+     how-it-works rail nodes elsewhere on the site. */
+  .contact-points {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    margin-top: clamp(1.75rem, 3.5vw, 2.75rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 640px) {
+    .contact-points {
+      /* Natural widths, spread across the full row — not boxed into equal
+         thirds, so a short item doesn't sit in as much column as a long one. */
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1.5rem 2.5rem;
+    }
+  }
+  .contact-points__item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.625rem;
+    flex: 1 1 220px;
+  }
+  .contact-points__icon {
     flex: none;
     display: grid;
     place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    margin-top: 0.05rem;
-    border-radius: var(--radius-button);
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-pill);
     background: var(--color-accent-wash);
     color: var(--color-accent);
+  }
+  .contact-points__label {
+    margin: 0;
+  }
+  .contact-points__value {
+    margin: 0;
+    color: var(--color-muted);
+  }
+  .contact-points__value a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .contact-points__value a:hover {
+    text-decoration: underline;
   }
 </style>

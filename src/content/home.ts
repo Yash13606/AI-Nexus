@@ -45,14 +45,38 @@ export const disciplineBody =
   'Four industries, one engineering discipline: AI that shows its work, inside software that runs the whole institution. Every agent cites its source, every model call is redacted and logged, every output a human can override — and all of it sits on a complete operating system for the institution, not a chatbot beside one.';
 
 export const governance = [
-  { title: 'Redacted before the model sees it', body: 'PHI and personal information are stripped before any model call — nine categories of Indian personal identifier, including Aadhaar, PAN, GSTIN, bank account and passport number.' },
-  { title: 'Citations verified, or removed', body: 'Legal citations are checked against Indian Kanoon and school answers against the page they came from. What cannot be verified is removed and the answer says so — never rendered with a caveat.' },
-  { title: 'Consent gated, fail-closed', body: 'DPDP consent is checked before client data reaches a model, and the check fails closed: no consent, no call.' },
-  { title: 'Agents propose, humans approve', body: 'No agent files, prescribes, sends or bills on its own. A clinician signs the note, a pharmacist signs the reconciliation, a biller approves the appeal, an advocate approves the filing.' },
-  { title: 'Cost ceilings in rupees', body: 'Every tenant sets a ceiling. At the cap the model downshifts automatically rather than failing, and every invocation is counted against it.' },
-  { title: 'A kill switch per agent', body: 'One flag turns any single agent off instantly, per institution — no deployment, no support ticket.' },
-  { title: 'Everything logged', body: 'Every AI invocation is written to an append-only audit trail with the request that produced it.' },
-  { title: 'Deterministic fallback', body: 'Each agent ships a deterministic engine returning the same schema as the model path, so the anti-hallucination gates apply identically whether or not a model is called.' },
+  {
+    title: 'Redacted before the model sees it',
+    points: ['Stripped before every model call', '9 Indian ID categories — Aadhaar, PAN, GSTIN, bank, passport'],
+  },
+  {
+    title: 'Citations verified, or removed',
+    points: ['Checked against Indian Kanoon or the source page', 'Unverifiable claims are removed, not caveated'],
+  },
+  {
+    title: 'Consent gated, fail-closed',
+    points: ['Checked before any data reaches a model', 'No consent, no call'],
+  },
+  {
+    title: 'Agents propose, humans approve',
+    points: ['No agent acts on its own', 'A clinician, pharmacist, biller or advocate signs off'],
+  },
+  {
+    title: 'Cost ceilings in rupees',
+    points: ['Every tenant sets a ceiling', 'Downshifts at the cap — never fails'],
+  },
+  {
+    title: 'A kill switch per agent',
+    points: ['One flag, instant off, per institution', 'No deployment, no support ticket'],
+  },
+  {
+    title: 'Everything logged',
+    points: ['Append-only audit trail', 'Every invocation, with the request that produced it'],
+  },
+  {
+    title: 'Deterministic fallback',
+    points: ['Deterministic engine per agent', 'Same schema, same anti-hallucination gates either way'],
+  },
 ];
 
 /** A real sequence — which is why these carry numbers. */
@@ -66,9 +90,6 @@ export const deployment = [
 export const deploymentCaveat =
   'We do not publish a go-live duration, because we have not measured one across enough institutions to quote honestly.';
 
-export const whyLede =
-  'Hospitals, schools, law practices and property businesses run on tangles of disconnected software — a dozen logins, manual re-entry, and hours lost to administration. We build one deeply integrated, AI-native platform per industry, so the people inside these institutions can spend their time on patients, students, clients and homes.';
-
 /** Each entry pairs the existing claim with a small real-data panel — every
  *  number here is published elsewhere on the site (platform stats, FAQ),
  *  never invented for the visual. */
@@ -76,19 +97,21 @@ export const why = [
   {
     title: 'One platform per institution',
     body: 'Each product replaces a stack of point tools with a single system and a single source of truth — 100+ modules in a hospital, a complete school OS under the teaching agents, twelve modules from intake to invoice in a law firm.',
-    icon: 'stack',
+    icon: 'grid',
     panelLabel: 'System size',
     stat: '100+',
     unit: 'modules',
+    caption: 'Single system. Single source of truth.',
     rows: ['100+ modules · MedOrbit', '640+ screens · Edvation', '12 modules · AdvoHub'],
   },
   {
     title: 'AI that shows its work',
     body: 'Page citations in education. Indian Kanoon verification in law. Chart-grounded outputs in health. Explainable scores in property. Every one is checkable by the person relying on it.',
-    icon: 'check',
+    icon: 'doc-check',
     panelLabel: 'Verified, not just generated',
     stat: '4',
     unit: 'verification methods',
+    caption: 'Verified, not just generated.',
     rows: ['Page citations · Edvation', 'Indian Kanoon check · AdvoHub', 'Explainable scores · TrustProperty'],
   },
   {
@@ -97,7 +120,8 @@ export const why = [
     icon: 'globe',
     panelLabel: 'Indian languages',
     stat: '22',
-    unit: 'languages · AdvoHub',
+    unit: 'Indian languages',
+    caption: 'Compliance and workflows built in.',
     rows: ['13 · Edvation', '3 · TrustProperty', 'Hindi, Marathi, Kannada · MedOrbit'],
   },
   {
@@ -107,6 +131,7 @@ export const why = [
     panelLabel: 'Data residency',
     stat: 'ap-south-1',
     unit: 'AWS Mumbai',
+    caption: 'DPDP Act 2023. Audit trails by design.',
     rows: ['DPDP Act 2023', 'Consent flows built in', 'Append-only audit trails'],
   },
 ];

@@ -7,12 +7,13 @@ import ScrollExpand from '../components/react/ScrollExpand';
 import GradualBlur from '../components/react/GradualBlur';
 import MagicBento from '../components/react/MagicBento';
 import ScrollSpread from '../components/react/ScrollSpread';
+import GovernanceShaderCards from '../components/react/GovernanceShaderCards';
 import { platforms } from '../content/platforms';
 import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
 import {
-  hero, standards, showcase, proof, governance,
-  deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs,
+  hero, standards, showcase, proof,
+  deployment, deploymentCaveat, why, roleFamilies, faqs,
 } from '../content/home';
 import { contact } from '../content/site';
 
@@ -330,13 +331,8 @@ const AGENTS_SHOWN = 4;
         software, not commitments in a policy document.
       </p>
 
-      <div class="mt-12 grid gap-x-9 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
-        {governance.map((g) => (
-          <div class="flex flex-col gap-2 pt-4" style="border-top: 1px solid var(--color-hairline);">
-            <h3 class="t-h4">{g.title}</h3>
-            <p class="t-sm">{g.body}</p>
-          </div>
-        ))}
+      <div class="mt-12">
+        <GovernanceShaderCards client:visible />
       </div>
 
       <p class="t-sm mt-10" style="color: var(--color-muted);">
@@ -386,39 +382,52 @@ const AGENTS_SHOWN = 4;
     </div>
   </section>
 
-  {/* ══════════════ WHY ══════════════ */}
-  <section class="section">
+  {/* ══════════════ WHY ══════════════
+      Ported verbatim from the supplied reference comp — eyebrow, two-line
+      headline with one highlighted phrase, short subline, four icon cards,
+      closing compliance bar. Not run through DESIGN.md's radius/centering
+      rules on purpose; this section matches the reference pixel-for-pixel
+      instead. */}
+  <section class="section why-section">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">Why institutions choose AI Nexus</h2>
-      <p class="t-lede mt-5">{whyLede}</p>
+      <p class="t-label why-eyebrow">Why institutions choose AI Nexus</p>
+      <h2 class="why-heading">
+        One platform per industry.<br />
+        AI that <span class="why-heading__accent">shows its work.</span>
+      </h2>
+      <p class="t-sm why-lede">
+        Integrated. Verifiable. Built for India.<br />
+        So your team can focus on what matters.
+      </p>
 
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="why-grid">
         {why.map((w) => (
-          <div class="feat-card">
-            <div class="feat-card-head">
-              <h3 class="t-h4">{w.title}</h3>
-              <p class="t-sm mt-2.5" style="color: var(--color-muted);">{w.body}</p>
+          <div class="why-card">
+            <div class="why-card__head">
+              <span class="why-card__icon"><Icon name={w.icon} size={20} /></span>
+              <h3 class="why-card__title">{w.title}</h3>
             </div>
 
-            <div class="feat-card-panel">
-              <div class="flex items-center gap-1.5 t-cap" style="color: var(--color-muted);">
-                <Icon name={w.icon} size={14} />
-                {w.panelLabel}
-              </div>
+            <div class="why-card__rule"></div>
 
-              <div>
-                <p class="glow-card-stat mono">{w.stat}</p>
-                <p class="t-cap mt-1" style="color: var(--color-muted);">{w.unit}</p>
-              </div>
-
-              <div class="flex flex-col">
-                {w.rows.map((row) => (
-                  <p class="feat-card-row t-cap">{row}</p>
-                ))}
-              </div>
+            <div class="why-card__stat-block">
+              <p class="why-card__stat mono">{w.stat}</p>
+              <p class="why-card__unit">{w.unit}</p>
             </div>
+
+            <div class="why-card__rule"></div>
+
+            <p class="why-card__caption">
+              <Icon name="check" size={13} />
+              <span>{w.caption}</span>
+            </p>
           </div>
         ))}
+      </div>
+
+      <div class="why-bar">
+        <Icon name="shield" size={15} />
+        <span>Every output is verifiable. Every action is logged. Every control is enforced.</span>
       </div>
     </div>
   </section>
