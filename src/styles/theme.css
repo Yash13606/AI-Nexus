@@ -1532,11 +1532,11 @@ a:hover > .arrow {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: clamp(1.25rem, 2.5vh, 2rem);
+    gap: clamp(0.75rem, 1.6vh, 1.25rem);
     max-width: none;
     margin-inline: 0;
     padding-inline: 0;
-    padding-top: clamp(1.25rem, 3vh, 2.25rem);
+    padding-top: clamp(1rem, 2vh, 1.5rem);
   }
   /* Pinned, the copy runs a little tighter than it does in the stacked list:
      the box is a screen minus the nav and the heading, and the tallest panel
@@ -1570,12 +1570,50 @@ a:hover > .arrow {
   .scw[data-ready] .scw-right {
     display: block;
   }
-  .scw[data-ready] .scw-left,
-  .scw[data-ready] .scw-right {
+  /* 58/42, not 50/50. The copy column is what runs out of vertical room, and
+     every extra pixel of WIDTH buys back a line: at 494px the tallest panel is
+     740px tall, at 590px it is short enough for the pin to run on an ordinary
+     laptop instead of only on a tall external display. */
+  .scw[data-ready] .scw-left {
     position: relative;
-    width: 50%;
+    width: 58%;
     height: 100%;
     gap: 0;
+  }
+  .scw[data-ready] .scw-right {
+    position: relative;
+    width: 42%;
+    height: 100%;
+    gap: 0;
+  }
+
+  /* The copy uses the whole column when pinned. `.pp-copy` is capped at
+     --prose-max-width (68ch) for the stacked list, where it is the only thing
+     on the row — but pinned it sits in a 590px column and the cap held it at
+     494, so widening the column bought nothing and the lede kept its extra
+     lines. Measured: the cap alone was costing the tallest panel ~70px. */
+  .scw[data-ready] .pp-copy {
+    max-width: none;
+  }
+
+  /* Pinned, the type steps down one level. The section heading is on screen
+     the whole time now, so a per-platform headline at the same size as it was
+     competing with it — and the box is a screen minus the nav and that
+     heading, which is the tightest space this copy ever has to fit. */
+  .scw[data-ready] .pp-copy h3 {
+    font-size: var(--text-h3);
+  }
+  .scw[data-ready] .pp-copy .t-lede {
+    font-size: var(--text-body);
+  }
+  .scw[data-ready] .scw-head h2 {
+    font-size: var(--text-h3);
+  }
+  .scw[data-ready] .scw-head .t-lede {
+    font-size: var(--text-body-sm);
+  }
+  .scw[data-ready] .pp-card figure {
+    padding: 1.25rem;
   }
   .scw[data-ready] .scw-right {
     overflow: hidden;
@@ -1605,7 +1643,15 @@ a:hover > .arrow {
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
-    padding-left: max(var(--shell-pad), calc(100% - var(--page-max-width) / 2 + var(--shell-pad)));
+    /* The gutter comes from the VIEWPORT, not from this column. The earlier
+       form was `100% - 600px`, which is only the page gutter while the column
+       is exactly half the page — it stopped being that at 58/42 and computed
+       283px of padding, squeezing the copy back to 494px and undoing the
+       widening it was there to enable.
+
+       Same expression as .scw-head above, so the copy and the heading it sits
+       under move together whatever a scrollbar does to 100vw. */
+    padding-left: max(var(--shell-pad), calc((100vw - var(--page-max-width)) / 2 + var(--shell-pad)));
     padding-right: clamp(2rem, 4vw, 4rem);
   }
   /* The half is a full-bleed PANEL with the tile centred on it, not a photo

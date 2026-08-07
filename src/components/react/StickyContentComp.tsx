@@ -89,7 +89,7 @@ interface Props {
  *  brief warns about: the sticky column must not overlap content or disappear
  *  before the supporting material has finished. A window between 700 and 799
  *  tall now gets the stacked list, where nothing is clipped. */
-const CAN_PIN = '(min-width: 1025px) and (min-height: 960px) and (max-height: 1600px)';
+const CAN_PIN = '(min-width: 1025px) and (min-height: 780px) and (max-height: 1600px)';
 
 export function StickyContentComp({
   items = [],
