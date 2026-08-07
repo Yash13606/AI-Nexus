@@ -1555,7 +1555,14 @@ a:hover > .arrow {
     border-radius: 999px;
     background: var(--color-accent);
     box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-accent) 18%, transparent);
-    z-index: 1;
+    /* BEHIND THE NODES. This is the rail's ::after, so it paints after the
+       rail's children — at the same z-index it sat on top of the node it had
+       just arrived at and covered the number inside it. At 0 it runs along the
+       line and tucks under each circle as it reaches it, which is also the
+       better read: the head arrives at a step rather than landing on it. The
+       circles are opaque (paper at rest, accent when current), so nothing
+       shows through. */
+    z-index: 0;
   }
 
   /* The node you are on lifts and keeps a slow halo, so the active step is
