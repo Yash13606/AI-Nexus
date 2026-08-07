@@ -110,6 +110,17 @@ const CUTS = {
   trustproperty: ['ad-factory', ' In development'],
 };
 
+/* The site's copy no longer uses em dashes; the scrape under ainexushub/ is a
+   record of the source pages and still does, so the two differ by punctuation
+   alone. Comparing on words keeps this gate doing its actual job — catching a
+   regenerated platform-detail.ts whose CLAIMS have drifted from the scrape —
+   without either freezing the punctuation or, worse, editing the reference
+   corpus so it matches whatever we just wrote. Any word added, removed or
+   changed still fails. */
+const sameWords = (a, b) =>
+  a.replace(/[—:,()]/g, ' ').replace(/\s+/g, ' ').trim() ===
+  b.replace(/[—:,()]/g, ' ').replace(/\s+/g, ' ').trim();
+
 const scrapeControl = (p) => {
   const md = readFileSync(
     new URL(`../ainexushub/platforms/${p}/index.md`, import.meta.url),
@@ -141,10 +152,10 @@ for (const [platform, [slug, cut]] of Object.entries(CUTS)) {
   );
   const fixed = raw.slice(0, raw.indexOf(cut));
   assert.ok(raw.startsWith(fixed), `${slug}: correction is not a pure truncation`);
-  assert.equal(
-    fixed,
-    scrapeControl(platform),
-    `${slug}: corrected control does not match ainexushub/platforms/${platform}/`
+  assert.ok(
+    sameWords(fixed, scrapeControl(platform)),
+    `${slug}: corrected control does not match ainexushub/platforms/${platform}/\n` +
+      `  ours:   ${fixed}\n  scrape: ${scrapeControl(platform)}`
   );
 }
 
