@@ -196,7 +196,10 @@ export function StickyContentComp({
                     onStart: () => lenis?.stop(),
                     onComplete: () => lenis?.start(),
                   }
-                : false,
+                : /* `false` is what the upstream reference passed, but
+                     ScrollTrigger types snap as SnapVars | undefined — the
+                     way to mean "no snapping" is to omit it. */
+                  undefined,
           },
         });
 
