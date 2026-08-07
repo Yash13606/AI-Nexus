@@ -227,7 +227,7 @@ const roleAngles = [45, -45, 135, 90];
         panel that silently never renders. */}
     <StickyContentWrapper
       client:visible
-      items={platforms.map((p) => ({ image: `/platforms/scw-${p.slug}.webp`, alt: '' }))}
+      items={platforms.map((p) => ({ image: `/platforms/scw-${p.slug}.svg`, alt: '' }))}
     >
       <PlatformPanelBody slot="body-0" platform={platforms[0]} index={0} />
       <PlatformPanelBody slot="body-1" platform={platforms[1]} index={1} />

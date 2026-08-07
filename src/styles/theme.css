@@ -1718,9 +1718,14 @@ a:hover > .arrow {
 .scw-image img {
   width: 100%;
   aspect-ratio: 16 / 10;
-  object-fit: cover;
+  /* `contain`, not `cover`. These are line illustrations: a crop takes the
+     subject's head off, where a photograph survives one because any part of a
+     photograph is still a photograph. */
+  object-fit: contain;
   display: block;
+  padding: 1.5rem;
   border-radius: var(--radius-card);
+  background: var(--color-wash);
 }
 .scw-progress {
   display: none;
@@ -1874,28 +1879,35 @@ a:hover > .arrow {
      reference does, and the tile sits on it at a size it can actually hold.
      The moment there are real photographs, `contain` becomes `cover` and the
      max-widths come off — one rule, and this matches the reference outright. */
-  /* The half is a window onto the photograph, cropped rather than
-     letter-boxed — which is what the reference does and what the old assets
-     could not support. Those were 331px product renders and filling this half
-     meant upscaling them 3.5x, so they sat contained on a wash panel instead.
-     These are 1600px photographs; the panel and its radial are gone. */
+  /* A GROUND WITH THE DRAWING ON IT, not a window onto a photograph. `cover`
+     was right while these were photographs — any crop of a photograph is
+     still a photograph. A line illustration cropped to a portrait half loses
+     the subject, so the half is a wash panel with the drawing centred on it
+     and air on every side. */
   .scw[data-ready] .scw-image {
-    display: block;
-    background: none;
+    display: grid;
+    place-items: center;
+    background: var(--color-wash);
   }
-  .scw[data-ready] .scw-image img {
+  .scw[data-ready] .scw-image::before {
+    content: '';
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    max-height: none;
+    background: radial-gradient(120% 90% at 50% 42%, var(--color-paper), transparent 72%);
+  }
+  .scw[data-ready] .scw-image img {
+    position: relative;
+    width: auto;
+    height: auto;
+    max-width: min(74%, 34rem);
+    max-height: 66%;
     aspect-ratio: auto;
-    object-fit: cover;
+    object-fit: contain;
     margin-inline: 0;
     display: block;
+    padding: 0;
     border-radius: 0;
-    filter: none;
+    background: none;
   }
   .scw[data-ready] .scw-progress {
     --shell-pad: clamp(1.5rem, 4vw, 3rem);
