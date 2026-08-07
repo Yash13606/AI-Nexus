@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EvidenceCard from '../components/EvidenceCard.astro';
+import StickyContentWrapper from '../components/react/StickyContentWrapper.tsx';
+import PlatformPanelBody from '../components/PlatformPanelBody.astro';
 import RevealRoot from '../components/ui/RevealRoot.astro';
 import ScrollExpand from '../components/react/ScrollExpand';
 import GradualBlur from '../components/react/GradualBlur';
@@ -15,6 +17,16 @@ import {
   deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs,
 } from '../content/home';
 import { contact } from '../content/site';
+
+/** The Sticky Content Wrapper below passes four STATIC named slots, because
+ *  Astro cannot build them in a loop (see the note at the call site). Four
+ *  slots and five platforms would drop one silently, so make it loud. */
+if (platforms.length !== 4) {
+  throw new Error(
+    `index.astro renders exactly 4 sticky panels; content/platforms.ts has ${platforms.length}. ` +
+      'Add or remove a <PlatformPanelBody slot="body-N"> to match.'
+  );
+}
 
 const agentsPlanned = isPlanned('/ai-agents/');
 
@@ -201,65 +213,36 @@ const AGENTS_SHOWN = 4;
       No JS / reduced motion / narrow / short / printing: plain stacked
       list, same content, no overlay — see platform-pin.js and the
       [data-pinned] gate in theme.css. */}
-  <section class="section">
-    <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">What each platform actually does</h2>
-      <p class="t-lede mt-5">
-        Every platform ships with a worked example: the input a real user gives, the output the agent
-        produces, and the guardrail that constrains it.
-      </p>
-    </div>
+  <section class="section scw-section">
 
-    <div id="platform-pin" class="pp-track mt-10" style={`--pp-count: ${platforms.length};`}>
-      <div class="pp-sticky">
-        {platforms.map((p, idx) => (
-          <div class="pp-panel" data-pp-index={idx}>
-            <div class="shell w-full">
-              <div class="pp-panel-grid">
-                <div class="pp-copy">
-                  <div class="flex items-center gap-3">
-                    <span class="mono t-cap shrink-0" style="color: var(--color-muted);" aria-hidden="true">
-                      {String(idx + 1).padStart(2, '0')}
-                    </span>
-                    <span class="shrink-0" style="height: 26px; display: flex; align-items: center;">
-                      <img
-                        src={`/platforms/${p.slug}.png`}
-                        alt=""
-                        style="height: 100%; width: auto; max-width: 110px; object-fit: contain;"
-                      />
-                    </span>
-                    <p class="t-label m-0" style={`color: ${p.hue};`}>{p.name} · {p.sector}</p>
-                  </div>
+    {/* The Sticky Content Wrapper (Hyperiux Vault), driving the four worked
+        examples. `client:visible` so the island — React, GSAP/ScrollTrigger
+        and Lenis — is only fetched once a reader has scrolled this far, and
+        never at all on a page they leave before reaching it.
 
-                  <h3 class="t-h2 mt-4">{p.headline}</h3>
-                  <p class="t-lede mt-4">{p.pinSummary}</p>
+        The bodies are rendered HERE, by Astro, and passed in as named slots:
+        each one contains a real EvidenceCard, the site's most-used component
+        at ~60 instances. Re-implementing that card inside the React component
+        would give it a second definition to drift from. */}
+    {/* The Sticky Content Wrapper (Hyperiux Vault), driving the four worked
+        examples. `client:visible` so the island — React, GSAP/ScrollTrigger and
+        Lenis — is fetched only once a reader scrolls this far, and never at all
+        for someone who leaves before reaching it.
 
-                  <div class="mt-7">
-                    <EvidenceCard evidence={p.evidence} />
-                  </div>
-
-                  <a href={`/platforms/${p.slug}/`} class="link-accent mt-6">
-                    Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
-                  </a>
-                </div>
-
-                <div class="pp-visual">
-                  {/* Not lazy: all four are ~10KB, and three of them are
-                      behind an opacity-0 panel where a lazy load can be
-                      deferred indefinitely and leave the slot empty. */}
-                  <img src={`/platforms/tile-${p.slug}.webp`} alt="" decoding="async" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        <p class="pp-progress mono t-cap" aria-hidden="true">
-          <span class="pp-progress-current">01</span>
-          <span>/ {String(platforms.length).padStart(2, '0')}</span>
-        </p>
-      </div>
-    </div>
+        FOUR STATIC SLOTS, not a map. Astro hoists named-slot content into its
+        own render function, so a `slot={`body-${idx}`}` built inside a `.map`
+        does not close over `idx` and the build fails outright. The assertion in
+        the frontmatter turns a fifth platform into a build error rather than a
+        panel that silently never renders. */}
+    <StickyContentWrapper
+      client:visible
+      items={platforms.map((p) => ({ image: `/platforms/scw-${p.slug}.svg`, alt: '' }))}
+    >
+      <PlatformPanelBody slot="body-0" platform={platforms[0]} index={0} />
+      <PlatformPanelBody slot="body-1" platform={platforms[1]} index={1} />
+      <PlatformPanelBody slot="body-2" platform={platforms[2]} index={2} />
+      <PlatformPanelBody slot="body-3" platform={platforms[3]} index={3} />
+    </StickyContentWrapper>
   </section>
 
   {/* ══════════════ 48 AGENTS ══════════════
@@ -348,41 +331,66 @@ const AGENTS_SHOWN = 4;
   {/* ══════════════ DEPLOYMENT ══════════════
       Numbered because this genuinely is a sequence — a connected rail of
       steps, click (or arrow-key) any node to bring its panel forward. */}
-  <section class="section band">
-    <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">How a deployment works</h2>
-      <p class="t-lede mt-5">The same four steps for every platform.</p>
+  <section class="section band hiw-section">
+    {/* Pinned for four screens of scroll, one per step. The whole block goes
+        with it — heading, rail, panel and caveat — so the step you are on
+        changes while everything that explains it stays put.
 
-      <div id="deployment-tabs" class="hiw mt-14">
-        <div role="tablist" aria-label="Deployment steps" class="hiw-rail">
-          {deployment.map((d, i) => (
-            <button
-              type="button"
-              role="tab"
-              id={`hiw-tab-${i}`}
-              aria-controls={`hiw-panel-${i}`}
-              aria-selected={i === 0 ? 'true' : 'false'}
-              tabindex={i === 0 ? 0 : -1}
-              class="hiw-node"
-            >
-              <span class="hiw-node-circle mono">{d.n}</span>
-              <span class="hiw-node-title">{d.title}</span>
-            </button>
-          ))}
+        The track is the scroll budget; the sticky child is what you see. CSS
+        gives it neither height nor stickiness until initStepScroll sets
+        data-step-scroll, so JS off, reduced motion, a narrow screen or a short
+        window all leave a plain tablist in normal flow. */}
+    <div class="hiw-track" style={`--hiw-steps: ${deployment.length};`}>
+      <div class="hiw-stick">
+        <div class="shell">
+      {/* One grid, two columns. The heading and the rail sit on the RIGHT and
+          the step's own copy on the left, so the thing that changes and the
+          thing that shows where you are do not compete for the same edge.
+
+          DOM order is heading -> rail -> panel regardless: a reader and a
+          crawler get the heading first, and CSS does the swapping. The grid
+          lives inside #deployment-tabs so the tablist still owns both its rail
+          and its panels. */}
+      <div id="deployment-tabs" class="hiw hiw-grid">
+        <div class="hiw-side">
+          <h2 class="t-h2" style="max-width: 20ch;">How a deployment works</h2>
+          <p class="t-lede mt-4">The same four steps for every platform.</p>
+
+          <div role="tablist" aria-label="Deployment steps" class="hiw-rail mt-10">
+            {deployment.map((d, i) => (
+              <button
+                type="button"
+                role="tab"
+                id={`hiw-tab-${i}`}
+                aria-controls={`hiw-panel-${i}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+                class="hiw-node"
+              >
+                <span class="hiw-node-circle mono">{d.n}</span>
+                <span class="hiw-node-title">{d.title}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div class="mt-10" style="max-width: var(--prose-max-width);">
-          {deployment.map((d, i) => (
-            <div role="tabpanel" id={`hiw-panel-${i}`} aria-labelledby={`hiw-tab-${i}`} tabindex="0" class="hiw-panel">
-              <p class="t-cap mono" style="color: var(--color-muted);">{d.n}</p>
-              <h3 class="t-h3 mt-2">{d.title}</h3>
-              <p class="t-body mt-3">{d.body}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+        <div class="hiw-main">
+          <div class="hiw-panels">
+            {deployment.map((d, i) => (
+              <div role="tabpanel" id={`hiw-panel-${i}`} aria-labelledby={`hiw-tab-${i}`} tabindex="0" class="hiw-panel">
+                <p class="t-cap mono" style="color: var(--color-muted);">{d.n}</p>
+                <h3 class="t-h3 mt-2">{d.title}</h3>
+                <p class="t-body mt-3">{d.body}</p>
+              </div>
+            ))}
+          </div>
 
       <p class="t-sm mt-9 prose" style="color: var(--color-muted);">{deploymentCaveat}</p>
+        </div>
+      </div>
+    </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -615,11 +623,13 @@ const AGENTS_SHOWN = 4;
   import { initReveal } from '../scripts/reveal.js';
   import { initGlowCards } from '../scripts/glow-cards.js';
   import { initTabs } from '../scripts/tabs.js';
-  import { initPlatformPin } from '../scripts/platform-pin.js';
+  import { initStepScroll } from '../scripts/step-scroll.js';
   initReveal();
   initGlowCards();
-  initPlatformPin();
 
   const deploymentTabs = document.getElementById('deployment-tabs');
-  if (deploymentTabs) initTabs(deploymentTabs);
+  if (deploymentTabs) {
+    const api = initTabs(deploymentTabs);
+    initStepScroll(deploymentTabs.closest('.hiw-track'), api);
+  }
 </script>
