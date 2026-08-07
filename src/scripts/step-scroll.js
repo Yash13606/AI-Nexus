@@ -38,21 +38,30 @@ export function initStepScroll(track, api) {
     if (travel <= 0) return;
     const progress = Math.min(1, Math.max(0, -box.top / travel));
 
-    const step = Math.min(api.count - 1, Math.floor(progress * api.count));
+    /* THE LINE IS THE CLOCK, and the step is read off it.
+       There are `count` steps but only `count - 1` gaps between them, and the
+       earlier mapping split the scroll into `count` equal parts instead — so
+       the head reached the last node a full quarter of the track early and sat
+       there, pinned and motionless, for ~700px of scrolling.
 
-    /* THE FILL LANDS ON THE NODES, which is not the same as tracking scroll.
-       Scroll splits into `count` equal steps, but the line spans `count - 1`
-       gaps — so a raw progress of 0.25 put the fill a quarter down while the
-       node it had just lit sat a third of the way. Off by a node's width, and
-       visibly so.
+       Now the travel is measured in gaps: `t` runs 0..1 across them, and the
+       step is simply which node the head has reached. Each step therefore
+       lights at the exact moment the head arrives at its node — 1 to 2 to 3 to
+       4, in step with the line rather than alongside it.
 
-       Remapped: the fill is (step + fraction-through-that-step) / (count - 1),
-       so it leaves node i exactly as step i lights and arrives at node i+1
-       exactly as that one does. Past the last node it holds at 1 — there is
-       nowhere further along the line to go. */
-    const within = progress * api.count - Math.floor(progress * api.count);
-    const fill = Math.min(1, (step + within) / (api.count - 1));
-    track.style.setProperty('--hiw-progress', fill.toFixed(4));
+       DWELL is the extra travel granted past the last node, in gap-widths, so
+       "Go live" gets a beat to be read before the section releases instead of
+       flashing at the final pixel. Half a gap: measured against a 78vh-per-step
+       track that is ~270px of hold, about the same beat the other steps get.
+
+       The epsilon is for the boundary: t lands on 1/3 and 2/3 as exact
+       binary-ugly fractions, and without it floor() intermittently returns the
+       previous step for one frame at the very moment the head touches down. */
+    const gaps = api.count - 1;
+    const DWELL = 0.5;
+    const t = Math.min(1, (progress * (gaps + DWELL)) / gaps);
+    const step = Math.min(api.count - 1, Math.floor(t * gaps + 1e-6));
+    track.style.setProperty('--hiw-progress', t.toFixed(4));
 
     if (step === current) return;
     current = step;

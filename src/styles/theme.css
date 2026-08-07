@@ -1396,11 +1396,25 @@ a:hover > .arrow {
   isolation: isolate;
   overflow: clip;
 }
+/* THE GROUND IS ON THE PINNED BOX, NOT THE SECTION. The section is four
+   screens tall and scrolls past; its background scrolled with it, so while the
+   block sat pinned the grid crawled upward behind it and the whole section
+   read as drifting. On .hiw-stick the ground is pinned by the same `sticky`
+   that holds the content, so it is motionless for exactly as long as the
+   content is — and goes back to scrolling normally the moment the pin
+   releases, which is the honest behaviour at both ends.
+
+   Unpinned (narrow, short, reduced motion, no JS) .hiw-stick is a plain
+   wrapper and this is simply the ground behind the block. */
+.hiw-stick {
+  position: relative;
+  isolation: isolate;
+}
 /* A drawn ground rather than two soft washes: a faint grid, fading out
    towards the bottom, with one accent bloom behind the rail. The grid is what
    makes this section read as a plan being followed rather than a paragraph —
    and it is two gradients, not an asset. */
-.hiw-section::before {
+.hiw-stick::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -1413,7 +1427,7 @@ a:hover > .arrow {
   -webkit-mask-image: radial-gradient(120% 80% at 70% 30%, #000 20%, transparent 78%);
   mask-image: radial-gradient(120% 80% at 70% 30%, #000 20%, transparent 78%);
 }
-.hiw-section::after {
+.hiw-stick::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -1467,18 +1481,7 @@ a:hover > .arrow {
      the same path your eye does, instead of a horizontal bar under nodes you
      read across. */
   .hiw-track[data-step-scroll] .hiw-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: clamp(3rem, 6vw, 6rem);
     align-items: center;
-  }
-  .hiw-track[data-step-scroll] .hiw-side {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .hiw-track[data-step-scroll] .hiw-main {
-    grid-column: 1;
-    grid-row: 1;
   }
 
   /* ── Sized for the screen it occupies ────────────────────────────────────
@@ -1496,100 +1499,6 @@ a:hover > .arrow {
   }
   .hiw-track[data-step-scroll] .hiw-panels {
     min-height: 14rem;
-  }
-
-  /* The rail, turned on its side. */
-  .hiw-track[data-step-scroll] .hiw-rail {
-    position: relative;
-    flex-direction: column;
-    align-items: stretch;
-    gap: clamp(1.5rem, 3.2vh, 2.75rem);
-  }
-  .hiw-track[data-step-scroll] .hiw-node {
-    flex: none;
-    flex-direction: row;
-    justify-content: flex-start;
-    text-align: left;
-    gap: 1.125rem;
-    padding: 0;
-  }
-  .hiw-track[data-step-scroll] .hiw-node-circle {
-    width: 52px;
-    height: 52px;
-    font-size: var(--text-body);
-    flex: none;
-  }
-  .hiw-track[data-step-scroll] .hiw-node-title {
-    font-size: var(--text-h4);
-  }
-  /* The unlit track between one node and the next. */
-  .hiw-track[data-step-scroll] .hiw-node:not(:last-child)::after {
-    top: 52px;
-    left: 25px;
-    width: 2px;
-    height: calc(100% + clamp(1.5rem, 3.2vh, 2.75rem) - 52px);
-  }
-  /* And the lit one, scrubbed. Runs the full column from the first node's
-     centre to the last, filling downward as you scroll. */
-  .hiw-track[data-step-scroll] .hiw-rail::before {
-    content: '';
-    position: absolute;
-    top: 26px;
-    left: 25px;
-    width: 2px;
-    height: calc(100% - 52px);
-    background: var(--color-accent);
-    transform-origin: top center;
-    transform: scaleY(var(--hiw-progress, 0));
-    z-index: 0;
-  }
-
-  /* ── More motion, all of it tied to the same scrubbed value ──────────────
-     A travelling head at the tip of the fill, so the line reads as something
-     moving down it rather than a bar getting longer. Positioned from
-     --hiw-progress, which is already updated once a frame. */
-  .hiw-track[data-step-scroll] .hiw-rail::after {
-    content: '';
-    position: absolute;
-    left: 21px;
-    top: calc(26px + (100% - 52px) * var(--hiw-progress, 0));
-    width: 10px;
-    height: 10px;
-    margin-top: -5px;
-    border-radius: 999px;
-    background: var(--color-accent);
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-accent) 18%, transparent);
-    /* BEHIND THE NODES. This is the rail's ::after, so it paints after the
-       rail's children — at the same z-index it sat on top of the node it had
-       just arrived at and covered the number inside it. At 0 it runs along the
-       line and tucks under each circle as it reaches it, which is also the
-       better read: the head arrives at a step rather than landing on it. The
-       circles are opaque (paper at rest, accent when current), so nothing
-       shows through. */
-    z-index: 0;
-  }
-
-  /* The node you are on lifts and keeps a slow halo, so the active step is
-     alive rather than merely coloured. */
-  .hiw-track[data-step-scroll] .hiw-node-circle {
-    transition:
-      background-color var(--dur-feedback) var(--ease-out),
-      border-color var(--dur-feedback) var(--ease-out),
-      color var(--dur-feedback) var(--ease-out),
-      scale var(--dur-state) var(--ease-entrance),
-      box-shadow var(--dur-state) var(--ease-out);
-  }
-  .hiw-track[data-step-scroll] .hiw-node[aria-selected='true'] .hiw-node-circle {
-    scale: 1.08;
-    box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-accent) 14%, transparent);
-  }
-  .hiw-track[data-step-scroll] .hiw-node[aria-selected='true'] .hiw-node-title {
-    translate: 3px 0;
-  }
-  .hiw-track[data-step-scroll] .hiw-node-title {
-    transition:
-      color var(--dur-feedback) var(--ease-out),
-      translate var(--dur-state) var(--ease-entrance);
   }
 
   /* The step's own copy arrives in two beats — number, then title and body —
@@ -2382,6 +2291,13 @@ a:hover > .arrow {
 html[data-reveal-ready] .hiw:not([data-ready]) .hiw-panel:not(:first-of-type) {
   display: none;
 }
+/* With JS off every panel renders, so they need the space between them that
+   `hidden` otherwise makes unnecessary. Scoped to the un-armed widget: once
+   initTabs sets [data-ready] only one panel is ever visible and this stops
+   applying. */
+.hiw:not([data-ready]) .hiw-panel + .hiw-panel {
+  margin-top: 2rem;
+}
 
 .hiw-rail {
   display: flex;
@@ -2442,6 +2358,244 @@ html[data-reveal-ready] .hiw:not([data-ready]) .hiw-panel:not(:first-of-type) {
 }
 .hiw-node[aria-selected='true'] .hiw-node-title {
   color: var(--color-ink);
+}
+
+/* ── The arc ───────────────────────────────────────────────────────────────
+   The four steps on the shoulder of a circle whose centre is off the right of
+   the figure. Below 900px there is no room for a curve wide enough to read, so
+   the SVG is not rendered and the same buttons stay the plain rail above —
+   nothing here is load-bearing for meaning, it is a picture of a sequence the
+   tablist already describes.
+
+   THE ASPECT RATIO IS THE CONTRACT. Node positions are percentages of this
+   box and the path is in viewBox units; the two only agree while the box is
+   the viewBox's shape. Change one and the buttons slide off the line. */
+.hiw-arc-svg {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .hiw-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+    row-gap: 1.5rem;
+    align-items: center;
+  }
+  .hiw-head {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .hiw-main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .hiw-side {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  /* ── The figure runs to the corner ──────────────────────────────────────
+     Out of the shell and off the window's right edge, where the section's own
+     `overflow: clip` cuts it — so the sweep enters at the top-right, bulges
+     into the column and leaves at the bottom-right, rather than sitting inside
+     a box with air around it.
+
+     The bleed is the distance from the shell's right edge to the window's,
+     computed from the same --page-max-width every other section uses. Reading
+     the viewport means a scrollbar shifts this exactly as it shifts the shell,
+     so the figure stays flush with the edge either way.
+
+     THE FIGURE IS AS TALL AS THE PINNED AREA, and absolutely positioned so that
+     height does not become the grid row's height and push the block past the
+     screen it has to fit in. That is what puts the ends of the sweep outside
+     the section, where its `overflow: clip` cuts them — a band that runs off
+     the frame, rather than one that stops in mid-air a third of the way down.
+
+     It is also why the arc could not simply be given a bigger radius: a large
+     circle through a fixed box is a flat line where the nodes sit. The curve
+     comes from the nodes spanning a wide angle of a moderate circle; the size
+     comes from the figure being the height of the screen. */
+  .hiw-side {
+    position: relative;
+    min-height: clamp(20rem, 46vh, 28rem);
+  }
+  .hiw-arc {
+    --shell-pad: clamp(1.5rem, 4vw, 3rem);
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    left: 0;
+    right: calc(
+      -1 * min(
+        14rem,
+        max(var(--shell-pad), (100vw - var(--page-max-width)) / 2 + var(--shell-pad))
+      )
+    );
+    height: calc(100svh - (var(--nav-h) - var(--nav-pad-y)));
+  }
+  .hiw-arc-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* The decorative sweep runs past the top and bottom of the viewBox on
+       purpose; the section clips it at its own edges, which is the point. */
+    overflow: visible;
+    /* The band fades out instead of ending on a blunt cut. Pinned, its ends are
+       off screen and this costs nothing — but with JavaScript off the section
+       renders at its natural height and both ends are in view at once, where a
+       flat 68px stub reads as a mistake.
+
+       The gradient runs bottom-left to top-right, which is the band's OWN axis
+       now that it is a corner sweep: its two ends sit at the two extremes of
+       that axis, so one gradient fades both. A vertical fade would have caught
+       the first node, which sits high but not at the top. */
+    -webkit-mask-image: linear-gradient(to top right, transparent 0, #000 9%, #000 91%, transparent 100%);
+    mask-image: linear-gradient(to top right, transparent 0, #000 9%, #000 91%, transparent 100%);
+  }
+  .hiw-arc-bleed,
+  .hiw-arc-track,
+  .hiw-arc-fill,
+  .hiw-arc-head {
+    fill: none;
+    stroke-linecap: round;
+  }
+  /* A WIDE BAND. These are viewBox units against a box of roughly the same
+     shape, so 72 renders at about 68 CSS pixels. */
+  .hiw-arc-bleed,
+  .hiw-arc-track {
+    stroke: var(--color-hairline);
+    stroke-width: 72;
+  }
+  /* The two ends of the run-off are cut by the section, so they need no cap —
+     and a round one at 44px would show as a bulge if the clip ever fell short. */
+  .hiw-arc-bleed {
+    stroke-linecap: butt;
+  }
+  /* pathLength=1 makes the dash units a plain 0..1 regardless of how long this
+     arc actually is, so the fill is exactly --hiw-progress with no arithmetic
+     tied to the geometry. Change the radius and this still holds. */
+  .hiw-arc-fill {
+    stroke: var(--color-accent);
+    stroke-width: 44;
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--hiw-progress, 0));
+  }
+  /* The travelling head: one short round-capped dash, pushed along by the same
+     value. A dot, drawn by the line itself, so it is on the curve by
+     construction — no second copy of the geometry to keep in step. */
+  .hiw-arc-head {
+    stroke: var(--color-accent);
+    stroke-width: 52;
+    stroke-dasharray: 0.003 1;
+    stroke-dashoffset: calc(-1 * var(--hiw-progress, 0));
+    filter: drop-shadow(0 0 14px color-mix(in oklab, var(--color-accent) 55%, transparent));
+  }
+
+  /* The nodes sit on the line, placed by the same circle that drew it. */
+  .hiw-rail {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+  .hiw-node {
+    position: absolute;
+    left: var(--hiw-x);
+    top: var(--hiw-y);
+    transform: translate(-50%, -50%);
+    display: block;
+    flex: none;
+    padding: 0;
+    /* The button IS the circle, so the translate centres the circle on the
+       point rather than centring circle-plus-label and pushing the circle off
+       the line. The label is positioned off it, below. */
+    line-height: 0;
+  }
+  /* The SVG is the connector now. */
+  .hiw-node:not(:last-child)::after {
+    content: none;
+  }
+  .hiw-node-circle {
+    width: 76px;
+    height: 76px;
+    border-width: 0;
+    font-size: var(--text-h4);
+    line-height: 1;
+    /* Sitting ON a 68px band rather than beside a 2px line, so the lift has to
+       come from elevation — a flat circle on a flat band reads as a hole. */
+    box-shadow: var(--shadow-2);
+    transition:
+      background-color var(--dur-feedback) var(--ease-out),
+      color var(--dur-feedback) var(--ease-out),
+      box-shadow var(--dur-state) var(--ease-out);
+  }
+  /* Labels go INSIDE the curve, not outside it. The figure runs off the right
+     edge of the window now, so a label to the right of a node would be cut in
+     half by the same clip that shapes the sweep. */
+  .hiw-node-title {
+    position: absolute;
+    right: calc(100% + 0.9rem);
+    top: 50%;
+    translate: 0 -50%;
+    white-space: nowrap;
+    text-align: right;
+    line-height: 1.2;
+    font-size: var(--text-body);
+    transition: color var(--dur-feedback) var(--ease-out);
+  }
+  /* THE NODES DO NOT MOVE. The one thing travelling this band is the marker;
+     a node that also scaled or slid as it lit made two things move at once and
+     the eye could not tell which was reporting the scroll. The step you are on
+     changes colour and gains a halo — both of which sit still. */
+  .hiw-node[aria-selected='true'] .hiw-node-circle {
+    box-shadow:
+      0 0 0 10px color-mix(in oklab, var(--color-accent) 12%, transparent),
+      0 16px 34px -12px color-mix(in oklab, var(--color-accent) 55%, transparent);
+  }
+
+  /* ── One marker at a time ────────────────────────────────────────────────
+     Each node fades up as the travelling marker approaches it and back down as
+     it leaves, so they arrive one by one along the path instead of all four
+     standing there from the start.
+
+     --hiw-at is the node's own position along the path, written by Astro on the
+     same 0..1 scale --hiw-progress runs on. `min()` of the two opposing ramps
+     is a tent centred on the node — the plain way to write 1 - |p - at| / w
+     without abs(), which is too new to rely on. The window is 0.36 against a
+     0.333 gap between nodes, so a node is all but out by the time its
+     neighbour is reached.
+
+     Opacity only. A scale here would be the node moving again.
+
+     GATED ON [data-step-scroll]. Without it there is no scroll driving
+     --hiw-progress, so every node stays at full strength — which is what the
+     narrow, short, reduced-motion and no-JS cases all need. */
+  .hiw-track[data-step-scroll] .hiw-node {
+    --lit: clamp(
+      0,
+      min(
+        calc((var(--hiw-progress, 0) - var(--hiw-at)) / 0.36 + 1),
+        calc((var(--hiw-at) - var(--hiw-progress, 0)) / 0.36 + 1)
+      ),
+      1
+    );
+    opacity: var(--lit);
+  }
+  /* Selection can also come from a click or an arrow key, which move the step
+     without moving the scroll — so the selected node, and anything the pointer
+     or keyboard is on, is always fully visible regardless of the marker. */
+  .hiw-track[data-step-scroll] .hiw-node[aria-selected='true'],
+  .hiw-track[data-step-scroll] .hiw-node:hover,
+  .hiw-track[data-step-scroll] .hiw-node:focus-visible {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hiw-node-circle,
+    .hiw-node-title {
+      transition: none;
+    }
+  }
 }
 
 .hiw-panel {

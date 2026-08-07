@@ -31,6 +31,59 @@ if (platforms.length !== 4) {
 
 const agentsPlanned = isPlanned('/ai-agents/');
 
+/** ── The deployment arc ────────────────────────────────────────────────────
+ *  A quarter circle centred on the figure's BOTTOM-RIGHT CORNER, so the band
+ *  is concave toward that corner: it comes in through the right edge, sweeps
+ *  down and to the left, and leaves through the bottom edge. Both ends are cut
+ *  by the section rather than stopping in view. Geometry is resolved HERE
+ *  rather than in CSS or at runtime — the node positions and the path have to
+ *  come from the same circle or the buttons drift off the line, and one
+ *  function guarantees they cannot.
+ *
+ *  THE SVG DOES NOT PRESERVE ITS ASPECT RATIO, which is what lets the figure
+ *  be any shape the layout wants — full bleed to the window's edge, height set
+ *  by the section — while a node's `left: 45.5%` still lands exactly on the
+ *  line, because under preserveAspectRatio="none" a viewBox unit is one
+ *  fraction of the box in each axis independently.
+ *
+ *  The viewBox is nevertheless shaped close to the box it renders into (760 x
+ *  620 against ~724 x 580 at 1440). The stretch is what distorts the stroke,
+ *  and keeping the two shapes near each other keeps that under a few percent.
+ *  vector-effect="non-scaling-stroke" would remove the distortion outright but
+ *  cannot be used here: it puts the dash pattern in screen units while
+ *  pathLength="1" declares the path one unit long, so the dashes repeat and
+ *  both the fill and the travelling head break into a row of blobs.
+ *
+ *  TWO PATHS, deliberately. The functional one runs node 01 to node 04 and is
+ *  what --hiw-progress fills, so progress 0 and 1 are exactly the first and
+ *  last node. The decorative one carries on past both ends and is cut by the
+ *  section's edges — the reference's corner-to-corner sweep, without giving the
+ *  fill a stretch of line that corresponds to no step. */
+const ARC = { w: 760, h: 940, cx: 760, cy: 940, r: 620, from: 262, to: 198, bleed: 20 };
+const arcPoint = (deg: number) => ({
+  x: ARC.cx + ARC.r * Math.cos((deg * Math.PI) / 180),
+  y: ARC.cy + ARC.r * Math.sin((deg * Math.PI) / 180),
+});
+/** Sweep flag 0: angles decrease, and in SVG's y-down space that is the
+ *  counter-clockwise direction — the short way round through the left bulge
+ *  rather than the long way round the right. Large-arc 0 while the span < 180°. */
+const arcPath = (from: number, to: number) => {
+  const a = arcPoint(from);
+  const b = arcPoint(to);
+  return `M ${a.x.toFixed(2)} ${a.y.toFixed(2)} A ${ARC.r} ${ARC.r} 0 0 0 ${b.x.toFixed(2)} ${b.y.toFixed(2)}`;
+};
+const arcNodes = deployment.map((d, i) => {
+  const at = i / (deployment.length - 1);
+  const deg = ARC.from + (ARC.to - ARC.from) * at;
+  const { x, y } = arcPoint(deg);
+  /** `at` is where this node sits along the path as a 0..1 fraction — the same
+   *  scale --hiw-progress runs on, which is what lets CSS reveal each node as
+   *  the fill reaches it without a line of JavaScript per node. */
+  return { ...d, xPct: (x / ARC.w) * 100, yPct: (y / ARC.h) * 100, at };
+});
+const arcStepPath = arcPath(ARC.from, ARC.to);
+const arcBleedPath = arcPath(ARC.from + ARC.bleed, ARC.to - ARC.bleed);
+
 /** Role-card icon + texture angle, in roleFamilies order (hospitals, schools,
  *  law firms, property) — indexed, not keyed, since the order is fixed. */
 const roleIcons = ['cross', 'book', 'scale', 'home'] as const;
@@ -339,34 +392,67 @@ const AGENTS_SHOWN = 4;
     <div class="hiw-track" style={`--hiw-steps: ${deployment.length};`}>
       <div class="hiw-stick">
         <div class="shell">
-      {/* One grid, two columns. The heading and the rail sit on the RIGHT and
-          the step's own copy on the left, so the thing that changes and the
-          thing that shows where you are do not compete for the same edge.
+      {/* One grid, two columns. Everything you READ is on the left — heading,
+          the step's own copy, the caveat — and the arc that shows where you are
+          is on the right, which is the reference layout.
 
-          DOM order is heading -> rail -> panel regardless: a reader and a
-          crawler get the heading first, and CSS does the swapping. The grid
-          lives inside #deployment-tabs so the tablist still owns both its rail
-          and its panels. */}
+          DOM order is heading -> tablist -> panels, so a screen reader meets
+          the tabs before the panel they control and a crawler meets the
+          heading first. The grid does the placing; nothing here depends on
+          source order. */}
       <div id="deployment-tabs" class="hiw hiw-grid">
-        <div class="hiw-side">
+        <div class="hiw-head">
           <h2 class="t-h2" style="max-width: 20ch;">How a deployment works</h2>
           <p class="t-lede mt-4">The same four steps for every platform.</p>
+        </div>
 
-          <div role="tablist" aria-label="Deployment steps" class="hiw-rail mt-10">
-            {deployment.map((d, i) => (
-              <button
-                type="button"
-                role="tab"
-                id={`hiw-tab-${i}`}
-                aria-controls={`hiw-panel-${i}`}
-                aria-selected={i === 0 ? 'true' : 'false'}
-                tabindex={i === 0 ? 0 : -1}
-                class="hiw-node"
-              >
-                <span class="hiw-node-circle mono">{d.n}</span>
-                <span class="hiw-node-title">{d.title}</span>
-              </button>
-            ))}
+        {/* ── The arc ──────────────────────────────────────────────────────
+            An SVG for the line and HTML buttons for the steps, sharing one
+            circle: the path and every node position come from the same
+            frontmatter geometry, so a button cannot drift off the line.
+
+            Three strokes on one path. The track is the unlit line; the fill is
+            scrubbed by --hiw-progress through stroke-dashoffset (pathLength=1
+            makes that a plain 0..1, independent of how long the arc actually
+            is); the head is a 0.004-long round-capped dash at the same offset,
+            which reads as a dot travelling the curve. The dash trick rather
+            than offset-path because it needs no motion-path support and cannot
+            land at 0,0 if that support is missing.
+
+            The buttons paint above the SVG, so the head tucks BEHIND each node
+            as it arrives rather than covering its number. */}
+        <div class="hiw-side">
+          <div class="hiw-arc">
+            <svg
+              class="hiw-arc-svg"
+              viewBox={`0 0 ${ARC.w} ${ARC.h}`}
+              preserveAspectRatio="none"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path class="hiw-arc-bleed" d={arcBleedPath} />
+              <path class="hiw-arc-track" d={arcStepPath} pathLength="1" />
+              <path class="hiw-arc-fill" d={arcStepPath} pathLength="1" />
+              <path class="hiw-arc-head" d={arcStepPath} pathLength="1" />
+            </svg>
+
+            <div role="tablist" aria-label="Deployment steps" class="hiw-rail">
+              {arcNodes.map((d, i) => (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`hiw-tab-${i}`}
+                  aria-controls={`hiw-panel-${i}`}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  tabindex={i === 0 ? 0 : -1}
+                  class="hiw-node"
+                  style={`--hiw-x: ${d.xPct.toFixed(3)}%; --hiw-y: ${d.yPct.toFixed(3)}%; --hiw-at: ${d.at.toFixed(4)};`}
+                >
+                  <span class="hiw-node-circle mono">{d.n}</span>
+                  <span class="hiw-node-title">{d.title}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -381,7 +467,7 @@ const AGENTS_SHOWN = 4;
             ))}
           </div>
 
-      <p class="t-sm mt-9 prose" style="color: var(--color-muted);">{deploymentCaveat}</p>
+          <p class="t-sm mt-9 prose" style="color: var(--color-muted);">{deploymentCaveat}</p>
         </div>
       </div>
     </div>
