@@ -70,6 +70,11 @@ interface Props {
   /** Rendered inside the sticky box, so it travels with the pin instead of
    *  being positioned against the viewport. */
   footer?: React.ReactNode;
+  /** The section heading, rendered at the TOP of the sticky box so it stays on
+   *  screen while the evidence changes beneath it — which is the whole premise
+   *  of this pattern, and was not true while the heading sat above the track
+   *  and scrolled away before the first panel arrived. */
+  header?: React.ReactNode;
 }
 
 /** Wide enough for the two-column split, tall enough to hold a whole panel —
@@ -84,7 +89,7 @@ interface Props {
  *  brief warns about: the sticky column must not overlap content or disappear
  *  before the supporting material has finished. A window between 700 and 799
  *  tall now gets the stacked list, where nothing is clipped. */
-const CAN_PIN = '(min-width: 1025px) and (min-height: 800px) and (max-height: 1600px)';
+const CAN_PIN = '(min-width: 1025px) and (min-height: 960px) and (max-height: 1600px)';
 
 export function StickyContentComp({
   items = [],
@@ -105,6 +110,7 @@ export function StickyContentComp({
   exitImageScale = 1,
   onStep,
   footer,
+  header,
 }: Props) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const stickyRef = useRef<HTMLDivElement | null>(null);
@@ -297,6 +303,9 @@ export function StickyContentComp({
       style={ready ? { height: containerHeight || `${items.length * 100}vh` } : undefined}
     >
       <div ref={stickyRef} className="scw-sticky">
+        {header && <div className="scw-head">{header}</div>}
+
+        <div className="scw-cols">
         <div className={`scw-left ${leftClassName}`}>
           {items.map((item, index) => (
             <div
@@ -331,6 +340,8 @@ export function StickyContentComp({
               )}
             </div>
           ))}
+        </div>
+
         </div>
 
         {footer}

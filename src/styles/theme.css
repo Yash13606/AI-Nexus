@@ -1403,6 +1403,13 @@ a:hover > .arrow {
 .pp-copy {
   max-width: var(--prose-max-width);
 }
+/* Was `mt-7` / `mt-6` in the markup — see the note in PlatformPanelBody. */
+.pp-card {
+  margin-top: 1.75rem;
+}
+.pp-more {
+  margin-top: 1.5rem;
+}
 
 /* ── Sticky Content Wrapper (Hyperiux Vault) ───────────────────────────────
    DEFAULT STATE IS THE STACKED LIST. Everything below the [data-ready] gate
@@ -1419,14 +1426,67 @@ a:hover > .arrow {
   flex-direction: column;
   gap: 3rem;
 }
+/* NOT PINNED — and this is the layout most windows get, so it is designed
+   rather than left over. `display: contents` drops the two column wrappers out
+   of the box tree, which puts all eight children into one grid; explicit
+   placement then pairs each platform's copy with its own illustration.
+
+   Without it the wrappers survive and you get four copy blocks stacked, then
+   four images stacked, paired only by index and lined up with nothing. */
+.scw-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  row-gap: 1.5rem;
+}
 .scw-left,
 .scw-right {
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
+  display: contents;
 }
+/* One column: copy, then its own image, then the next platform. */
+.scw-content:nth-child(1) { grid-row: 1; }
+.scw-image:nth-child(1) { grid-row: 2; }
+.scw-content:nth-child(2) { grid-row: 3; }
+.scw-image:nth-child(2) { grid-row: 4; }
+.scw-content:nth-child(3) { grid-row: 5; }
+.scw-image:nth-child(3) { grid-row: 6; }
+.scw-content:nth-child(4) { grid-row: 7; }
+.scw-image:nth-child(4) { grid-row: 8; }
+
+@media (min-width: 900px) {
+  .scw-cols {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+    column-gap: 4rem;
+    row-gap: clamp(3rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .scw-content:nth-child(1), .scw-image:nth-child(1) { grid-row: 1; }
+  .scw-content:nth-child(2), .scw-image:nth-child(2) { grid-row: 2; }
+  .scw-content:nth-child(3), .scw-image:nth-child(3) { grid-row: 3; }
+  .scw-content:nth-child(4), .scw-image:nth-child(4) { grid-row: 4; }
+  .scw-content { grid-column: 1; }
+  .scw-image { grid-column: 2; }
+}
+/* Split header: heading left, intro right. Stacked below 900px. */
+.scw-secthead {
+  display: grid;
+  gap: 1.25rem 4rem;
+  align-items: end;
+}
+@media (min-width: 900px) {
+  .scw-secthead {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+  .scw-secthead > :last-child {
+    padding-bottom: 0.35rem;
+  }
+}
+/* The columns are `display: contents` above, so they contribute no box of
+   their own — this used to redeclare them as flex columns further down the
+   file and won on source order, which put all four copies in one stack and
+   all four images in another. */
 .scw-content {
-  padding-block: clamp(1.5rem, 4vw, 3rem);
+  padding-block: 0;
 }
 .scw-image img {
   width: 100%;
@@ -1459,15 +1519,56 @@ a:hover > .arrow {
      the copy lines up with the heading above it while the image does not. */
   .scw[data-ready] .scw-sticky {
     position: sticky;
-    top: 0;
-    height: 100vh;
+    /* CLEAR OF THE NAV. The pill is sticky at the top of the viewport, so a box
+       at `top: 0` has its first 74px behind it — the section heading below sat
+       under the glass and the first line of copy with it.
+
+       The offset is the pill's bottom edge, --nav-h minus its own bottom
+       padding. That padding is transparent and content scrolls visibly through
+       it, so treating it as covered would give away 14px for nothing. */
+    --scw-chrome: calc(var(--nav-h) - var(--nav-pad-y));
+    top: var(--scw-chrome);
+    height: calc(100svh - var(--scw-chrome));
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(1.25rem, 2.5vh, 2rem);
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-top: clamp(1.25rem, 3vh, 2.25rem);
+  }
+  /* Pinned, the copy runs a little tighter than it does in the stacked list:
+     the box is a screen minus the nav and the heading, and the tallest panel
+     was 8px over. 16px of margin, not a line of content. */
+  .scw[data-ready] .pp-card {
+    margin-top: 1.25rem;
+  }
+  .scw[data-ready] .pp-more {
+    margin-top: 1rem;
+  }
+
+  /* The heading holds still; only the row beneath it changes. */
+  .scw[data-ready] .scw-head {
+    flex: none;
+    padding-inline: max(var(--shell-pad), calc((100vw - var(--page-max-width)) / 2 + var(--shell-pad)));
+    --shell-pad: clamp(1.5rem, 4vw, 3rem);
+  }
+  /* Pinned, the wrappers come back as real boxes — the overlay needs one
+     column to hold the copies and one to hold the images, each stacked on
+     itself so they can crossfade in place. */
+  .scw[data-ready] .scw-cols {
+    position: relative;
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: row;
     align-items: stretch;
     gap: 0;
-    max-width: none;
-    margin-inline: 0;
-    padding-inline: 0;
+  }
+  .scw[data-ready] .scw-left,
+  .scw[data-ready] .scw-right {
+    display: block;
   }
   .scw[data-ready] .scw-left,
   .scw[data-ready] .scw-right {

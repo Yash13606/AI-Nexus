@@ -25,6 +25,7 @@ interface Props {
 
 export default function StickyContentWrapper(props: Props) {
   const { items } = props;
+  const header = props['header'] as React.ReactNode;
   const [step, setStep] = useState(0);
   const onStep = useCallback((index: number) => setStep(index), []);
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -38,6 +39,7 @@ export default function StickyContentWrapper(props: Props) {
     <ReactLenis root>
       <StickyContentComp
         items={withBodies}
+        header={header}
         onStep={onStep}
         footer={
           <p className="scw-progress mono t-cap" aria-hidden="true">

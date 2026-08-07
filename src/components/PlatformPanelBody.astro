@@ -14,6 +14,13 @@ import EvidenceCard from './EvidenceCard.astro';
 import Icon from './Icon.astro';
 import type { Platform } from '../content/platforms';
 
+/* The card and the link carry their margins in CSS, not as `mt-7` / `mt-6`
+   utilities. Those live in @layer utilities, this file's rules live in
+   @layer components, and a later layer wins at ANY specificity — so the
+   pinned override was in the built stylesheet, matched the element, and
+   computed 28px anyway. Same failure class as §14b, one layer along. The fix
+   is to stop competing with the utility rather than to out-rank it. */
+
 interface Props {
   platform: Platform;
   index: number;
@@ -39,11 +46,11 @@ const { platform: p, index } = Astro.props;
   <h3 class="t-h2 mt-4">{p.headline}</h3>
   <p class="t-lede mt-4">{p.pinSummary}</p>
 
-  <div class="mt-7">
+  <div class="pp-card">
     <EvidenceCard evidence={p.evidence} />
   </div>
 
-  <a href={`/platforms/${p.slug}/`} class="link-accent mt-6">
+  <a href={`/platforms/${p.slug}/`} class="pp-more link-accent">
     Explore {p.name} <Icon name="arrow-right" class="arrow" size={14} />
   </a>
 </div>
