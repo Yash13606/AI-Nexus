@@ -1382,6 +1382,26 @@ a:hover > .arrow {
   }
 }
 
+/* The section's ground. Wash from `.band` is the base; these two very low
+   washes give the pinned screen some depth without introducing a colour the
+   palette does not already have — Nexus Indigo at 6% and Mist, both tokens.
+   Behind everything (z-index -1 on an isolated stacking context), so nothing
+   here can sit on top of the rail or the panel. */
+.hiw-section {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+.hiw-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(58% 45% at 78% 12%, color-mix(in oklab, var(--color-accent) 6%, transparent), transparent 70%),
+    radial-gradient(52% 40% at 12% 88%, var(--color-mist), transparent 72%);
+}
+
 /* ── "How a deployment works" — one step per screen of scroll ─────────────
    Everything below is gated on [data-step-scroll], which initStepScroll sets
    only after it has confirmed the reader wants motion and the window can hold
@@ -1412,7 +1432,56 @@ a:hover > .arrow {
      without this the block changes height at every step and the pinned layout
      shifts under the pointer. Sized to the tallest, measured. */
   .hiw-track[data-step-scroll] .hiw-panels {
-    min-height: 8.5rem;
+    min-height: 12.5rem;
+    max-width: 60ch;
+  }
+
+  /* ── Pinned, the block is the screen, so it is sized for one ──────────────
+     Held at ~500px in an 826px box it read as a small widget floating in a
+     lot of paper. Every step up is one rung of the existing type scale — no
+     new sizes, and the stacked fallback keeps the old ones. */
+  .hiw-track[data-step-scroll] h2 {
+    font-size: clamp(2.375rem, 3.4vw, 3.25rem);
+  }
+  .hiw-track[data-step-scroll] .hiw {
+    margin-top: clamp(2.5rem, 5vh, 4.5rem);
+  }
+  .hiw-track[data-step-scroll] .hiw-node-circle {
+    width: 56px;
+    height: 56px;
+    font-size: var(--text-body);
+  }
+  .hiw-track[data-step-scroll] .hiw-node:not(:last-child)::after {
+    top: 27px;
+  }
+  .hiw-track[data-step-scroll] .hiw-node-title {
+    font-size: var(--text-body);
+  }
+  .hiw-track[data-step-scroll] .hiw-panel h3 {
+    font-size: var(--text-h2);
+  }
+  .hiw-track[data-step-scroll] .hiw-panel .t-body {
+    font-size: var(--text-lede);
+    line-height: 1.55;
+  }
+
+  /* The rail fills as you scroll — scrubbed continuously from --hiw-progress,
+     so there is motion between the steps and not only at them. Painted under
+     the nodes, over the hairline the nodes already draw. */
+  .hiw-track[data-step-scroll] .hiw-rail {
+    position: relative;
+  }
+  .hiw-track[data-step-scroll] .hiw-rail::before {
+    content: '';
+    position: absolute;
+    top: 27px;
+    left: 12.5%;
+    width: 75%;
+    height: 2px;
+    background: var(--color-accent);
+    transform-origin: left center;
+    transform: scaleX(var(--hiw-progress, 0));
+    z-index: 0;
   }
 }
 
@@ -1933,12 +2002,17 @@ html[data-reveal-ready] .hiw:not([data-ready]) .hiw-panel:not(:first-of-type) {
 .hiw-panel {
   animation: hiw-panel-in var(--dur-element) var(--ease-entrance) both;
 }
+/* A fade alone reads as a cut when the box height is fixed and nothing else
+   moves. The small rise gives the swap a direction, which is what makes it
+   feel like a step rather than a flicker. */
 @keyframes hiw-panel-in {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
+    transform: none;
   }
 }
 

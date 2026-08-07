@@ -37,6 +37,13 @@ export function initStepScroll(track, api) {
     const travel = box.height - innerHeight;
     if (travel <= 0) return;
     const progress = Math.min(1, Math.max(0, -box.top / travel));
+
+    /* Continuous, every frame: the rail's fill is scrubbed by this rather than
+       jumping at each boundary. Without it the only feedback is the step swap,
+       and between swaps a reader scrolls into nothing happening — which is
+       what "it isn't smooth" actually means most of the time. */
+    track.style.setProperty('--hiw-progress', progress.toFixed(4));
+
     const step = Math.min(api.count - 1, Math.floor(progress * api.count));
     if (step === current) return;
     current = step;
@@ -60,6 +67,7 @@ export function initStepScroll(track, api) {
     if (!armed) return;
     armed = false;
     track.removeAttribute('data-step-scroll');
+    track.style.removeProperty('--hiw-progress');
     removeEventListener('scroll', onScroll);
     removeEventListener('resize', onScroll);
     if (frame) cancelAnimationFrame(frame);
