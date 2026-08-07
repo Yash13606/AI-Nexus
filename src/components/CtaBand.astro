@@ -12,26 +12,204 @@ interface Props {
    *  renders on nine routes and only /platforms/* is in §16's scope, so the
    *  six that do not pass it emit byte-identical HTML. */
   atmos?: boolean;
+  /** The Watermelon UI `cta-1` treatment: a contained card rather than a
+   *  full-bleed band, copy left and the action right, with two blurred
+   *  gradient shapes behind it. Opt-in for the same reason as the other two —
+   *  the routes that do not pass it emit exactly the markup they did before. */
+  card?: boolean;
 }
-const { magnetic = false, atmos = false } = Astro.props;
+const { magnetic = false, atmos = false, card = false } = Astro.props;
+
+const heading = 'See a platform in action.';
+const lede =
+  'A 30-minute demo of any platform, run on your own facility type, board, practice area or city — or a conversation about partnership. We reply within one business day.';
 ---
 
-<section class={`section${atmos ? ' p-bloom p-grain p-cta' : ''}`} style="background: var(--color-wash);">
-  <div class="shell text-center flex flex-col items-center gap-5">
-    <h2 class="t-h2">See a platform in action.</h2>
-    <p class="t-lede" style="margin-inline: auto;">
-      A 30-minute demo of any platform, run on your own facility type, board, practice area or city — or a
-      conversation about partnership. We reply within one business day.
-    </p>
-    <div class="mt-3 flex flex-wrap gap-3 justify-center">
-      {/* The href and the label are in the HTML either way. initMagnetic adds
-          pointer response to an anchor that already works. */}
-      <a href="/contact/" class="btn btn-primary tx-fast" data-magnetic={magnetic ? '' : undefined}>
-        Book a demo <Icon name="arrow-right" class="arrow" />
-      </a>
-      <a href={contact.linkedin} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
-        Connect on LinkedIn <Icon name="arrow-up-right" size={14} />
-      </a>
-    </div>
-  </div>
-</section>
+{
+  card ? (
+    /* ── Watermelon UI cta-1, in this site's tokens ────────────────────────
+       Kept from the reference: the contained card with a 1px accent border on
+       an accent wash, `relative isolate overflow-hidden`, copy on the left and
+       the action on the right, stacking to centred on mobile, and the two
+       blurred clip-path shapes bleeding off either edge.
+
+       THE ACCENT IS NEXUS INDIGO, NOT THE PAGE HUE. The reference tints the
+       card with `bg-primary/10`, and on a platform page `--page-accent` is
+       that platform's hue — which §15 forbids on a background. The site accent
+       is not a platform hue, so the card carries it and the rule holds. It
+       also reads as the same CTA on all nine routes, which is what a CTA
+       should be.
+
+       The blurred shapes are `aria-hidden` decoration and the card is legible
+       without them: they sit behind an isolated stacking context at z-index
+       -1, so nothing here can cover the heading or the buttons. */
+    <section class="section cta-wrap">
+      <div class="shell">
+        <div class="cta-card">
+          <div class="cta-blob cta-blob-l" aria-hidden="true">
+            <span />
+          </div>
+          <div class="cta-blob cta-blob-r" aria-hidden="true">
+            <span />
+          </div>
+
+          <div class="cta-copy">
+            <h2 class="t-h2">{heading}</h2>
+            <p class="t-body cta-lede">{lede}</p>
+          </div>
+
+          <div class="cta-actions">
+            <a href="/contact/" class="btn btn-primary cta-btn tx-fast" data-magnetic={magnetic ? '' : undefined}>
+              Book a demo <Icon name="arrow-right" class="arrow" />
+            </a>
+            <a href={contact.linkedin} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
+              Connect on LinkedIn <Icon name="arrow-up-right" size={14} />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  ) : (
+    <section class={`section${atmos ? ' p-bloom p-grain p-cta' : ''}`} style="background: var(--color-wash);">
+      <div class="shell text-center flex flex-col items-center gap-5">
+        <h2 class="t-h2">{heading}</h2>
+        <p class="t-lede" style="margin-inline: auto;">
+          {lede}
+        </p>
+        <div class="mt-3 flex flex-wrap gap-3 justify-center">
+          {/* The href and the label are in the HTML either way. initMagnetic adds
+              pointer response to an anchor that already works. */}
+          <a href="/contact/" class="btn btn-primary tx-fast" data-magnetic={magnetic ? '' : undefined}>
+            Book a demo <Icon name="arrow-right" class="arrow" />
+          </a>
+          <a href={contact.linkedin} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
+            Connect on LinkedIn <Icon name="arrow-up-right" size={14} />
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .cta-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2rem;
+    text-align: center;
+    border-radius: var(--radius-panel);
+    border: 1px solid color-mix(in oklab, var(--color-accent) 20%, transparent);
+    background: color-mix(in oklab, var(--color-accent) 7%, var(--color-paper));
+    box-shadow: var(--shadow-1);
+  }
+  @media (min-width: 900px) {
+    .cta-card {
+      flex-direction: row;
+      align-items: center;
+      text-align: left;
+      gap: 3rem;
+      padding: clamp(3rem, 5vw, 5rem) clamp(2.5rem, 4vw, 3.5rem);
+    }
+  }
+
+  .cta-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+  .cta-lede {
+    color: var(--color-muted);
+    max-width: 46ch;
+  }
+
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    flex: none;
+  }
+  /* The reference's raised button: a light inset along the top edge, a dark
+     one along the bottom, and a soft drop below. Built from --color-ink at low
+     alpha so it introduces no colour the palette does not have. */
+  .cta-btn {
+    box-shadow:
+      inset 0 2px 4px rgb(255 255 255 / 0.28),
+      inset 0 -2px 5px rgb(11 18 32 / 0.12),
+      0 8px 20px -6px rgb(11 18 32 / 0.18);
+  }
+
+  /* The two blurred shapes. Same clip-path as the reference, in the site
+     accent, bleeding off the left and right edges and clipped by the card. */
+  .cta-blob {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: -1;
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  .cta-blob span {
+    display: block;
+    width: 36rem;
+    aspect-ratio: 577 / 310;
+    opacity: 0.3;
+    background: linear-gradient(
+      to right,
+      var(--color-accent),
+      color-mix(in oklab, var(--color-accent) 60%, transparent)
+    );
+    clip-path: polygon(
+      74.8% 41.9%,
+      97.2% 73.2%,
+      100% 34.9%,
+      92.5% 0.4%,
+      87.5% 0%,
+      75% 28.6%,
+      58.5% 54.6%,
+      50.1% 56.8%,
+      46.9% 44%,
+      48.3% 17.4%,
+      24.7% 53.9%,
+      0% 27.9%,
+      11.9% 74.2%,
+      24.9% 54.1%,
+      68.6% 100%,
+      74.8% 41.9%
+    );
+  }
+  .cta-blob-l {
+    left: max(-7rem, calc(50% - 52rem));
+  }
+  .cta-blob-r {
+    left: max(45rem, calc(50% + 8rem));
+  }
+
+  /* Decoration only, so it drifts rather than sits — and stops entirely for a
+     reader who has asked for less motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .cta-blob-l span {
+      animation: cta-drift 18s ease-in-out infinite alternate;
+    }
+    .cta-blob-r span {
+      animation: cta-drift 22s ease-in-out infinite alternate-reverse;
+    }
+  }
+  @keyframes cta-drift {
+    from {
+      translate: 0 0;
+      scale: 1;
+    }
+    to {
+      translate: 2.5rem -1.5rem;
+      scale: 1.08;
+    }
+  }
+</style>
