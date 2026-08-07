@@ -1574,6 +1574,24 @@ a:hover > .arrow {
   }
 }
 
+/* ── "Coming soon" chip ──
+   Marks a route listed in PLANNED_ROUTES. Global rather than scoped to the
+   nav: the nav dropdown, the mobile menu and the home page's seat cards all
+   render it, and they are three different components. */
+.soon {
+  flex: none;
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-mist);
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 /* ── Agent column "view more" ──
    Native <details>. The label text lives in data-more / data-less and is
    swapped by [open], so one element carries both states and neither is a

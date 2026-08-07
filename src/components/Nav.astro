@@ -27,6 +27,10 @@ const solutionLinks = footerCols.find((c) => c.title === 'Solutions')!.links;
  *  back. The href is the identity. */
 const handWritten = new Set(['/platforms/', '/ai-agents/', '/solutions/hospitals/']);
 const flatLinks = nav.filter((item) => !handWritten.has(item.href));
+
+/** True when every solution page is held back, which is what decides whether
+ *  the "Solutions" trigger may still be a link. */
+const solutionsPlanned = solutionLinks.every((l) => isPlanned(l.href));
 ---
 
 <div class="nav-wrap" id="site-nav">
@@ -53,15 +57,33 @@ const flatLinks = nav.filter((item) => !handWritten.has(item.href));
 
       <a href="/ai-agents/" class="nav-link">AI agents</a>
 
+      {/* The trigger points at the first solution page, so when that page is
+          held back the trigger cannot stay a link — it would navigate to the
+          very page the panel below labels "Coming soon". It becomes a plain
+          button-less span in that case and still opens the panel, which is
+          hover/focus-driven and never needed the href. */}
       <div class="nav-item nav-has-menu">
-        <a href="/solutions/hospitals/" class="nav-link">
-          Solutions <Icon name="chevron-down" size={12} class="nav-chevron" />
-        </a>
+        {solutionsPlanned ? (
+          <span class="nav-link" tabindex="0" role="button" aria-expanded="false">
+            Solutions <Icon name="chevron-down" size={12} class="nav-chevron" />
+          </span>
+        ) : (
+          <a href="/solutions/hospitals/" class="nav-link">
+            Solutions <Icon name="chevron-down" size={12} class="nav-chevron" />
+          </a>
+        )}
         <div class="nav-panel">
           <div class="nav-card nav-list">
-            {solutionLinks.map((l) => (
-              <a href={l.href} class="list-item">{l.label}</a>
-            ))}
+            {solutionLinks.map((l) =>
+              isPlanned(l.href) ? (
+                <span class="list-item is-planned">
+                  {l.label}
+                  <span class="soon">Coming soon</span>
+                </span>
+              ) : (
+                <a href={l.href} class="list-item">{l.label}</a>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -99,9 +121,16 @@ const flatLinks = nav.filter((item) => !handWritten.has(item.href));
     <a href="/ai-agents/" class="nav-mobile-link nav-mobile-link--plain">AI agents</a>
 
     <p class="nav-mobile-label">Solutions</p>
-    {solutionLinks.map((l) => (
-      <a href={l.href} class="nav-mobile-link nav-mobile-link--plain">{l.label}</a>
-    ))}
+    {solutionLinks.map((l) =>
+      isPlanned(l.href) ? (
+        <span class="nav-mobile-link nav-mobile-link--plain is-planned">
+          {l.label}
+          <span class="soon">Coming soon</span>
+        </span>
+      ) : (
+        <a href={l.href} class="nav-mobile-link nav-mobile-link--plain">{l.label}</a>
+      )
+    )}
 
     <div class="nav-mobile-rule"></div>
     {flatLinks.map((item) => (
@@ -211,6 +240,27 @@ const flatLinks = nav.filter((item) => !handWritten.has(item.href));
     color: var(--color-muted);
     cursor: default;
   }
+
+  /* ── Held-back routes ──
+     A planned entry is a <span>, not an <a>, so it is already out of the tab
+     order and cannot be followed. The chip is what says why — a title
+     attribute would not survive touch, where there is no hover. */
+  .list-item.is-planned,
+  .nav-mobile-link.is-planned {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: var(--color-muted);
+    cursor: default;
+  }
+  .list-item.is-planned:hover,
+  .nav-mobile-link.is-planned:hover {
+    background: none;
+    color: var(--color-muted);
+  }
+  /* `.soon` itself lives in theme.css — the seat cards on the home page use
+     the same chip, and a scoped style here would not reach them. */
   /* :global on the icon's own class, because it is a class passed to a CHILD
      COMPONENT. Astro does not put this file's `data-astro-cid` on a child
      component's root element, so `.nav-chevron { … }` compiles to

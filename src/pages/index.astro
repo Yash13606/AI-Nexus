@@ -443,9 +443,13 @@ const AGENTS_SHOWN = 4;
         {roleFamilies.map((r, idx) => {
           const [countPart, platformName = ''] = r.meta.split('·').map((s) => s.trim());
           const [num, ...unitWords] = countPart.split(' ');
+          /* Held-back solution pages: the card keeps its content but stops
+             being a link, so it cannot promise a page the nav marks
+             "Coming soon". Astro needs a concrete tag, hence the switch. */
+          const Tag = isPlanned(r.href) ? 'div' : 'a';
           return (
-            <a
-              href={r.href}
+            <Tag
+              {...(isPlanned(r.href) ? {} : { href: r.href })}
               class="glow-card seat-card no-underline"
               style={`--glow-color: color-mix(in oklab, ${r.hue} 55%, transparent);`}
               data-glow-card
@@ -469,13 +473,17 @@ const AGENTS_SHOWN = 4;
                   <p class="t-sm mt-1.5" style="color: var(--color-muted);">{r.body}</p>
                   <span class="seat-card__foot mt-3">
                     <span class="t-cap mono" style="color: var(--color-muted);">{platformName}</span>
-                    <span class="link-accent">
-                      Explore <Icon name="arrow-right" class="arrow" size={14} />
-                    </span>
+                    {isPlanned(r.href) ? (
+                      <span class="soon">Coming soon</span>
+                    ) : (
+                      <span class="link-accent">
+                        Explore <Icon name="arrow-right" class="arrow" size={14} />
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>
-            </a>
+            </Tag>
           );
         })}
       </div>
