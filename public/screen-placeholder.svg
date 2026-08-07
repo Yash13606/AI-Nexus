@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="Product screen placeholder">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="presentation">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#4f74e6"/>
@@ -16,5 +16,4 @@
   <rect width="1600" height="1000" fill="url(#g)"/>
   <rect width="1600" height="1000" fill="url(#streaks)"/>
   <rect width="1600" height="1000" fill="url(#bloom)"/>
-  <text x="800" y="960" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="19" letter-spacing="1" fill="#ffffff" fill-opacity="0.55">Product screen — capture pending</text>
 </svg>

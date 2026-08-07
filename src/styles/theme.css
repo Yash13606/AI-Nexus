@@ -1742,7 +1742,11 @@ a:hover > .arrow {
   display: none;
 }
 
-@media (min-width: 1025px) {
+/* 1200px, and it must stay in step with CAN_PIN in StickyContentComp — the
+   island sets [data-ready] from that query and this block styles what
+   [data-ready] turns on. If the two disagree, the window between them gets a
+   pinned track with the stacked layout painted into it. */
+@media (min-width: 1200px) {
   /* The track: one screen of scroll per panel. The sticky box holds for the
      whole of it, so the panels can never escape onto a neighbouring section —
      the failure an earlier GSAP `pin: true` build had here. */
@@ -1750,15 +1754,38 @@ a:hover > .arrow {
     position: relative;
   }
 
-  /* FULL BLEED, not inside the 1200px shell. The reference is a hard 50/50
-     split with the image running edge to edge and top to bottom — measured off
-     it: the split sits at 50.3% of the width and the dark half covers every row
-     from the first to the last. A shell-width box with padding cannot do that;
-     the image would stop 150px short of the right edge and float in paper.
+  /* Air between the card and whatever follows it. The section carries no
+     padding of its own when pinned — the card IS the screen, so padding above
+     it would be blank paper before the first panel — but the moment the track
+     ends the next section arrived hard against the card's bottom edge.
 
-     The left column keeps the site's grid anyway. Its padding is the page
-     gutter computed from the same --page-max-width every other section uses, so
-     the copy lines up with the heading above it while the image does not. */
+     PADDING ON THE SECTION, NOT ON .scw. .scw is both the sticky element's
+     containing block and the ScrollTrigger's trigger, measured `top top` to
+     `bottom bottom`; padding there would lengthen the timeline and leave the
+     last panel held on screen through empty scroll. The section wraps it, so
+     this is pure space after the effect has finished. */
+  .scw-section {
+    padding-bottom: var(--section-y);
+  }
+
+  /* A CARD, AT FULL WIDTH — the same treatment the closing CTA carries. Not
+     the 1200px shell and not edge to edge: the pinned box is inset by the page
+     gutter only, so it runs nearly the whole window and still reads as a card,
+     corners and hairline and all. A rounded corner needs something outside it
+     to be rounded against, which is what the gutter gives back.
+
+     Inside it the 50/50 split is untouched: the illustration half still bleeds
+     to the card's own edges, top to bottom, because `overflow: clip` on the
+     card is what rounds it off. What changed is that the copy's left padding is
+     now the CARD's gutter rather than the page's — the same move the CTA card
+     makes. There is no section heading left to line up with, so aligning to a
+     viewport-derived grid was buying nothing and left the copy adrift from the
+     card edge it actually sits against.
+
+     THE VERTICAL BUDGET IS UNCHANGED. --scw-gap replaces the padding-top this
+     box used to carry, one for one: the box loses `gap` at the top and the
+     bottom and gains back the padding, so the tallest panel has the same room
+     it was measured against at the 780px pin floor. */
   .scw[data-ready] .scw-sticky {
     position: sticky;
     /* CLEAR OF THE NAV. The pill is sticky at the top of the viewport, so a box
@@ -1769,16 +1796,31 @@ a:hover > .arrow {
        padding. That padding is transparent and content scrolls visibly through
        it, so treating it as covered would give away 14px for nothing. */
     --scw-chrome: calc(var(--nav-h) - var(--nav-pad-y));
-    top: var(--scw-chrome);
-    height: calc(100svh - var(--scw-chrome));
+    --scw-gap: clamp(0.5rem, 1vh, 0.75rem);
+    /* The card's OWN gutter, declared once. The copy's left padding and the
+       step counter both read it, so the two cannot drift apart the way they
+       did when each carried its own clamp. */
+    --scw-pad: clamp(1.75rem, 3.4vw, 3.25rem);
+    top: calc(var(--scw-chrome) + var(--scw-gap));
+    height: calc(100svh - var(--scw-chrome) - 2 * var(--scw-gap));
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: clamp(0.75rem, 1.6vh, 1.25rem);
     max-width: none;
-    margin-inline: 0;
+    margin-inline: clamp(1.5rem, 4vw, 3rem);
     padding-inline: 0;
-    padding-top: clamp(1rem, 2vh, 1.5rem);
+    padding-top: 0;
+    /* The card itself. isolate so the panels' clip-path crossfade cannot paint
+       over the border, clip so the illustration half is cut to the corner
+       radius — `clip` rather than `hidden` because `hidden` would make this a
+       scroll container and a scroll container cannot be sticky. */
+    isolation: isolate;
+    overflow: clip;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--color-paper);
+    box-shadow: var(--shadow-1);
   }
   /* Pinned, the copy runs a little tighter than it does in the stacked list:
      the box is a screen minus the nav and the heading, and the tallest panel
@@ -1852,32 +1894,24 @@ a:hover > .arrow {
     padding-block: 0;
   }
   .scw[data-ready] .scw-content {
-    /* Same clamp .shell uses. Declared rather than inherited: --shell-pad is
-       set on .shell and this column is not inside one, so relying on
-       inheritance would silently resolve to nothing and put the copy 24px left
-       of the heading above it — measured at 144 against 168.
+    /* THE CARD'S PADDING, not the page's. This used to be the viewport gutter
+       —  max(shell-pad, (100vw - 1200) / 2 + shell-pad) — so the copy lined up
+       with a section heading that has since been removed. Against a card edge
+       that computed 168px at 1440 and pushed the copy a third of the way into
+       its own column for nothing to align with.
 
-       The gutter is derived from THIS column, not from 100vw. The column is
-       exactly half the page, so (page - 1200) / 2 is the same as
-       (column - 600) — and percentages resolve against the containing block,
-       which has no scrollbar in it. 100vw does include the scrollbar, so on a
-       machine with classic scrollbars it would push this copy a few pixels
-       right of the heading it is supposed to line up with. */
-    --shell-pad: clamp(1.5rem, 4vw, 3rem);
+       Now it is card padding, and it reads as one — --scw-pad, set once on the
+       card itself. */
     display: flex;
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
-    /* The gutter comes from the VIEWPORT, not from this column. The earlier
-       form was `100% - 600px`, which is only the page gutter while the column
-       is exactly half the page — it stopped being that at 58/42 and computed
-       283px of padding, squeezing the copy back to 494px and undoing the
-       widening it was there to enable.
-
-       Reads the viewport, so a scrollbar shifts it the same way it shifts
-       every other .shell on the page. */
-    padding-left: max(var(--shell-pad), calc((100vw - var(--page-max-width)) / 2 + var(--shell-pad)));
-    padding-right: clamp(2rem, 4vw, 4rem);
+    padding-left: var(--scw-pad);
+    /* Measured, the copy's last pixel started 130px from the drawing's first —
+       the two halves read as two panels rather than one spread. This is the
+       copy's share of closing that; the rest came off the art side, which was
+       holding far more of it. */
+    padding-right: clamp(1rem, 2vw, 2rem);
   }
   /* The half is a full-bleed PANEL with the tile centred on it, not a photo
      cropped to fill. The reference's right half is a photograph, and `cover`
@@ -1899,6 +1933,12 @@ a:hover > .arrow {
     display: grid;
     place-items: center;
     background: var(--color-wash);
+    /* Centred within a padded box, and the padding is all on the outside edge —
+       so the drawing sits left of the half's true centre and leans toward the
+       copy. The ground itself is untouched: the wash and the radial ::before
+       are inset:0 on this element and paint through the padding, so the panel
+       still bleeds to the card's edge. */
+    padding-right: clamp(1rem, 2.5vw, 3rem);
   }
   .scw[data-ready] .scw-image::before {
     content: '';
@@ -1910,8 +1950,21 @@ a:hover > .arrow {
     position: relative;
     width: auto;
     height: auto;
-    max-width: min(74%, 34rem);
-    max-height: 66%;
+    /* Bigger, so the drawing fills its half rather than floating in the middle
+       of it — and 88% is not a taste number, it is the ceiling.
+
+       The ceiling is set by the widest moment in the timeline, not the settled
+       one: the scale flow peaks at 1.12 (see StickyContentWrapper), the drawing
+       is centred in a box the outer padding has shifted ~18px left of the
+       half's centre, and the nearer clip edge is therefore the split. 88% x
+       1.12 lands 4px inside it. Anything larger and .scw-right's overflow
+       crops the drawing — which on these assets means cropping a person.
+
+       Width binds throughout: 1105x783 viewBox, so 88% of the half is ~49% of
+       its height and the max-height below never engages. The 40rem cap starts
+       to matter past ~1750px. */
+    max-width: min(88%, 40rem);
+    max-height: 78%;
     aspect-ratio: auto;
     object-fit: contain;
     margin-inline: 0;
@@ -1920,14 +1973,17 @@ a:hover > .arrow {
     border-radius: 0;
     background: none;
   }
+  /* Bottom-left of the card, on the same gutter as the copy above it. It sits
+     in .scw-cols, which is the full width of the card, so one padding value
+     places it — no viewport arithmetic and nothing to drift when the card's
+     inset changes. */
   .scw[data-ready] .scw-progress {
-    --shell-pad: clamp(1.5rem, 4vw, 3rem);
     display: flex;
     align-items: baseline;
     gap: 0.25rem;
     position: absolute;
-    left: max(var(--shell-pad), calc(100% - var(--page-max-width) / 2 + var(--shell-pad)));
-    bottom: clamp(1.5rem, 4vw, 3rem);
+    left: var(--scw-pad);
+    bottom: clamp(1rem, 2.2vh, 1.75rem);
     color: var(--color-muted);
     z-index: 1;
   }

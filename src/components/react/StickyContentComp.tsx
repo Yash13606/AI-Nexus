@@ -88,8 +88,19 @@ interface Props {
  *  Control row was cut — which is exactly the failure the Vault component's own
  *  brief warns about: the sticky column must not overlap content or disappear
  *  before the supporting material has finished. A window between 700 and 799
- *  tall now gets the stacked list, where nothing is clipped. */
-const CAN_PIN = '(min-width: 1025px) and (min-height: 780px) and (max-height: 1600px)';
+ *  tall now gets the stacked list, where nothing is clipped.
+ *
+ *  THE 1200 IS MEASURED TOO, and it was 1025 — which never held. Height was
+ *  being treated as the only thing that could squeeze a panel, but width does
+ *  it just as surely: the copy sits in half the card, so a narrower window is a
+ *  narrower measure, more wrapped lines, and a taller panel. AdvoHub needs 670
+ *  CSS pixels at 1200 wide, 709 at 1100 and 784 at 1026 — against a box of ~690
+ *  at the 780px height floor. At 1026 x 781 it overflowed by 109px with the
+ *  card inset, and by 18px before it; the clipping was real either way, just
+ *  smaller. 1200 is the narrowest width at which the tallest panel fits at the
+ *  shortest height, with ~20px to spare. Below it the stacked pair layout takes
+ *  over, which is designed for exactly this and clips nothing. */
+const CAN_PIN = '(min-width: 1200px) and (min-height: 780px) and (max-height: 1600px)';
 
 export function StickyContentComp({
   items = [],

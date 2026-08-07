@@ -52,9 +52,22 @@ export default function StickyContentWrapper(props: Props) {
         contentTransitionDuration={0.9}
         contentDelay={0.35}
         stepGap={2.1}
-        initialImageScale={1.5}
-        activeImageScale={1.2}
-        exitImageScale={1}
+        /* THE SCALE FLOW NEVER UPSCALES PAST 1.12 — because .scw-right clips,
+         * and what it clips here is a line drawing of a person. The Vault
+         * defaults (1.5 -> 1.2 -> 1) are built for photographs, where a crop
+         * is just a tighter photograph and the drift is the point. Settled at
+         * 1.2, these drawings were 20% wider than the half that holds them and
+         * lost an arm at each edge; entering at 1.5 they lost more.
+         *
+         * Inverted instead: the incoming image settles DOWN from 1.12 to 1 and
+         * the outgoing one keeps shrinking to 0.94. Same drift, same direction
+         * of travel, but 1.0 is the resting size — so the size the artwork is
+         * actually drawn for is the size it is read at, and the widest moment
+         * in the timeline still fits inside the half. Checked against every
+         * frame of the timeline, not just the settle points. */
+        initialImageScale={1.12}
+        activeImageScale={1}
+        exitImageScale={0.94}
       />
     </ReactLenis>
   );
