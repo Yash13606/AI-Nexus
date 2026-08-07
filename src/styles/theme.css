@@ -1436,26 +1436,35 @@ a:hover > .arrow {
     max-width: 60ch;
   }
 
-  /* ── Pinned, the block is the screen, so it is sized for one ──────────────
-     Held at ~500px in an 826px box it read as a small widget floating in a
-     lot of paper. Every step up is one rung of the existing type scale — no
-     new sizes, and the stacked fallback keeps the old ones. */
+  /* ── Pinned: two columns, and the rail runs down the right ───────────────
+     The copy that changes is on the left; the heading and the rail — the two
+     things that hold still — are on the right. Placed by grid, not by DOM
+     order, so the heading is still the first thing in the markup.
+
+     The rail is VERTICAL here. The progress line then runs from one node down
+     to the next, which is what "go through the line" means: the fill travels
+     the same path your eye does, instead of a horizontal bar under nodes you
+     read across. */
+  .hiw-track[data-step-scroll] .hiw-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: center;
+  }
+  .hiw-track[data-step-scroll] .hiw-side {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .hiw-track[data-step-scroll] .hiw-main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* ── Sized for the screen it occupies ────────────────────────────────────
+     Every step is one rung of the existing type scale — no new sizes, and the
+     stacked fallback keeps the old ones. */
   .hiw-track[data-step-scroll] h2 {
-    font-size: clamp(2.375rem, 3.4vw, 3.25rem);
-  }
-  .hiw-track[data-step-scroll] .hiw {
-    margin-top: clamp(2.5rem, 5vh, 4.5rem);
-  }
-  .hiw-track[data-step-scroll] .hiw-node-circle {
-    width: 56px;
-    height: 56px;
-    font-size: var(--text-body);
-  }
-  .hiw-track[data-step-scroll] .hiw-node:not(:last-child)::after {
-    top: 27px;
-  }
-  .hiw-track[data-step-scroll] .hiw-node-title {
-    font-size: var(--text-body);
+    font-size: clamp(2rem, 2.9vw, 2.75rem);
   }
   .hiw-track[data-step-scroll] .hiw-panel h3 {
     font-size: var(--text-h2);
@@ -1464,23 +1473,53 @@ a:hover > .arrow {
     font-size: var(--text-lede);
     line-height: 1.55;
   }
+  .hiw-track[data-step-scroll] .hiw-panels {
+    min-height: 14rem;
+  }
 
-  /* The rail fills as you scroll — scrubbed continuously from --hiw-progress,
-     so there is motion between the steps and not only at them. Painted under
-     the nodes, over the hairline the nodes already draw. */
+  /* The rail, turned on its side. */
   .hiw-track[data-step-scroll] .hiw-rail {
     position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(1.5rem, 3.2vh, 2.75rem);
   }
+  .hiw-track[data-step-scroll] .hiw-node {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 1.125rem;
+    padding: 0;
+  }
+  .hiw-track[data-step-scroll] .hiw-node-circle {
+    width: 52px;
+    height: 52px;
+    font-size: var(--text-body);
+    flex: none;
+  }
+  .hiw-track[data-step-scroll] .hiw-node-title {
+    font-size: var(--text-h4);
+  }
+  /* The unlit track between one node and the next. */
+  .hiw-track[data-step-scroll] .hiw-node:not(:last-child)::after {
+    top: 52px;
+    left: 25px;
+    width: 2px;
+    height: calc(100% + clamp(1.5rem, 3.2vh, 2.75rem) - 52px);
+  }
+  /* And the lit one, scrubbed. Runs the full column from the first node's
+     centre to the last, filling downward as you scroll. */
   .hiw-track[data-step-scroll] .hiw-rail::before {
     content: '';
     position: absolute;
-    top: 27px;
-    left: 12.5%;
-    width: 75%;
-    height: 2px;
+    top: 26px;
+    left: 25px;
+    width: 2px;
+    height: calc(100% - 52px);
     background: var(--color-accent);
-    transform-origin: left center;
-    transform: scaleX(var(--hiw-progress, 0));
+    transform-origin: top center;
+    transform: scaleY(var(--hiw-progress, 0));
     z-index: 0;
   }
 }

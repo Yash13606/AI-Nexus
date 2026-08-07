@@ -313,39 +313,51 @@ const roleAngles = [45, -45, 135, 90];
     <div class="hiw-track" style={`--hiw-steps: ${deployment.length};`}>
       <div class="hiw-stick">
         <div class="shell">
-      <h2 class="t-h2" style="max-width: 20ch;">How a deployment works</h2>
-      <p class="t-lede mt-5">The same four steps for every platform.</p>
+      {/* One grid, two columns. The heading and the rail sit on the RIGHT and
+          the step's own copy on the left, so the thing that changes and the
+          thing that shows where you are do not compete for the same edge.
 
-      <div id="deployment-tabs" class="hiw mt-14">
-        <div role="tablist" aria-label="Deployment steps" class="hiw-rail">
-          {deployment.map((d, i) => (
-            <button
-              type="button"
-              role="tab"
-              id={`hiw-tab-${i}`}
-              aria-controls={`hiw-panel-${i}`}
-              aria-selected={i === 0 ? 'true' : 'false'}
-              tabindex={i === 0 ? 0 : -1}
-              class="hiw-node"
-            >
-              <span class="hiw-node-circle mono">{d.n}</span>
-              <span class="hiw-node-title">{d.title}</span>
-            </button>
-          ))}
+          DOM order is heading -> rail -> panel regardless: a reader and a
+          crawler get the heading first, and CSS does the swapping. The grid
+          lives inside #deployment-tabs so the tablist still owns both its rail
+          and its panels. */}
+      <div id="deployment-tabs" class="hiw hiw-grid">
+        <div class="hiw-side">
+          <h2 class="t-h2" style="max-width: 20ch;">How a deployment works</h2>
+          <p class="t-lede mt-4">The same four steps for every platform.</p>
+
+          <div role="tablist" aria-label="Deployment steps" class="hiw-rail mt-10">
+            {deployment.map((d, i) => (
+              <button
+                type="button"
+                role="tab"
+                id={`hiw-tab-${i}`}
+                aria-controls={`hiw-panel-${i}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+                class="hiw-node"
+              >
+                <span class="hiw-node-circle mono">{d.n}</span>
+                <span class="hiw-node-title">{d.title}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div class="hiw-panels mt-10" style="max-width: var(--prose-max-width);">
-          {deployment.map((d, i) => (
-            <div role="tabpanel" id={`hiw-panel-${i}`} aria-labelledby={`hiw-tab-${i}`} tabindex="0" class="hiw-panel">
-              <p class="t-cap mono" style="color: var(--color-muted);">{d.n}</p>
-              <h3 class="t-h3 mt-2">{d.title}</h3>
-              <p class="t-body mt-3">{d.body}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+        <div class="hiw-main">
+          <div class="hiw-panels">
+            {deployment.map((d, i) => (
+              <div role="tabpanel" id={`hiw-panel-${i}`} aria-labelledby={`hiw-tab-${i}`} tabindex="0" class="hiw-panel">
+                <p class="t-cap mono" style="color: var(--color-muted);">{d.n}</p>
+                <h3 class="t-h3 mt-2">{d.title}</h3>
+                <p class="t-body mt-3">{d.body}</p>
+              </div>
+            ))}
+          </div>
 
       <p class="t-sm mt-9 prose" style="color: var(--color-muted);">{deploymentCaveat}</p>
+        </div>
+      </div>
     </div>
         </div>
       </div>

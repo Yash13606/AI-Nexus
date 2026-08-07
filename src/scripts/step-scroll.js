@@ -38,13 +38,22 @@ export function initStepScroll(track, api) {
     if (travel <= 0) return;
     const progress = Math.min(1, Math.max(0, -box.top / travel));
 
-    /* Continuous, every frame: the rail's fill is scrubbed by this rather than
-       jumping at each boundary. Without it the only feedback is the step swap,
-       and between swaps a reader scrolls into nothing happening — which is
-       what "it isn't smooth" actually means most of the time. */
-    track.style.setProperty('--hiw-progress', progress.toFixed(4));
-
     const step = Math.min(api.count - 1, Math.floor(progress * api.count));
+
+    /* THE FILL LANDS ON THE NODES, which is not the same as tracking scroll.
+       Scroll splits into `count` equal steps, but the line spans `count - 1`
+       gaps — so a raw progress of 0.25 put the fill a quarter down while the
+       node it had just lit sat a third of the way. Off by a node's width, and
+       visibly so.
+
+       Remapped: the fill is (step + fraction-through-that-step) / (count - 1),
+       so it leaves node i exactly as step i lights and arrives at node i+1
+       exactly as that one does. Past the last node it holds at 1 — there is
+       nowhere further along the line to go. */
+    const within = progress * api.count - Math.floor(progress * api.count);
+    const fill = Math.min(1, (step + within) / (api.count - 1));
+    track.style.setProperty('--hiw-progress', fill.toFixed(4));
+
     if (step === current) return;
     current = step;
     api.select(step);
