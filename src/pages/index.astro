@@ -14,9 +14,9 @@ import { agents, agentsFor } from '../content/agents';
 import { isPlanned } from '../content/site';
 import {
   hero, standards, showcase, proof, governance,
-  deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs, aboutBlock,
+  deployment, deploymentCaveat, whyLede, why, roleFamilies, faqs,
 } from '../content/home';
-import { entities, contact } from '../content/site';
+import { contact } from '../content/site';
 
 /** The Sticky Content Wrapper below passes four STATIC named slots, because
  *  Astro cannot build them in a loop (see the note at the call site). Four
@@ -34,6 +34,15 @@ const agentsPlanned = isPlanned('/ai-agents/');
  *  law firms, property) — indexed, not keyed, since the order is fixed. */
 const roleIcons = ['cross', 'book', 'scale', 'home'] as const;
 const roleAngles = [45, -45, 135, 90];
+
+/** The platform whose agent day runs on the phone in the closing CTA.
+ *  MedOrbit: the most modules, so its stat pair reads strongest at that size. */
+const ctaPlatform = platforms[0];
+
+/** Agents listed per platform column before the "view more" disclosure.
+ *  Four keeps the four columns the same height regardless of whether a
+ *  platform ships 7 agents or 20. */
+const AGENTS_SHOWN = 4;
 ---
 
 <Base
@@ -238,7 +247,13 @@ const roleAngles = [45, -45, 135, 90];
 
   {/* ══════════════ 48 AGENTS ══════════════
       /ai-agents/ is not built yet, so names render as text rather than dead
-      anchors. All 48 stay in the HTML — only the links are withheld. */}
+      anchors. All 48 stay in the HTML — only the links are withheld.
+
+      Each column shows four and puts the rest behind a native <details>,
+      same zero-JS mechanism as the FAQ. Edvation alone has 20, which ran
+      the section far past a screen. Collapsed, not removed: the remaining
+      agents are in the markup either way, so a crawler and a JS-off reader
+      still get all 48 — <details> only changes whether they are painted. */}
   <section class="section band">
     <div class="shell">
       <h2 class="t-h2" style="max-width: 20ch;">48 AI agents, each with one job</h2>
@@ -248,28 +263,43 @@ const roleAngles = [45, -45, 135, 90];
       </p>
 
       <div class="mt-12 grid gap-10 md:grid-cols-2 xl:grid-cols-4">
-        {platforms.map((p) => (
-          <div>
-            <div class="flex items-baseline justify-between gap-3 pb-2.5" style={`border-bottom: 2px solid ${p.hue};`}>
-              <p class="t-label" style={`color: ${p.hue};`}>{p.name}</p>
-              <p class="t-cap mono" style="color: var(--color-muted);">{p.agentCount} agents</p>
+        {platforms.map((p) => {
+          const list = agentsFor(p.slug);
+          const shown = list.slice(0, AGENTS_SHOWN);
+          const rest = list.slice(AGENTS_SHOWN);
+          const row = (a: (typeof list)[number]) => (
+            <li class="py-3" style="border-bottom: 1px solid var(--color-hairline);">
+              {agentsPlanned ? (
+                <span class="t-sm font-medium block" style="color: var(--color-ink);">{a.name}</span>
+              ) : (
+                <a href={`/ai-agents/#${a.slug}`} class="t-sm font-medium block no-underline" style="color: var(--color-ink);">
+                  {a.name}
+                </a>
+              )}
+              <span class="t-cap block mt-0.5" style="color: var(--color-muted);">{a.summary}</span>
+            </li>
+          );
+          return (
+            <div>
+              <div class="flex items-baseline justify-between gap-3 pb-2.5" style={`border-bottom: 2px solid ${p.hue};`}>
+                <p class="t-label" style={`color: ${p.hue};`}>{p.name}</p>
+                <p class="t-cap mono" style="color: var(--color-muted);">{p.agentCount} agents</p>
+              </div>
+
+              <ul class="list-none m-0 p-0">{shown.map(row)}</ul>
+
+              {rest.length > 0 && (
+                <details class="agent-more">
+                  <summary class="agent-more__toggle" style={`--hue: ${p.hue};`}>
+                    <span class="agent-more__label" data-more={`View ${rest.length} more`} data-less="Show fewer"></span>
+                    <Icon name="chevron-down" size={14} class="agent-more__chev" />
+                  </summary>
+                  <ul class="list-none m-0 p-0">{rest.map(row)}</ul>
+                </details>
+              )}
             </div>
-            <ul class="list-none m-0 p-0">
-              {agentsFor(p.slug).map((a) => (
-                <li class="py-3" style="border-bottom: 1px solid var(--color-hairline);">
-                  {agentsPlanned ? (
-                    <span class="t-sm font-medium block" style="color: var(--color-ink);">{a.name}</span>
-                  ) : (
-                    <a href={`/ai-agents/#${a.slug}`} class="t-sm font-medium block no-underline" style="color: var(--color-ink);">
-                      {a.name}
-                    </a>
-                  )}
-                  <span class="t-cap block mt-0.5" style="color: var(--color-muted);">{a.summary}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   </section>
@@ -401,51 +431,69 @@ const roleAngles = [45, -45, 135, 90];
     </div>
   </section>
 
-  {/* ══════════════ ROLE FAMILIES ══════════════ */}
+  {/* ══════════════ ROLE FAMILIES ══════════════
+      Heading above, four wide cards in a 2×2 below, so the whole section
+      fits one screen. Each card runs horizontally — count on the left,
+      copy on the right — which is what keeps it short: at ~570px wide the
+      body sits on two lines instead of five.
+
+      The count used to render twice per card (once as the display figure,
+      once as a meta line underneath); it is stated once now. */}
   <section class="section band">
     <div class="shell">
-      <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
-        <div class="lg:col-span-5">
-          <h2 class="t-h2" style="max-width: 20ch;">Built for every seat</h2>
-          <p class="t-lede mt-5">
-            A doctor, a teacher, an intern and a property owner need different things from the same platform.
-            Each product ships role-specific views, and the audit log records who saw what.
-          </p>
-        </div>
+      <h2 class="t-h2" style="max-width: 20ch;">Built for every seat</h2>
+      <p class="t-lede mt-4" style="max-width: 62ch;">
+        A doctor, a teacher, an intern and a property owner need different things from the same
+        platform. Each product ships role-specific views, and the audit log records who saw what.
+      </p>
 
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-6">
-          {roleFamilies.map((r, idx) => {
-            const stat = r.meta.match(/^\d+/)?.[0] ?? '';
-            const unit = r.meta.replace(/^\d+\s*/, '');
-            return (
-              <a href={r.href} class="glow-card no-underline" style={`--glow-color: color-mix(in oklab, ${r.hue} 55%, transparent);`} data-glow-card>
-                <span
-                  class="glow-card-texture"
-                  aria-hidden="true"
-                  style={`background-image: repeating-linear-gradient(${roleAngles[idx]}deg, color-mix(in oklab, ${r.hue} 10%, transparent), color-mix(in oklab, ${r.hue} 10%, transparent) 10px, transparent 10px, transparent 22px);`}
-                />
-                <div class="glow-card-inner flex flex-col gap-5 p-6">
-                  <div class="glow-card-icon" style={`color: ${r.hue};`} aria-hidden="true">
+      <div class="seat-grid mt-10">
+        {roleFamilies.map((r, idx) => {
+          const [countPart, platformName = ''] = r.meta.split('·').map((s) => s.trim());
+          const [num, ...unitWords] = countPart.split(' ');
+          /* Held-back solution pages: the card keeps its content but stops
+             being a link, so it cannot promise a page the nav marks
+             "Coming soon". Astro needs a concrete tag, hence the switch. */
+          const Tag = isPlanned(r.href) ? 'div' : 'a';
+          return (
+            <Tag
+              {...(isPlanned(r.href) ? {} : { href: r.href })}
+              class="glow-card seat-card no-underline"
+              style={`--glow-color: color-mix(in oklab, ${r.hue} 55%, transparent);`}
+              data-glow-card
+            >
+              <span
+                class="glow-card-texture"
+                aria-hidden="true"
+                style={`background-image: repeating-linear-gradient(${roleAngles[idx]}deg, color-mix(in oklab, ${r.hue} 10%, transparent), color-mix(in oklab, ${r.hue} 10%, transparent) 10px, transparent 10px, transparent 22px);`}
+              />
+              <div class="glow-card-inner seat-card__inner">
+                <div class="seat-card__lead">
+                  <span class="glow-card-icon" style={`color: ${r.hue};`} aria-hidden="true">
                     <Icon name={roleIcons[idx]} size={18} />
-                  </div>
+                  </span>
+                  <span class="seat-card__num mono">{num}</span>
+                  <span class="seat-card__unit t-cap">{unitWords.join(' ')}</span>
+                </div>
 
-                  <div>
-                    <p class="glow-card-stat mono" aria-hidden="true">
-                      {stat}<span class="glow-card-stat-unit">{unit}</span>
-                    </p>
-                    <h3 class="t-h4 mt-2">{r.title}</h3>
-                  </div>
-
-                  <p class="t-sm flex-1" style="color: var(--color-muted);">{r.body}</p>
-                  <span class="t-cap mono" style="color: var(--color-muted);">{r.meta}</span>
-                  <span class="link-accent">
-                    Explore <Icon name="arrow-right" class="arrow" size={14} />
+                <div class="seat-card__main">
+                  <h3 class="t-h4">{r.title}</h3>
+                  <p class="t-sm mt-1.5" style="color: var(--color-muted);">{r.body}</p>
+                  <span class="seat-card__foot mt-3">
+                    <span class="t-cap mono" style="color: var(--color-muted);">{platformName}</span>
+                    {isPlanned(r.href) ? (
+                      <span class="soon">Coming soon</span>
+                    ) : (
+                      <span class="link-accent">
+                        Explore <Icon name="arrow-right" class="arrow" size={14} />
+                      </span>
+                    )}
                   </span>
                 </div>
-              </a>
-            );
-          })}
-        </div>
+              </div>
+            </Tag>
+          );
+        })}
       </div>
     </div>
   </section>
@@ -497,44 +545,74 @@ const roleAngles = [45, -45, 135, 90];
     </div>
   </section>
 
-  {/* ══════════════ ABOUT ══════════════ */}
-  <section class="section band">
+  {/* ══════════════ CTA ══════════════
+      Copy on the left, a phone showing a platform actually running on the
+      right — the heading says "see a platform in action", so the device
+      shows exactly that.
+
+      What is on the screen is MedOrbit's own agent day from
+      platforms.ts, carrying its own "illustrative" note. No invented
+      dashboard figures: this page states elsewhere that it declines to
+      quote numbers it has not measured, so a mock-up full of fake revenue
+      would contradict the product's whole argument. */}
+  <section class="section cta-live">
     <div class="shell">
-      <h2 class="t-h2" style="max-width: 22ch;">A product company for the institutions that matter most</h2>
-      <div class="mt-8 flex flex-col gap-5 prose">
-        {aboutBlock.map((para) => <p class="t-body">{para}</p>)}
-      </div>
-      <p class="t-sm mt-8" style="color: var(--color-muted);">
-        Founded and led by Geetha R, Founder &amp; Director.
-      </p>
-
-      <div class="mt-10 grid gap-6 sm:grid-cols-2 max-w-[720px]">
-        {entities.map((e) => (
-          <div class="card p-5 flex flex-col gap-1.5">
-            <p class="t-label" style="color: var(--color-muted);">{e.region}</p>
-            <p class="t-sm font-medium" style="color: var(--color-ink);">{e.name}</p>
-            <p class="t-cap mono" style="color: var(--color-muted);">{e.id} · {e.place}</p>
+      <div class="cta-live__grid">
+        <div class="cta-live__copy">
+          <h2 class="t-h2">
+            See a platform <span style="color: var(--color-accent);">in action</span>.
+          </h2>
+          <p class="t-lede mt-5">
+            A 30-minute demo of any platform, run on your own facility type, board, practice area or
+            city — or a conversation about partnership. We reply within one business day.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="/contact/" class="btn btn-primary tx-fast">
+              Book a demo <Icon name="arrow-right" class="arrow" />
+            </a>
+            <a href={contact.linkedin} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
+              Connect on LinkedIn <Icon name="arrow-up-right" size={14} />
+            </a>
           </div>
-        ))}
-      </div>
-    </div>
-  </section>
+        </div>
 
-  {/* ══════════════ CTA — the one centred block ══════════════ */}
-  <section class="section" style="background: var(--color-wash);">
-    <div class="shell text-center flex flex-col items-center gap-5">
-      <h2 class="t-h2">See a platform in action.</h2>
-      <p class="t-lede" style="margin-inline: auto;">
-        A 30-minute demo of any platform, run on your own facility type, board, practice area or city —
-        or a conversation about partnership. We reply within one business day.
-      </p>
-      <div class="mt-3 flex flex-wrap gap-3 justify-center">
-        <a href="/contact/" class="btn btn-primary tx-fast">
-          Book a demo <Icon name="arrow-right" class="arrow" />
-        </a>
-        <a href={contact.linkedin} target="_blank" rel="noopener" class="btn btn-secondary tx-fast">
-          Connect on LinkedIn <Icon name="arrow-up-right" size={14} />
-        </a>
+        {/* Decorative: everything in here is stated in prose elsewhere on the
+            page, so a screen reader is not made to walk a fake UI. */}
+        <div class="cta-live__device" aria-hidden="true">
+          <div class="phone">
+            <span class="phone__notch"></span>
+            <div class="phone__screen">
+              <div class="phone__head">
+                <img src={`/platforms/${ctaPlatform.slug}.png`} alt="" class="phone__logo" />
+                <span class="t-cap" style="color: var(--color-muted);">{ctaPlatform.sector}</span>
+              </div>
+
+              <div class="phone__stats">
+                <div class="phone__stat">
+                  <span class="phone__stat-fig mono">{ctaPlatform.agentCount}</span>
+                  <span class="phone__stat-lab">AI agents</span>
+                </div>
+                <div class="phone__stat">
+                  <span class="phone__stat-fig mono">{ctaPlatform.stats[2].figure}</span>
+                  <span class="phone__stat-lab">{ctaPlatform.stats[2].label}</span>
+                </div>
+              </div>
+
+              <p class="phone__title t-cap">{ctaPlatform.panel.title}</p>
+              <ul class="phone__rows list-none m-0 p-0">
+                {ctaPlatform.panel.rows.map((r) => (
+                  <li class="phone__row">
+                    <span class="phone__when mono">{r.when}</span>
+                    <span class="phone__what">{r.what}</span>
+                    <span class="phone__out">{r.outcome}</span>
+                  </li>
+                ))}
+              </ul>
+              <p class="phone__note">{ctaPlatform.panel.note}</p>
+            </div>
+            <span class="phone__bar"></span>
+          </div>
+        </div>
       </div>
     </div>
   </section>

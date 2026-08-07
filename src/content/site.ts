@@ -1,9 +1,16 @@
-/** Routes not yet built. Anything pointing here renders as text, never a dead
- *  link. Delete an entry when its page ships. BUILD-PLAN.md §5.
+/** Routes not yet ready to link to. Anything pointing here renders as text
+ *  marked "Coming soon", never a dead link. Delete an entry when its page
+ *  ships. BUILD-PLAN.md §5.
  *
- *  Empty as of Phase 2 — all 18 routes exist. The mechanism stays because the
- *  next new page is cheaper to add than to re-derive. */
-export const PLANNED_ROUTES = new Set<string>([]);
+ *  The four solution pages build and render, but are held back until their
+ *  content is signed off — so they are listed here rather than deleted, and
+ *  the route keeps working for anyone with the URL. */
+export const PLANNED_ROUTES = new Set<string>([
+  '/solutions/hospitals/',
+  '/solutions/schools/',
+  '/solutions/law-firms/',
+  '/solutions/property/',
+]);
 
 export const isPlanned = (href: string) => PLANNED_ROUTES.has(href);
 
