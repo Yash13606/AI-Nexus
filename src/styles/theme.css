@@ -1386,6 +1386,246 @@ a:hover > .arrow {
   }
 }
 
+/* The section's ground. Wash from `.band` is the base; these two very low
+   washes give the pinned screen some depth without introducing a colour the
+   palette does not already have — Nexus Indigo at 6% and Mist, both tokens.
+   Behind everything (z-index -1 on an isolated stacking context), so nothing
+   here can sit on top of the rail or the panel. */
+.hiw-section {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+/* A drawn ground rather than two soft washes: a faint grid, fading out
+   towards the bottom, with one accent bloom behind the rail. The grid is what
+   makes this section read as a plan being followed rather than a paragraph —
+   and it is two gradients, not an asset. */
+.hiw-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(to right, color-mix(in oklab, var(--color-control) 16%, transparent) 1px, transparent 1px)
+      0 0 / 72px 72px,
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-control) 16%, transparent) 1px, transparent 1px)
+      0 0 / 72px 72px;
+  -webkit-mask-image: radial-gradient(120% 80% at 70% 30%, #000 20%, transparent 78%);
+  mask-image: radial-gradient(120% 80% at 70% 30%, #000 20%, transparent 78%);
+}
+.hiw-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(46% 42% at 74% 34%, color-mix(in oklab, var(--color-accent) 11%, transparent), transparent 72%),
+    radial-gradient(50% 44% at 10% 86%, var(--color-mist), transparent 74%);
+}
+
+/* ── "How a deployment works" — one step per screen of scroll ─────────────
+   Everything below is gated on [data-step-scroll], which initStepScroll sets
+   only after it has confirmed the reader wants motion and the window can hold
+   the block. Without it the track is a plain wrapper and the tablist behaves
+   exactly as it did: click or arrow-key a step, all four panels in the HTML,
+   nothing pinned and nothing tall.
+
+   The track is the scroll budget. 0.78 of a screen per step rather than a
+   whole one: four full screens of scrolling to read four short paragraphs
+   makes the section feel like it is holding you hostage, and the step still
+   gets a clear, deliberate beat of travel. */
+@media (min-width: 900px) {
+  .hiw-track[data-step-scroll] {
+    position: relative;
+    height: calc(var(--hiw-steps, 4) * 78vh);
+  }
+  .hiw-track[data-step-scroll] .hiw-stick {
+    position: sticky;
+    /* The pill's bottom edge — its wrapper's lower padding is transparent and
+       content shows through it, so counting it as chrome wastes 14px. */
+    top: calc(var(--nav-h) - var(--nav-pad-y));
+    min-height: calc(100svh - (var(--nav-h) - var(--nav-pad-y)));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* A FIXED panel box. `hidden` collapses the three steps you are not on, so
+     without this the block changes height at every step and the pinned layout
+     shifts under the pointer. Sized to the tallest, measured. */
+  .hiw-track[data-step-scroll] .hiw-panels {
+    min-height: 12.5rem;
+    max-width: 60ch;
+  }
+
+  /* ── Pinned: two columns, and the rail runs down the right ───────────────
+     The copy that changes is on the left; the heading and the rail — the two
+     things that hold still — are on the right. Placed by grid, not by DOM
+     order, so the heading is still the first thing in the markup.
+
+     The rail is VERTICAL here. The progress line then runs from one node down
+     to the next, which is what "go through the line" means: the fill travels
+     the same path your eye does, instead of a horizontal bar under nodes you
+     read across. */
+  .hiw-track[data-step-scroll] .hiw-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: center;
+  }
+  .hiw-track[data-step-scroll] .hiw-side {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .hiw-track[data-step-scroll] .hiw-main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* ── Sized for the screen it occupies ────────────────────────────────────
+     Every step is one rung of the existing type scale — no new sizes, and the
+     stacked fallback keeps the old ones. */
+  .hiw-track[data-step-scroll] h2 {
+    font-size: clamp(2rem, 2.9vw, 2.75rem);
+  }
+  .hiw-track[data-step-scroll] .hiw-panel h3 {
+    font-size: var(--text-h2);
+  }
+  .hiw-track[data-step-scroll] .hiw-panel .t-body {
+    font-size: var(--text-lede);
+    line-height: 1.55;
+  }
+  .hiw-track[data-step-scroll] .hiw-panels {
+    min-height: 14rem;
+  }
+
+  /* The rail, turned on its side. */
+  .hiw-track[data-step-scroll] .hiw-rail {
+    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(1.5rem, 3.2vh, 2.75rem);
+  }
+  .hiw-track[data-step-scroll] .hiw-node {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 1.125rem;
+    padding: 0;
+  }
+  .hiw-track[data-step-scroll] .hiw-node-circle {
+    width: 52px;
+    height: 52px;
+    font-size: var(--text-body);
+    flex: none;
+  }
+  .hiw-track[data-step-scroll] .hiw-node-title {
+    font-size: var(--text-h4);
+  }
+  /* The unlit track between one node and the next. */
+  .hiw-track[data-step-scroll] .hiw-node:not(:last-child)::after {
+    top: 52px;
+    left: 25px;
+    width: 2px;
+    height: calc(100% + clamp(1.5rem, 3.2vh, 2.75rem) - 52px);
+  }
+  /* And the lit one, scrubbed. Runs the full column from the first node's
+     centre to the last, filling downward as you scroll. */
+  .hiw-track[data-step-scroll] .hiw-rail::before {
+    content: '';
+    position: absolute;
+    top: 26px;
+    left: 25px;
+    width: 2px;
+    height: calc(100% - 52px);
+    background: var(--color-accent);
+    transform-origin: top center;
+    transform: scaleY(var(--hiw-progress, 0));
+    z-index: 0;
+  }
+
+  /* ── More motion, all of it tied to the same scrubbed value ──────────────
+     A travelling head at the tip of the fill, so the line reads as something
+     moving down it rather than a bar getting longer. Positioned from
+     --hiw-progress, which is already updated once a frame. */
+  .hiw-track[data-step-scroll] .hiw-rail::after {
+    content: '';
+    position: absolute;
+    left: 21px;
+    top: calc(26px + (100% - 52px) * var(--hiw-progress, 0));
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    border-radius: 999px;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-accent) 18%, transparent);
+    /* BEHIND THE NODES. This is the rail's ::after, so it paints after the
+       rail's children — at the same z-index it sat on top of the node it had
+       just arrived at and covered the number inside it. At 0 it runs along the
+       line and tucks under each circle as it reaches it, which is also the
+       better read: the head arrives at a step rather than landing on it. The
+       circles are opaque (paper at rest, accent when current), so nothing
+       shows through. */
+    z-index: 0;
+  }
+
+  /* The node you are on lifts and keeps a slow halo, so the active step is
+     alive rather than merely coloured. */
+  .hiw-track[data-step-scroll] .hiw-node-circle {
+    transition:
+      background-color var(--dur-feedback) var(--ease-out),
+      border-color var(--dur-feedback) var(--ease-out),
+      color var(--dur-feedback) var(--ease-out),
+      scale var(--dur-state) var(--ease-entrance),
+      box-shadow var(--dur-state) var(--ease-out);
+  }
+  .hiw-track[data-step-scroll] .hiw-node[aria-selected='true'] .hiw-node-circle {
+    scale: 1.08;
+    box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-accent) 14%, transparent);
+  }
+  .hiw-track[data-step-scroll] .hiw-node[aria-selected='true'] .hiw-node-title {
+    translate: 3px 0;
+  }
+  .hiw-track[data-step-scroll] .hiw-node-title {
+    transition:
+      color var(--dur-feedback) var(--ease-out),
+      translate var(--dur-state) var(--ease-entrance);
+  }
+
+  /* The step's own copy arrives in two beats — number, then title and body —
+     so the swap has a sequence instead of one flat fade. */
+  .hiw-track[data-step-scroll] .hiw-panel > * {
+    animation: hiw-part-in var(--dur-element) var(--ease-entrance) both;
+  }
+  .hiw-track[data-step-scroll] .hiw-panel > :nth-child(2) {
+    animation-delay: 70ms;
+  }
+  .hiw-track[data-step-scroll] .hiw-panel > :nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hiw-track[data-step-scroll] .hiw-node-circle,
+    .hiw-track[data-step-scroll] .hiw-node-title {
+      transition: none;
+    }
+    .hiw-track[data-step-scroll] .hiw-panel > * {
+      animation: none;
+    }
+  }
+}
+
+@keyframes hiw-part-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    PLATFORM PIN — "What each platform actually does"
    One platform holds the screen while the next scrolls in behind it.
@@ -1404,100 +1644,316 @@ a:hover > .arrow {
    content, no overlay, what a crawler / JS-off / narrow / reduced-motion
    / printing visitor gets. [data-pinned] is set by the script only after
    it confirms there's both width and height to hold a full screen. */
-.pp-panel {
-  padding-block: clamp(3rem, 8vw, 6rem);
-}
-.pp-panel-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2.5rem;
-  align-items: center;
-  width: 100%;
-}
 .pp-copy {
   max-width: var(--prose-max-width);
 }
-.pp-visual {
-  display: flex;
-  justify-content: center;
+/* Was `mt-7` / `mt-6` in the markup — see the note in PlatformPanelBody. */
+.pp-card {
+  margin-top: 1.75rem;
 }
-/* Fixed slot, `contain` so nothing crops. The four tiles have slightly
-   different aspect ratios; a shared box keeps them from resizing as the
-   panels crossfade, and — because the height no longer depends on the
-   loaded image — it gives `loading="lazy"` a real box to observe. With
-   `height: auto` the box was 0px tall, so the load never triggered. */
-.pp-visual img {
+.pp-more {
+  margin-top: 1.5rem;
+}
+
+/* ── Sticky Content Wrapper (Hyperiux Vault) ───────────────────────────────
+   DEFAULT STATE IS THE STACKED LIST. Everything below the [data-ready] gate
+   is the pinned layout, and [data-ready] is set by the React island only
+   after it has confirmed the viewport can hold a panel and the reader has
+   not asked for reduced motion.
+
+   That ordering is the whole no-JS story. The Vault source ships every panel
+   at `opacity-0` in the markup and lets the effect reveal the first one, so a
+   reader with JavaScript off gets four invisible panels. Here the panels are
+   plain blocks until something proves it can animate them. */
+.scw-sticky {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+/* The section is the scroller and nothing else now that the heading is gone,
+   so it carries no band padding of its own — the pinned box IS the screen,
+   and 120px of section padding above it would be 120px of blank paper before
+   the first example. The stacked fallback puts its own rhythm back. */
+.scw-section {
+  padding-block: 0;
+}
+@media (max-width: 1024px) {
+  .scw-section {
+    padding-block: var(--section-y);
+  }
+}
+/* NOT PINNED — and this is the layout most windows get, so it is designed
+   rather than left over. `display: contents` drops the two column wrappers out
+   of the box tree, which puts all eight children into one grid; explicit
+   placement then pairs each platform's copy with its own illustration.
+
+   Without it the wrappers survive and you get four copy blocks stacked, then
+   four images stacked, paired only by index and lined up with nothing. */
+.scw-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  row-gap: 1.5rem;
+}
+.scw-left,
+.scw-right {
+  display: contents;
+}
+/* One column: copy, then its own image, then the next platform. */
+.scw-content:nth-child(1) { grid-row: 1; }
+.scw-image:nth-child(1) { grid-row: 2; }
+.scw-content:nth-child(2) { grid-row: 3; }
+.scw-image:nth-child(2) { grid-row: 4; }
+.scw-content:nth-child(3) { grid-row: 5; }
+.scw-image:nth-child(3) { grid-row: 6; }
+.scw-content:nth-child(4) { grid-row: 7; }
+.scw-image:nth-child(4) { grid-row: 8; }
+
+@media (min-width: 900px) {
+  .scw-cols {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+    column-gap: 4rem;
+    row-gap: clamp(3rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .scw-content:nth-child(1), .scw-image:nth-child(1) { grid-row: 1; }
+  .scw-content:nth-child(2), .scw-image:nth-child(2) { grid-row: 2; }
+  .scw-content:nth-child(3), .scw-image:nth-child(3) { grid-row: 3; }
+  .scw-content:nth-child(4), .scw-image:nth-child(4) { grid-row: 4; }
+  .scw-content { grid-column: 1; }
+  .scw-image { grid-column: 2; }
+}
+.scw-content {
+  padding-block: 0;
+}
+.scw-image img {
   width: 100%;
-  max-width: 320px;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 16 / 10;
+  /* `contain`, not `cover`. These are line illustrations: a crop takes the
+     subject's head off, where a photograph survives one because any part of a
+     photograph is still a photograph. */
   object-fit: contain;
   display: block;
+  padding: 1.5rem;
+  border-radius: var(--radius-card);
+  background: var(--color-wash);
 }
-.pp-progress {
+.scw-progress {
   display: none;
 }
 
-@media (min-width: 900px) {
-  .pp-panel-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-  }
-}
-
 @media (min-width: 1025px) {
-  .pp-track[data-pinned] {
+  /* The track: one screen of scroll per panel. The sticky box holds for the
+     whole of it, so the panels can never escape onto a neighbouring section —
+     the failure an earlier GSAP `pin: true` build had here. */
+  .scw[data-ready] {
     position: relative;
-    /* The scroll budget: one screen per platform. Sticky travel is this
-       minus the one screen the sticky box itself occupies. */
-    height: calc(var(--pp-count) * 100vh);
   }
-  .pp-track[data-pinned] .pp-sticky {
+
+  /* FULL BLEED, not inside the 1200px shell. The reference is a hard 50/50
+     split with the image running edge to edge and top to bottom — measured off
+     it: the split sits at 50.3% of the width and the dark half covers every row
+     from the first to the last. A shell-width box with padding cannot do that;
+     the image would stop 150px short of the right edge and float in paper.
+
+     The left column keeps the site's grid anyway. Its padding is the page
+     gutter computed from the same --page-max-width every other section uses, so
+     the copy lines up with the heading above it while the image does not. */
+  .scw[data-ready] .scw-sticky {
     position: sticky;
-    top: 0;
-    height: 100vh;
+    /* CLEAR OF THE NAV. The pill is sticky at the top of the viewport, so a box
+       at `top: 0` has its first 74px behind it — the section heading below sat
+       under the glass and the first line of copy with it.
+
+       The offset is the pill's bottom edge, --nav-h minus its own bottom
+       padding. That padding is transparent and content scrolls visibly through
+       it, so treating it as covered would give away 14px for nothing. */
+    --scw-chrome: calc(var(--nav-h) - var(--nav-pad-y));
+    top: var(--scw-chrome);
+    height: calc(100svh - var(--scw-chrome));
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(0.75rem, 1.6vh, 1.25rem);
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-top: clamp(1rem, 2vh, 1.5rem);
   }
-  .pp-track[data-pinned] .pp-panel {
+  /* Pinned, the copy runs a little tighter than it does in the stacked list:
+     the box is a screen minus the nav and the heading, and the tallest panel
+     was 8px over. 16px of margin, not a line of content. */
+  .scw[data-ready] .pp-card {
+    margin-top: 1.25rem;
+  }
+  .scw[data-ready] .pp-more {
+    margin-top: 1rem;
+  }
+
+  /* Pinned, the wrappers come back as real boxes — the overlay needs one
+     column to hold the copies and one to hold the images, each stacked on
+     itself so they can crossfade in place. */
+  .scw[data-ready] .scw-cols {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+  }
+  .scw[data-ready] .scw-left,
+  .scw[data-ready] .scw-right {
+    display: block;
+  }
+  /* An even split: half the screen for the copy, half for the photograph.
+     It was 58/42 — width was being bought for the copy column because the
+     panel had to fit vertically, and the extra 8% was worth a line or two. The
+     floor below is re-measured for 50/50 rather than inherited. */
+  .scw[data-ready] .scw-left,
+  .scw[data-ready] .scw-right {
+    position: relative;
+    width: 50%;
+    height: 100%;
+    gap: 0;
+  }
+
+  /* The copy uses the whole column when pinned. `.pp-copy` is capped at
+     --prose-max-width (68ch) for the stacked list, where it is the only thing
+     on the row — but pinned it sits in a 590px column and the cap held it at
+     494, so widening the column bought nothing and the lede kept its extra
+     lines. Measured: the cap alone was costing the tallest panel ~70px. */
+  .scw[data-ready] .pp-copy {
+    max-width: none;
+  }
+
+  /* Pinned, the type steps down one level. The section heading is on screen
+     the whole time now, so a per-platform headline at the same size as it was
+     competing with it — and the box is a screen minus the nav and that
+     heading, which is the tightest space this copy ever has to fit. */
+  .scw[data-ready] .pp-copy h3 {
+    font-size: var(--text-h3);
+  }
+  .scw[data-ready] .pp-copy .t-lede {
+    font-size: var(--text-body);
+  }
+  .scw[data-ready] .pp-card figure {
+    padding: 1.25rem;
+  }
+  .scw[data-ready] .scw-right {
+    overflow: hidden;
+  }
+  .scw[data-ready] .scw-content,
+  .scw[data-ready] .scw-image {
     position: absolute;
     inset: 0;
-    display: flex;
-    align-items: center;
+    height: 100%;
+    width: 100%;
     padding-block: 0;
-    opacity: 0;
   }
-  .pp-track[data-pinned] .pp-panel[data-pp-index='0'] {
-    opacity: 1;
+  .scw[data-ready] .scw-content {
+    /* Same clamp .shell uses. Declared rather than inherited: --shell-pad is
+       set on .shell and this column is not inside one, so relying on
+       inheritance would silently resolve to nothing and put the copy 24px left
+       of the heading above it — measured at 144 against 168.
+
+       The gutter is derived from THIS column, not from 100vw. The column is
+       exactly half the page, so (page - 1200) / 2 is the same as
+       (column - 600) — and percentages resolve against the containing block,
+       which has no scrollbar in it. 100vw does include the scrollbar, so on a
+       machine with classic scrollbars it would push this copy a few pixels
+       right of the heading it is supposed to line up with. */
+    --shell-pad: clamp(1.5rem, 4vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    /* The gutter comes from the VIEWPORT, not from this column. The earlier
+       form was `100% - 600px`, which is only the page gutter while the column
+       is exactly half the page — it stopped being that at 58/42 and computed
+       283px of padding, squeezing the copy back to 494px and undoing the
+       widening it was there to enable.
+
+       Reads the viewport, so a scrollbar shifts it the same way it shifts
+       every other .shell on the page. */
+    padding-left: max(var(--shell-pad), calc((100vw - var(--page-max-width)) / 2 + var(--shell-pad)));
+    padding-right: clamp(2rem, 4vw, 4rem);
   }
-  .pp-track[data-pinned] .pp-progress {
+  /* The half is a full-bleed PANEL with the tile centred on it, not a photo
+     cropped to fill. The reference's right half is a photograph, and `cover`
+     would match it — but the four assets here are 331x449 product renders, so
+     filling this half means upscaling them 2.32x at 1280, 2.61x at 1440 and
+     3.48x at 1920. A blurred render is not the same picture as a sharp
+     photograph, and it is not attractive at any size.
+
+     So: the panel bleeds edge to edge and top to bottom exactly as the
+     reference does, and the tile sits on it at a size it can actually hold.
+     The moment there are real photographs, `contain` becomes `cover` and the
+     max-widths come off — one rule, and this matches the reference outright. */
+  /* A GROUND WITH THE DRAWING ON IT, not a window onto a photograph. `cover`
+     was right while these were photographs — any crop of a photograph is
+     still a photograph. A line illustration cropped to a portrait half loses
+     the subject, so the half is a wash panel with the drawing centred on it
+     and air on every side. */
+  .scw[data-ready] .scw-image {
+    display: grid;
+    place-items: center;
+    background: var(--color-wash);
+  }
+  .scw[data-ready] .scw-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 90% at 50% 42%, var(--color-paper), transparent 72%);
+  }
+  .scw[data-ready] .scw-image img {
+    position: relative;
+    width: auto;
+    height: auto;
+    max-width: min(74%, 34rem);
+    max-height: 66%;
+    aspect-ratio: auto;
+    object-fit: contain;
+    margin-inline: 0;
+    display: block;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .scw[data-ready] .scw-progress {
+    --shell-pad: clamp(1.5rem, 4vw, 3rem);
     display: flex;
     align-items: baseline;
     gap: 0.25rem;
     position: absolute;
-    right: clamp(1.5rem, 4vw, 3rem);
+    left: max(var(--shell-pad), calc(100% - var(--page-max-width) / 2 + var(--shell-pad)));
     bottom: clamp(1.5rem, 4vw, 3rem);
     color: var(--color-muted);
     z-index: 1;
   }
-  .pp-progress-current {
+  .scw-progress-current {
     color: var(--color-ink);
   }
 }
 
 /* Printing has no scroll, so a pinned stack would print as one panel with
-   three invisible ones underneath. Force the stacked layout back. */
+   three invisible ones underneath. Force the stacked layout back — and the
+   island's inline styles with it, since GSAP writes those on the elements. */
 @media print {
-  .pp-track[data-pinned],
-  .pp-track[data-pinned] .pp-sticky {
-    position: static;
-    height: auto;
+  .scw[data-ready],
+  .scw[data-ready] .scw-sticky {
+    position: static !important;
+    height: auto !important;
   }
-  .pp-track[data-pinned] .pp-panel {
-    position: static;
-    opacity: 1;
-    padding-block: 2rem;
+  .scw[data-ready] .scw-content,
+  .scw[data-ready] .scw-image {
+    position: static !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    clip-path: none !important;
   }
-  .pp-track[data-pinned] .pp-progress {
+  .scw[data-ready] .scw-progress {
     display: none;
   }
 }
@@ -1914,12 +2370,17 @@ html[data-reveal-ready] .hiw:not([data-ready]) .hiw-panel:not(:first-of-type) {
 .hiw-panel {
   animation: hiw-panel-in var(--dur-element) var(--ease-entrance) both;
 }
+/* A fade alone reads as a cut when the box height is fixed and nothing else
+   moves. The small rise gives the swap a direction, which is what makes it
+   feel like a step rather than a flicker. */
 @keyframes hiw-panel-in {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
+    transform: none;
   }
 }
 

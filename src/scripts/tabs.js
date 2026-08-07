@@ -9,7 +9,11 @@
  *  stacked and readable — the switching is lost, the content is not. Before
  *  paint, a CSS rule scoped to the armed root shows only the first; this module
  *  then sets `data-ready`, which retires that rule and hands visibility to
- *  `hidden`. No flash either way. */
+ *  `hidden`. No flash either way.
+ *
+ *  Returns a handle so another input can drive the same selection — scroll, on
+ *  the deployment steps. Click and the keyboard keep working exactly as they
+ *  did; a third driver calling `select` is not a different widget. */
 export function initTabs(root) {
   const tabs = [...root.querySelectorAll('[role="tab"]')];
   if (tabs.length < 2) return;
@@ -43,4 +47,6 @@ export function initTabs(root) {
   });
 
   select(0, false);
+
+  return { select: (i) => select(i, false), count: tabs.length };
 }

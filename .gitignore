@@ -39,3 +39,9 @@ screencapture-*.pdf
 code-extracted/
 dev.bat
 skills-lock.json
+
+# Screenshots dropped into the repo root while reviewing. One 2.36 MB PNG got
+# committed by a `git add -A` in d13f4b4 before this rule existed.
+Screenshot *.png
+Screenshot*.png
+*.jpeg
