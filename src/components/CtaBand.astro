@@ -43,15 +43,8 @@ const lede =
        The blurred shapes are `aria-hidden` decoration and the card is legible
        without them: they sit behind an isolated stacking context at z-index
        -1, so nothing here can cover the heading or the buttons. */
-    <section class="cta-wrap">
-      <div class="cta-card">
-          <div class="cta-blob cta-blob-l" aria-hidden="true">
-            <span />
-          </div>
-          <div class="cta-blob cta-blob-r" aria-hidden="true">
-            <span />
-          </div>
-
+    <section class="section cta-wrap">
+      <div class="cta-card p-bloom p-grain">
         <div class="cta-inner">
           <div class="cta-copy">
             <h2 class="t-h2">{heading}</h2>
@@ -92,35 +85,42 @@ const lede =
 }
 
 <style>
-  /* FULL BLEED. The card is the band now: edge to edge, no side radius and no
-     side border — a rounded corner against the window edge reads as a mistake
-     rather than a card. The tint, the top and bottom hairlines and the two
-     blurred shapes all carry over; only the box changes.
+  /* A CARD, AT FULL WIDTH. Not the 1200px column and not edge to edge: the
+     card is inset by the page gutter only, so it runs nearly the whole window
+     and still reads as a card — corners, hairline and all. A rounded corner
+     needs something outside it to be rounded against, which is what the
+     gutter gives back.
 
-     The section carries no padding of its own either, so the band's own
-     padding is the whole height and there is no paper gap above it. */
+     The ground is the one from "The four platforms" — Wash under the four-hue
+     mesh and the grain, via .p-bloom and .p-grain. Those are platform.css
+     classes and `card` is only ever passed on /platforms/*, which is where
+     that stylesheet is loaded.
+
+     The two blurred indigo shapes are gone with the tint they belonged to.
+     A mesh and a pair of blobs are two atmospheres arguing; the mesh is the
+     one that was asked for. */
   .cta-wrap {
-    padding-block: 0;
+    padding-inline: clamp(1.5rem, 4vw, 3rem);
   }
   .cta-card {
     position: relative;
     isolation: isolate;
-    overflow: hidden;
+    overflow: clip;
     padding-block: clamp(3.5rem, 7vw, 6.5rem);
-    border-block: 1px solid color-mix(in oklab, var(--color-accent) 20%, transparent);
-    background: color-mix(in oklab, var(--color-accent) 7%, var(--color-paper));
+    padding-inline: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+    background: var(--color-wash);
+    box-shadow: var(--shadow-1);
   }
   /* The copy stays on the page's grid even though the band does not: same
      max-width and gutter every other .shell on the site uses, so the heading
      lines up with the section above it. */
   .cta-inner {
-    /* The gutter belongs to THIS box, not to the band. With the padding on the
-       band the inner box was a flat 1200 centred in the window and the heading
-       started at x=120, while every .shell above it starts at 168 — the page
-       gutter plus the shell's own padding. Same two values here, same edge. */
+    /* The card's own padding is the gutter now, so the copy sits inside the
+       card rather than on the page grid — which is what a card is. */
     max-width: var(--page-max-width);
     margin-inline: auto;
-    padding-inline: clamp(1.5rem, 4vw, 3rem);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -165,70 +165,4 @@ const lede =
       0 8px 20px -6px rgb(11 18 32 / 0.18);
   }
 
-  /* The two blurred shapes. Same clip-path as the reference, in the site
-     accent, bleeding off the left and right edges and clipped by the card. */
-  .cta-blob {
-    position: absolute;
-    top: 50%;
-    translate: 0 -50%;
-    z-index: -1;
-    filter: blur(40px);
-    pointer-events: none;
-  }
-  .cta-blob span {
-    display: block;
-    width: 36rem;
-    aspect-ratio: 577 / 310;
-    opacity: 0.3;
-    background: linear-gradient(
-      to right,
-      var(--color-accent),
-      color-mix(in oklab, var(--color-accent) 60%, transparent)
-    );
-    clip-path: polygon(
-      74.8% 41.9%,
-      97.2% 73.2%,
-      100% 34.9%,
-      92.5% 0.4%,
-      87.5% 0%,
-      75% 28.6%,
-      58.5% 54.6%,
-      50.1% 56.8%,
-      46.9% 44%,
-      48.3% 17.4%,
-      24.7% 53.9%,
-      0% 27.9%,
-      11.9% 74.2%,
-      24.9% 54.1%,
-      68.6% 100%,
-      74.8% 41.9%
-    );
-  }
-  .cta-blob-l {
-    left: max(-7rem, calc(50% - 52rem));
-  }
-  .cta-blob-r {
-    left: max(45rem, calc(50% + 8rem));
-  }
-
-  /* Decoration only, so it drifts rather than sits — and stops entirely for a
-     reader who has asked for less motion. */
-  @media (prefers-reduced-motion: no-preference) {
-    .cta-blob-l span {
-      animation: cta-drift 18s ease-in-out infinite alternate;
-    }
-    .cta-blob-r span {
-      animation: cta-drift 22s ease-in-out infinite alternate-reverse;
-    }
-  }
-  @keyframes cta-drift {
-    from {
-      translate: 0 0;
-      scale: 1;
-    }
-    to {
-      translate: 2.5rem -1.5rem;
-      scale: 1.08;
-    }
-  }
 </style>
