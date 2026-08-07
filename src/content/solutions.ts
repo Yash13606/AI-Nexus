@@ -18,9 +18,9 @@ export const solutions: Solution[] = [
     slug: 'hospitals',
     platform: 'medorbit',
     h1: 'Hospitals run on MedOrbit',
-    title: 'AI for hospitals — MedOrbit | AI Nexus',
+    title: 'AI for hospitals: MedOrbit | AI Nexus',
     seats:
-      'Doctors, nurses, lab, pharmacy, front office, billing and administrators — plus a separate patient portal.',
+      'Doctors, nurses, lab, pharmacy, front office, billing and administrators, plus a separate patient portal.',
     evidence: {
       Doctor: 'AI Scribe',
       Receptionist: 'Front-Desk Voice Agent',
@@ -32,7 +32,7 @@ export const solutions: Solution[] = [
     slug: 'schools',
     platform: 'edvation',
     h1: 'Schools run on Edvation',
-    title: 'AI for schools — Edvation | AI Nexus',
+    title: 'AI for schools: Edvation | AI Nexus',
     seats:
       'Students, teachers, parents, principals and administrators, on one platform with six role views.',
     evidence: {
@@ -45,7 +45,7 @@ export const solutions: Solution[] = [
     slug: 'law-firms',
     platform: 'advohub',
     h1: 'Law firms run on AdvoHub',
-    title: 'AI for law firms — AdvoHub | AI Nexus',
+    title: 'AI for law firms: AdvoHub | AI Nexus',
     seats: 'Nine seats from intern to managing partner, plus a client portal with its own authentication.',
     evidence: {
       'Senior associate': 'Citation-Grounded Research',
@@ -58,7 +58,7 @@ export const solutions: Solution[] = [
     slug: 'property',
     platform: 'trustproperty',
     h1: 'Property runs on TrustProperty',
-    title: "AI for property — TrustProperty | AI Nexus",
+    title: "AI for property: TrustProperty | AI Nexus",
     seats:
       'Buyers and tenants, owners, agents and agencies, builders, service professionals and societies.',
     evidence: {

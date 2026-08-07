@@ -12,15 +12,15 @@ export const securityFaqs = [
   },
   {
     q: 'What certifications does AI Nexus hold?',
-    a: 'None yet, and we say so plainly. The standards listed on our platform pages are capability statements describing what the software implements — not certification logos. We will publish certificates when they exist.',
+    a: 'None yet, and we say so plainly. The standards listed on our platform pages are capability statements describing what the software implements, not certification logos. We will publish certificates when they exist.',
   },
   {
     q: 'What happens if an AI agent produces something wrong?',
-    a: 'It should not reach anyone. Legal citations are verified against Indian Kanoon and removed if unresolvable; school answers carry the textbook page they came from; extracted facts must match a verbatim quote in the source or they are dropped. Beyond that, no agent files, prescribes, sends or bills on its own — a human approves first, and every invocation is logged.',
+    a: 'It should not reach anyone. Legal citations are verified against Indian Kanoon and removed if unresolvable; school answers carry the textbook page they came from; extracted facts must match a verbatim quote in the source or they are dropped. Beyond that, no agent files, prescribes, sends or bills on its own: a human approves first, and every invocation is logged.',
   },
   {
     q: 'Can an AI agent be switched off?',
-    a: 'Yes, individually. Each agent has its own kill switch — one flag, per institution, with no deployment and no support ticket.',
+    a: 'Yes, individually. Each agent has its own kill switch: one flag, per institution, with no deployment and no support ticket.',
   },
 ];
 
@@ -65,7 +65,7 @@ export const terms: Section[] = [
   {
     h: 'Compliance statements',
     body: [
-      'Where we list standards — ABDM, FHIR R4, NHCX, eCourts v3.0, BSA §63, DPDP Act 2023, WCAG 2.1 AA and others — these are capability statements describing what the software implements. They are not certification logos and should not be read as claims that a certification has been awarded. We publish certificates when they exist.',
+      'Where we list standards (ABDM, FHIR R4, NHCX, eCourts v3.0, BSA §63, DPDP Act 2023, WCAG 2.1 AA and others), these are capability statements describing what the software implements. They are not certification logos and should not be read as claims that a certification has been awarded. We publish certificates when they exist.',
     ],
   },
   {
@@ -99,7 +99,7 @@ export const aboutIntro =
   'AI Nexus Innovations Hub is an AI product company incorporated in Bengaluru, India and Singapore that builds four AI-native platforms for regulated Indian industries: MedOrbit for hospitals, Edvation for K-12 schools, AdvoHub for legal practice, and TrustProperty for property.';
 
 export const aboutBody = [
-  'AI Nexus Innovations Hub was founded in 2025 to bring AI-native software to four industries that touch the most lives — healthcare, education, law and property — starting with India, where the gap between how these institutions work and what their software supports is widest.',
+  'AI Nexus Innovations Hub was founded in 2025 to bring AI-native software to four industries that touch the most lives (healthcare, education, law and property), starting with India, where the gap between how these institutions work and what their software supports is widest.',
   'We are a product company, not a consultancy. We build, operate and support all four platforms end to end, from Bengaluru and Singapore.',
   'We also try to be careful about what we claim. Our platforms publish capability statements rather than certification logos, label illustrative examples as illustrative, and decline to quote figures we have not measured. That is a deliberate choice in a market where badge walls are the norm.',
 ];

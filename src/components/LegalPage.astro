@@ -76,7 +76,7 @@ const parts = (s: string) => s.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
       {
         entities.map((e) => (
           <p class="t-cap mono" style="color: var(--color-muted);">
-            {e.name}, {e.place.split(',')[0]} — {e.id}
+            {e.name}, {e.place.split(',')[0]}: {e.id}
           </p>
         ))
       }

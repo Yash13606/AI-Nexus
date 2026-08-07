@@ -13,7 +13,7 @@
 export const aboutHero = {
   eyebrow: 'About AI Nexus',
   headline: 'A product company for the institutions that matter most.',
-  lede: 'AI Nexus Innovations Hub builds AI-native software for four regulated industries that touch the most lives — healthcare, education, law and property — engineered in Bengaluru and Singapore, held to one discipline.',
+  lede: 'AI Nexus Innovations Hub builds AI-native software for four regulated industries that touch the most lives (healthcare, education, law and property), engineered in Bengaluru and Singapore, held to one discipline.',
 };
 
 /* ── Story · Vision · Mission ─────────────────────────────────────────────────
@@ -22,7 +22,7 @@ export const story = {
   eyebrow: 'Who we are',
   heading: 'We build the software these industries were missing.',
   body: [
-    'AI Nexus Innovations Hub was founded in 2025 to bring AI-native software to four industries that touch the most lives — healthcare, education, law and property — starting with India, where the gap between how these institutions work and what their software supports is widest.',
+    'AI Nexus Innovations Hub was founded in 2025 to bring AI-native software to four industries that touch the most lives (healthcare, education, law and property), starting with India, where the gap between how these institutions work and what their software supports is widest.',
     'We are a product company, not a consultancy. We build, operate and support all four platforms end to end, from Bengaluru and Singapore.',
     'We also try to be careful about what we claim. Our platforms publish capability statements rather than certification logos, label illustrative examples as illustrative, and decline to quote figures we have not measured. That is a deliberate choice in a market where badge walls are the norm.',
   ],
@@ -35,7 +35,7 @@ export const pillars = [
   },
   {
     label: 'Our mission',
-    body: 'Build, operate and support AI-native platforms for the four regulated industries that touch the most lives — and make every AI action cite its source, log its trail and defer to a human.',
+    body: 'Build, operate and support AI-native platforms for the four regulated industries that touch the most lives, and make every AI action cite its source, log its trail and defer to a human.',
   },
 ];
 
@@ -65,12 +65,12 @@ export const timeline = [
   {
     marker: '2025',
     title: 'Four platforms enter build',
-    body: 'MedOrbit for hospitals, Edvation for K-12 schools, AdvoHub for legal practice and TrustProperty for property — four products, one shared engineering discipline.',
+    body: 'MedOrbit for hospitals, Edvation for K-12 schools, AdvoHub for legal practice and TrustProperty for property: four products, one shared engineering discipline.',
   },
   {
     marker: '2025',
     title: '48 AI agents ship',
-    body: 'Forty-eight named agents across the four platforms — not one assistant with many prompts, but single-purpose agents, each carrying its own guardrails, cost ceiling and audit trail.',
+    body: 'Forty-eight named agents across the four platforms, not one assistant with many prompts, but single-purpose agents, each carrying its own guardrails, cost ceiling and audit trail.',
   },
   {
     marker: 'Today',
@@ -84,7 +84,7 @@ export const values = [
   {
     index: '01',
     title: 'Evidence over claims',
-    body: 'Every answer shows its source — page citations in education, Indian Kanoon verification in law, chart-grounded outputs in health, explainable scores in property.',
+    body: 'Every answer shows its source: page citations in education, Indian Kanoon verification in law, chart-grounded outputs in health, explainable scores in property.',
   },
   {
     index: '02',
@@ -109,7 +109,7 @@ export const values = [
   {
     index: '06',
     title: 'One discipline, four industries',
-    body: 'The same rigour — cited sources, redaction, logging, human override — runs through healthcare, education, law and property alike.',
+    body: 'The same rigour (cited sources, redaction, logging, human override), runs through healthcare, education, law and property alike.',
   },
 ];
 

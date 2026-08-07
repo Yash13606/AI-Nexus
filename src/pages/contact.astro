@@ -7,7 +7,7 @@ import { contact } from '../content/site';
 ---
 
 <Base
-  title="Contact AI Nexus Innovations Hub — Bengaluru"
+  title="Contact AI Nexus Innovations Hub: Bengaluru"
   description="Book a 30-minute demo of any AI Nexus platform, run on your own facility type, board, practice area or city. We reply within one business day."
 >
   {/* The bottom pad was 0, so the contact row ran straight into the footer
@@ -21,7 +21,7 @@ import { contact } from '../content/site';
       <div class="contact-head">
         <h1 class="contact-head__title">Book a demo</h1>
         <p class="t-sm contact-head__lede">
-          Tell us what you'd like to see and which platform — we'll confirm a slot within one business day.
+          Tell us what you'd like to see and which platform: we'll confirm a slot within one business day.
         </p>
       </div>
 
@@ -57,7 +57,7 @@ import { contact } from '../content/site';
                     {
                       platforms.map((p) => (
                         <option value={p.slug}>
-                          {p.name} — {p.subtitle}
+                          {p.name}: {p.subtitle}
                         </option>
                       ))
                     }
@@ -125,7 +125,7 @@ import { contact } from '../content/site';
             <p class="t-sm">
               This site has no message backend yet, so nothing was transmitted. Send the same message to
               <a href={`mailto:${contact.email}`} class="mono" style="color: var(--color-accent);">{contact.email}</a>
-              and it reaches the same person — we reply within one business day.
+              and it reaches the same person: we reply within one business day.
             </p>
             <p class="t-cap" style="color: var(--color-muted);">
               We would rather say this plainly than show a confirmation for something that did not happen.

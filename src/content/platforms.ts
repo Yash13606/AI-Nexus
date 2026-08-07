@@ -75,9 +75,9 @@ export const platforms: Platform[] = [
     hue: 'var(--color-medorbit)',
     subtitle: 'Hospital operating system',
     site: 'https://www.medorbit.ai',
-    pageTitle: "MedOrbit — AI Hospital Management System for India | AI Nexus",
+    pageTitle: "MedOrbit: AI Hospital Management System for India | AI Nexus",
     pageH1: "The AI-native hospital operating system, built for India",
-    pageLede: "MedOrbit is an AI-native hospital management system built for 23 types of Indian healthcare facility, from solo clinics to hospital chains. It runs the front office, clinical records, diagnostics, pharmacy, revenue cycle and inpatient governance as one platform with over 100 modules, and adds 11 AI agents that take work off the staff rota — answering calls, calling discharged patients, drafting notes, explaining results and appealing denied claims. Every AI action is PHI-redacted before it reaches a model, logged to an audit trail, and gated behind a human approval.",
+    pageLede: "MedOrbit is an AI-native hospital management system built for 23 types of Indian healthcare facility, from solo clinics to hospital chains. It runs the front office, clinical records, diagnostics, pharmacy, revenue cycle and inpatient governance as one platform with over 100 modules, and adds 11 AI agents that take work off the staff rota: answering calls, calling discharged patients, drafting notes, explaining results and appealing denied claims. Every AI action is PHI-redacted before it reaches a model, logged to an audit trail, and gated behind a human approval.",
     agentCount: 11,
     bullets: [
       '11 AI agents, including a voice front desk',
@@ -90,11 +90,11 @@ export const platforms: Platform[] = [
     features: [
       {
         title: 'AI that answers the phone',
-        body: "A front-desk voice agent takes calls in the hospital's name after hours and books into the live schedule. An aftercare agent calls every discharged patient on day 2 and day 7 — and escalates to your staff rather than advising.",
+        body: "A front-desk voice agent takes calls in the hospital's name after hours and books into the live schedule. An aftercare agent calls every discharged patient on day 2 and day 7, and escalates to your staff rather than advising.",
       },
       {
         title: 'Specialties are editions, not separate products',
-        body: '23 facility types — solo clinic to hospital chain, dental to IVF to blood bank — each with preset modules and a seeded role catalogue, all sharing one data model.',
+        body: '23 facility types (solo clinic to hospital chain, dental to IVF to blood bank) each with preset modules and a seeded role catalogue, all sharing one data model.',
       },
       {
         title: 'Safety enforced in the platform, not in policy',
@@ -115,7 +115,7 @@ export const platforms: Platform[] = [
         { when: '11:00', what: 'Referral Triage', outcome: 'Urgent · missing ECG requested' },
         { when: '16:00', what: 'Denial Guard', outcome: '2 appeals drafted · biller approved' },
       ],
-      note: 'Illustrative sequence — every step is a shipped capability',
+      note: 'Illustrative sequence: every step is a shipped capability',
     },
     evidence: {
       tag: 'Worked example · Front-Desk Voice Agent',
@@ -136,18 +136,18 @@ export const platforms: Platform[] = [
     hue: 'var(--color-edvation)',
     subtitle: 'K-12 school operating system',
     site: 'https://www.edvation.ai',
-    pageTitle: "Edvation — AI K-12 School Platform for India | AI Nexus",
+    pageTitle: "Edvation: AI K-12 School Platform for India | AI Nexus",
     pageH1: "The AI-powered operating system for K-12 schools",
-    pageLede: "Edvation is a complete school platform for Indian K-12 education — admissions, attendance, fees, timetable, assessments, report cards and parent communication — with 20 built-in AI agents that teach from the school's own uploaded textbooks. Every AI answer is page-cited, works for any board, and is available in 13 Indian languages. Because the school supplies its own books rather than licensing a bundled library, board coverage is not a constraint: CBSE, ICSE and ISC, IB, Cambridge and every state board are supported by construction.",
+    pageLede: "Edvation is a complete school platform for Indian K-12 education (admissions, attendance, fees, timetable, assessments, report cards and parent communication) with 20 built-in AI agents that teach from the school's own uploaded textbooks. Every AI answer is page-cited, works for any board, and is available in 13 Indian languages. Because the school supplies its own books rather than licensing a bundled library, board coverage is not a constraint: CBSE, ICSE and ISC, IB, Cambridge and every state board are supported by construction.",
     agentCount: 20,
     bullets: [
       '20 AI agents grounded in your own textbooks',
       'Page-cited answers in 13 Indian languages',
-      'Any board — you upload the syllabus',
+      'Any board: you upload the syllabus',
     ],
     headline: 'AI that teaches from your textbook.',
     pinSummary: "20 AI agents teach from the school's own uploaded textbooks, and every answer carries the page number it came from.",
-    body: "Edvation is a complete school platform for Indian K-12 education — admissions, attendance, fees, timetable, assessments, report cards and parent communication — with 20 AI agents that teach from the school's own uploaded textbooks. Every AI answer carries the page number it came from, so a child, a parent or a teacher can open the printed book and check it. There is no bundled content library to outgrow: any board works, because you supply the syllabus.",
+    body: "Edvation is a complete school platform for Indian K-12 education (admissions, attendance, fees, timetable, assessments, report cards and parent communication) with 20 AI agents that teach from the school's own uploaded textbooks. Every AI answer carries the page number it came from, so a child, a parent or a teacher can open the printed book and check it. There is no bundled content library to outgrow: any board works, because you supply the syllabus.",
     features: [
       {
         title: 'Answers with page numbers, not guesses',
@@ -169,14 +169,14 @@ export const platforms: Platform[] = [
       { figure: '640+', label: 'screens' },
     ],
     panel: {
-      title: 'Teacher dashboard — today',
+      title: 'Teacher dashboard: today',
       rows: [
         { when: '09:20', what: 'Class 9B · essays', outcome: 'Coached · 4 flagged for review' },
         { when: '11:05', what: 'Quiz · Ch. 12', outcome: '20 questions · Bloom-tagged' },
         { when: '13:40', what: 'Socratic · stuck-flag', outcome: '3 students, same step' },
         { when: '15:10', what: 'Answer cited', outcome: 'Science · Ch 4 · p. 87' },
       ],
-      note: 'Illustrative — every answer carries its page number',
+      note: 'Illustrative: every answer carries its page number',
     },
     evidence: {
       tag: 'Worked example · Study Mentor',
@@ -197,9 +197,9 @@ export const platforms: Platform[] = [
     hue: 'var(--color-advohub)',
     subtitle: 'Legal practice platform',
     site: 'https://www.advohub.ai',
-    pageTitle: "AdvoHub — AI Legal Practice Platform for India | AI Nexus",
+    pageTitle: "AdvoHub: AI Legal Practice Platform for India | AI Nexus",
     pageH1: "The AI practice platform for Indian advocates and law firms",
-    pageLede: "AdvoHub is an AI-native legal practice platform for Indian advocates and law firms. Twelve modules cover an Indian engagement end to end — from intake and KYC through research, drafting, evidence and court operations to GST-correct invoicing and trust accounting — and ten purpose-built AI agents each take one job an advocate would otherwise do personally. Every agent operates under the same non-negotiable constraints: citations verified against Indian Kanoon before display, DPDP consent gated fail-closed before client data reaches a model, BCI Rule 36 disclosure on every AI-assisted output, and a human approval before anything is filed.",
+    pageLede: "AdvoHub is an AI-native legal practice platform for Indian advocates and law firms. Twelve modules cover an Indian engagement end to end (from intake and KYC through research, drafting, evidence and court operations to GST-correct invoicing and trust accounting) and ten purpose-built AI agents each take one job an advocate would otherwise do personally. Every agent operates under the same non-negotiable constraints: citations verified against Indian Kanoon before display, DPDP consent gated fail-closed before client data reaches a model, BCI Rule 36 disclosure on every AI-assisted output, and a human approval before anything is filed.",
     agentCount: 10,
     bullets: [
       '10 AI agents, each with its own guardrails',
@@ -208,15 +208,15 @@ export const platforms: Platform[] = [
     ],
     headline: 'The AI copilot built for Indian lawyers.',
     pinSummary: 'Ten AI agents each carry one job and their own guardrails, and every citation is verified against Indian Kanoon before it reaches an advocate.',
-    body: 'AdvoHub syncs matters from eCourts by CNR, drafts in 22 Indian languages, and bills in paise-precise GST — with every AI citation verified against Indian Kanoon before it reaches an advocate. Twelve modules cover an Indian engagement from intake to invoice, and ten purpose-built agents each carry their own guardrails, their own audit trail and their own cost ceiling in rupees.',
+    body: 'AdvoHub syncs matters from eCourts by CNR, drafts in 22 Indian languages, and bills in paise-precise GST, with every AI citation verified against Indian Kanoon before it reaches an advocate. Twelve modules cover an Indian engagement from intake to invoice, and ten purpose-built agents each carry their own guardrails, their own audit trail and their own cost ceiling in rupees.',
     features: [
       {
         title: 'Ten agents, not one chatbot',
-        body: 'Each agent does one job an advocate would otherwise do personally — research, hearing prep, drafting, contract review, evidence review, billing narration — with its own constraints.',
+        body: 'Each agent does one job an advocate would otherwise do personally (research, hearing prep, drafting, contract review, evidence review, billing narration) with its own constraints.',
       },
       {
         title: 'Citations that fail closed',
-        body: 'Every cited judgment is checked against Indian Kanoon and the citation graph. An authority that cannot be resolved is removed from the answer, and the answer says so — never rendered with a caveat.',
+        body: 'Every cited judgment is checked against Indian Kanoon and the citation graph. An authority that cannot be resolved is removed from the answer, and the answer says so, never rendered with a caveat.',
       },
       {
         title: 'The Indian legal stack, computed',
@@ -237,14 +237,14 @@ export const platforms: Platform[] = [
         { when: '14:15', what: 'Citation unresolved', outcome: 'Removed from answer' },
         { when: '17:00', what: 'Limitation · NI Act §138', outcome: '9 days remaining' },
       ],
-      note: 'Illustrative — unverifiable citations are stripped, not caveated',
+      note: 'Illustrative: unverifiable citations are stripped, not caveated',
     },
     evidence: {
       tag: 'Worked example · Citation-Grounded Research',
       input:
         '"Can a director who resigned before the cheque was issued be held vicariously liable under Section 141 of the NI Act? Supreme Court and Delhi High Court only."',
       output:
-        'An answer composed with per-claim citations. One authority cannot be resolved, so it is removed — and the answer says so.',
+        'An answer composed with per-claim citations. One authority cannot be resolved, so it is removed, and the answer says so.',
       control:
         'Fail-closed: an unverifiable authority is removed, never rendered with a caveat. Overruled or doubted judgments are flagged, not quietly cited.',
     },
@@ -260,9 +260,9 @@ export const platforms: Platform[] = [
     hue: 'var(--color-trustproperty)',
     subtitle: 'Property marketplace with AI',
     site: 'https://www.trustproperty.ai',
-    pageTitle: "TrustProperty — India's AI Property Platform | AI Nexus",
+    pageTitle: "TrustProperty: India's AI Property Platform | AI Nexus",
     pageH1: "India's AI-native property platform",
-    pageLede: "TrustProperty is an AI-native property platform for India covering buying, renting, PG and co-living, plots and commercial space, with zero brokerage for consumers. Its distinguishing feature is TrustLine: an AI concierge attached to every individual listing that answers from that listing's own verified facts in text or real-time voice, in English, हिंदी or Hinglish, and books the site visit into the owner's live calendar. Around it sit six more agents for lead intelligence, listing intake, photo enrichment, lead merging, pipeline monitoring and advertising — and a set of human services including lawyer-reviewed title verification.",
+    pageLede: "TrustProperty is an AI-native property platform for India covering buying, renting, PG and co-living, plots and commercial space, with zero brokerage for consumers. Its distinguishing feature is TrustLine: an AI concierge attached to every individual listing that answers from that listing's own verified facts in text or real-time voice, in English, हिंदी or Hinglish, and books the site visit into the owner's live calendar. Around it sit six more agents for lead intelligence, listing intake, photo enrichment, lead merging, pipeline monitoring and advertising, and a set of human services including lawyer-reviewed title verification.",
     agentCount: 7,
     bullets: [
       'TrustLine answers on every listing, 24×7',
@@ -271,7 +271,7 @@ export const platforms: Platform[] = [
     ],
     headline: 'Find your home. Just ask TrustLine.',
     pinSummary: "TrustLine answers from a listing's own verified facts in text or voice, and books the site visit straight into the owner's calendar.",
-    body: 'TrustProperty is an AI-native property platform for India where every listing answers you — in text or voice, in English, हिंदी or Hinglish, at any hour. Seven AI agents run the marketplace: a concierge that answers from the listing’s own verified facts and books the site visit, lead scoring that shows its reasoning, voice-dictated listing intake, and a pipeline watchdog for agents. Legal title verification sits alongside it, reviewed by a qualified lawyer rather than an automated scan.',
+    body: 'TrustProperty is an AI-native property platform for India where every listing answers you: in text or voice, in English, हिंदी or Hinglish, at any hour. Seven AI agents run the marketplace: a concierge that answers from the listing’s own verified facts and books the site visit, lead scoring that shows its reasoning, voice-dictated listing intake, and a pipeline watchdog for agents. Legal title verification sits alongside it, reviewed by a qualified lawyer rather than an automated scan.',
     features: [
       {
         title: 'Every home answers you',
@@ -283,7 +283,7 @@ export const platforms: Platform[] = [
       },
       {
         title: 'Lawyer-verified, deliberately not automated',
-        body: 'Title verification is reviewed by a qualified lawyer with a risk-graded verdict and a digitally-signed report — an explicit counter-position to AI-only title checks.',
+        body: 'Title verification is reviewed by a qualified lawyer with a risk-graded verdict and a digitally-signed report: an explicit counter-position to AI-only title checks.',
       },
     ],
     stats: [
@@ -293,20 +293,20 @@ export const platforms: Platform[] = [
       { figure: '₹0', label: 'brokerage' },
     ],
     panel: {
-      title: 'TrustLine — 23:40',
+      title: 'TrustLine: 23:40',
       rows: [
         { when: '23:40', what: 'Tenant asks about deposit', outcome: 'Answered from listing' },
         { when: '23:41', what: 'Language', outcome: 'Hinglish · voice' },
         { when: '23:43', what: 'Owner calendar checked', outcome: 'Saturday 11:00 booked' },
         { when: '23:44', what: 'Lead scored', outcome: '82/100 · reasons shown' },
       ],
-      note: "Illustrative — TrustProperty's own worked example",
+      note: "Illustrative: TrustProperty's own worked example",
     },
     evidence: {
       tag: 'Worked example · TrustLine Concierge',
       input: 'At 11:40 PM a tenant asks about the deposit.',
       output:
-        "TrustLine answers from the listing — text or voice, English, हिन्दी or Hinglish — checks the owner's calendar, and books Saturday 11 AM.",
+        "TrustLine answers from the listing (text or voice, English, हिन्दी or Hinglish), checks the owner's calendar, and books Saturday 11 AM.",
       control:
         'Answers only from that listing’s verified facts, with a note explaining why it said what it said.',
     },

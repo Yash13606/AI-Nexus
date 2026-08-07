@@ -2174,9 +2174,19 @@ a:hover > .arrow {
 .why-eyebrow {
   color: var(--color-accent);
 }
+/* Heading and lede share the row instead of stacking in one narrow column. */
+.why-head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: end;
+}
 .why-heading {
   margin: 0.75rem 0 0;
-  max-width: 18ch;
+  /* 26ch, not 18: the longest line is "One platform per industry." at 26
+     characters, and the markup places its own <br />. Capping below that
+     re-wrapped line two and orphaned "work." onto a third line. */
+  max-width: 26ch;
   font-size: clamp(1.875rem, 3.8vw, 2.625rem);
   line-height: 1.14;
   letter-spacing: -0.025em;
@@ -2190,6 +2200,17 @@ a:hover > .arrow {
   margin-top: 1rem;
   max-width: 40ch;
   color: var(--color-muted);
+}
+
+@media (min-width: 900px) {
+  .why-head {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 5rem);
+  }
+  .why-lede {
+    margin-top: 0;
+    padding-bottom: 0.4rem;
+  }
 }
 .why-grid {
   display: grid;

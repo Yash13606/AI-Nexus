@@ -47,7 +47,7 @@ const AGENTS_SHOWN = 4;
 ---
 
 <Base
-  title="AI Nexus Innovations Hub — AI Platforms for Health, Education, Law, Property"
+  title="AI Nexus Innovations Hub: AI Platforms for Health, Education, Law, Property"
   description={hero.lede}
   jsonldFaq
 >
@@ -182,7 +182,7 @@ const AGENTS_SHOWN = 4;
 
       <ul class="sr-only">
         <li>{proof.lead.figure} {proof.lead.label}. {proof.lead.body}</li>
-        {proof.tiles.map((t) => <li>{t.figure} — {t.label}</li>)}
+        {proof.tiles.map((t) => <li>{t.figure}: {t.label}</li>)}
       </ul>
 
       {/* Compliance Chip Row — DESIGN.md §8.15 exactly: a flat wrapping row
@@ -319,7 +319,7 @@ const AGENTS_SHOWN = 4;
       </div>
 
       <p class="t-sm mt-10" style="color: var(--color-muted);">
-        Security, data residency and compliance — page in progress.
+        Security, data residency and compliance: page in progress.
       </p>
     </div>
   </section>
@@ -398,15 +398,22 @@ const AGENTS_SHOWN = 4;
       instead. */}
   <section class="section why-section">
     <div class="shell">
-      <p class="t-label why-eyebrow">Why institutions choose AI Nexus</p>
-      <h2 class="why-heading">
-        One platform per industry.<br />
-        AI that <span class="why-heading__accent">shows its work.</span>
-      </h2>
-      <p class="t-sm why-lede">
-        Integrated. Verifiable. Built for India.<br />
-        So your team can focus on what matters.
-      </p>
+      {/* Heading left, lede right. It was one narrow column: the h2 capped at
+          18ch inside a 1104px shell, so "work." orphaned onto a third line and
+          the right two-thirds of the row sat empty. */}
+      <div class="why-head">
+        <div>
+          <p class="t-label why-eyebrow">Why institutions choose AI Nexus</p>
+          <h2 class="why-heading">
+            One platform per industry.<br />
+            AI that <span class="why-heading__accent">shows its work.</span>
+          </h2>
+        </div>
+        <p class="t-sm why-lede">
+          Integrated. Verifiable. Built for India.<br />
+          So your team can focus on what matters.
+        </p>
+      </div>
 
       <div class="why-grid">
         {why.map((w) => (
@@ -518,14 +525,14 @@ const AGENTS_SHOWN = 4;
         <p class="t-label" style="color: var(--color-accent);">Answers</p>
         <h2 class="t-h2" style="max-width: 14ch;">Frequently asked questions</h2>
         <p class="t-sm" style="color: var(--color-muted); max-width: 42ch;">
-          The things institutions ask us first — on data residency, the agents, pricing and how a
+          The things institutions ask us first: on data residency, the agents, pricing and how a
           deployment actually runs.
         </p>
 
         <div class="card p-6 flex flex-col gap-3 mt-2">
           <h3 class="t-h4">Still have a question?</h3>
           <p class="t-sm" style="color: var(--color-body);">
-            Ask us directly — we reply within one business day.
+            Ask us directly: we reply within one business day.
           </p>
           <div class="flex flex-wrap gap-3 mt-1">
             <a href="/contact/" class="btn btn-primary tx-fast">
@@ -573,7 +580,7 @@ const AGENTS_SHOWN = 4;
           </h2>
           <p class="t-lede mt-5">
             A 30-minute demo of any platform, run on your own facility type, board, practice area or
-            city — or a conversation about partnership. We reply within one business day.
+            city, or a conversation about partnership. We reply within one business day.
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a href="/contact/" class="btn btn-primary tx-fast">

@@ -73,7 +73,7 @@ const cardData: BentoCardProps[] = [
     color: CARD_SURFACE,
     title: 'Four platforms',
     description:
-      'MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices, TrustProperty for property — one engineering discipline across four regulated industries.',
+      'MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices, TrustProperty for property: one engineering discipline across four regulated industries.',
     label: 'Products',
     image: '/proof/products.png'
   },
@@ -86,7 +86,7 @@ const cardData: BentoCardProps[] = [
   {
     color: CARD_SURFACE,
     title: 'ap-south-1',
-    description: 'AWS Mumbai — your data never leaves India, under the DPDP Act 2023.',
+    description: 'AWS Mumbai: your data never leaves India, under the DPDP Act 2023.',
     label: 'Residency'
   }
 ];

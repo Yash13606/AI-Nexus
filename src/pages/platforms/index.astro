@@ -21,10 +21,13 @@ import '../../styles/platform.css';
 
 /** From the comparison table in ainexushub/platforms/index.md. MedOrbit and
  *  AdvoHub publish no language count there, so neither claims one here. */
+/* "Not published" rather than a dash: the dash was the last em dash left in
+   the comparison table, and spelling it out says the same thing more plainly
+   than a mark the reader has to interpret. */
 const languages: Record<string, string> = {
-  medorbit: '—',
+  medorbit: 'Not published',
   edvation: '13',
-  advohub: '—',
+  advohub: 'Not published',
   trustproperty: '3',
 };
 
@@ -50,7 +53,7 @@ const totals = {
 
 <Base
   title="Four AI Platforms for Indian Institutions | AI Nexus"
-  description="MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices and TrustProperty for property — four AI platforms, 48 agents, one engineering discipline."
+  description="MedOrbit for hospitals, Edvation for schools, AdvoHub for law practices and TrustProperty for property: four AI platforms, 48 agents, one engineering discipline."
   trail={trail}
 >
   <RevealRoot />
@@ -98,7 +101,7 @@ const totals = {
 
       <p class="t-lede rise mt-6" style="--i: 2;">
         AI that shows its work, inside software that runs the whole institution. Every agent cites its
-        source, every model call is redacted and logged, every output a human can override — and all of
+        source, every model call is redacted and logged, every output a human can override, and all of
         it sits on a complete operating system, not a chatbot beside one.
       </p>
 

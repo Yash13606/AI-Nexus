@@ -1,7 +1,7 @@
 export const hero = {
   eyebrow: 'AI product company · Bengaluru + Singapore',
   headline: 'AI that shows its work.',
-  lede: 'MedOrbit runs hospitals. Edvation runs schools. AdvoHub runs law practices. TrustProperty runs property. 48 AI agents across all four — and every one of them shows exactly how it got its answer.',
+  lede: 'MedOrbit runs hospitals. Edvation runs schools. AdvoHub runs law practices. TrustProperty runs property. 48 AI agents across all four, and every one of them shows exactly how it got its answer.',
   summary: '48 AI agents · 22 Indian languages · Data hosted in India (AWS Mumbai)',
 };
 
@@ -23,7 +23,7 @@ export const proof = {
   tiles: [
     { figure: '4', label: 'platforms, one per industry' },
     { figure: '22', label: 'Indian languages' },
-    { figure: 'ap-south-1', label: 'AWS Mumbai — your data stays in India' },
+    { figure: 'ap-south-1', label: 'AWS Mumbai: your data stays in India' },
   ],
 };
 
@@ -42,12 +42,12 @@ export const standards = [
 ];
 
 export const disciplineBody =
-  'Four industries, one engineering discipline: AI that shows its work, inside software that runs the whole institution. Every agent cites its source, every model call is redacted and logged, every output a human can override — and all of it sits on a complete operating system for the institution, not a chatbot beside one.';
+  'Four industries, one engineering discipline: AI that shows its work, inside software that runs the whole institution. Every agent cites its source, every model call is redacted and logged, every output a human can override, and all of it sits on a complete operating system for the institution, not a chatbot beside one.';
 
 export const governance = [
   {
     title: 'Redacted before the model sees it',
-    points: ['Stripped before every model call', '9 Indian ID categories — Aadhaar, PAN, GSTIN, bank, passport'],
+    points: ['Stripped before every model call', '9 Indian ID categories: Aadhaar, PAN, GSTIN, bank, passport'],
   },
   {
     title: 'Citations verified, or removed',
@@ -63,7 +63,7 @@ export const governance = [
   },
   {
     title: 'Cost ceilings in rupees',
-    points: ['Every tenant sets a ceiling', 'Downshifts at the cap — never fails'],
+    points: ['Every tenant sets a ceiling', 'Downshifts at the cap, never fails'],
   },
   {
     title: 'A kill switch per agent',
@@ -81,7 +81,7 @@ export const governance = [
 
 /** A real sequence — which is why these carry numbers. */
 export const deployment = [
-  { n: '01', title: 'Scope', body: 'A 30-minute demo on your own facility type, board, practice area or city — not a generic tour. You tell us what you run today.' },
+  { n: '01', title: 'Scope', body: 'A 30-minute demo on your own facility type, board, practice area or city, not a generic tour. You tell us what you run today.' },
   { n: '02', title: 'Configure', body: 'Modules, the role catalogue and the compliance surfaces are preset for your institution type, so nobody starts at a blank screen.' },
   { n: '03', title: 'Migrate', body: 'Your existing records are imported and reconciled. We do the mapping; you verify the result before anything goes live.' },
   { n: '04', title: 'Go live', body: 'Staff are trained, and the AI agents start in dry-run so your team watches them work before they act. Then they are switched on one at a time.' },
@@ -96,7 +96,7 @@ export const deploymentCaveat =
 export const why = [
   {
     title: 'One platform per institution',
-    body: 'Each product replaces a stack of point tools with a single system and a single source of truth — 100+ modules in a hospital, a complete school OS under the teaching agents, twelve modules from intake to invoice in a law firm.',
+    body: 'Each product replaces a stack of point tools with a single system and a single source of truth: 100+ modules in a hospital, a complete school OS under the teaching agents, twelve modules from intake to invoice in a law firm.',
     icon: 'grid',
     panelLabel: 'System size',
     stat: '100+',
@@ -137,7 +137,7 @@ export const why = [
 ];
 
 export const roleFamilies = [
-  { href: '/solutions/hospitals/', title: 'For hospitals', body: 'Doctors, nurses, lab, pharmacy, front office, billing and administrators — plus a separate patient portal.', meta: '8 roles · MedOrbit', hue: 'var(--color-medorbit)' },
+  { href: '/solutions/hospitals/', title: 'For hospitals', body: 'Doctors, nurses, lab, pharmacy, front office, billing and administrators, plus a separate patient portal.', meta: '8 roles · MedOrbit', hue: 'var(--color-medorbit)' },
   { href: '/solutions/schools/', title: 'For schools', body: 'Students, teachers, parents, principals and administrators, on one platform with six role views.', meta: '6 roles · Edvation', hue: 'var(--color-edvation)' },
   { href: '/solutions/law-firms/', title: 'For law firms', body: 'Nine seats from intern to managing partner, plus a client portal with its own authentication.', meta: '9 roles · AdvoHub', hue: 'var(--color-advohub)' },
   { href: '/solutions/property/', title: 'For property', body: 'Buyers and tenants, owners, agents and agencies, builders, service professionals and societies.', meta: '6 roles · TrustProperty', hue: 'var(--color-trustproperty)' },
@@ -156,7 +156,7 @@ export const faqs = [
 ];
 
 export const aboutBlock = [
-  'AI Nexus Innovations Hub was founded in 2025 to bring AI-native software to four industries that touch the most lives — healthcare, education, law and property — starting with India, where the gap between how these institutions work and what their software supports is widest.',
+  'AI Nexus Innovations Hub was founded in 2025 to bring AI-native software to four industries that touch the most lives (healthcare, education, law and property), starting with India, where the gap between how these institutions work and what their software supports is widest.',
   'We are a product company, not a consultancy. We build, operate and support all four platforms end to end, from Bengaluru and Singapore.',
   'We also try to be careful about what we claim. Our platforms publish capability statements rather than certification logos, label illustrative examples as illustrative, and decline to quote figures we have not measured. That is a deliberate choice in a market where badge walls are the norm.',
 ];
