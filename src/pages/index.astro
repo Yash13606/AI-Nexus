@@ -26,6 +26,11 @@ const roleAngles = [45, -45, 135, 90];
 /** The platform whose agent day runs on the phone in the closing CTA.
  *  MedOrbit: the most modules, so its stat pair reads strongest at that size. */
 const ctaPlatform = platforms[0];
+
+/** Agents listed per platform column before the "view more" disclosure.
+ *  Four keeps the four columns the same height regardless of whether a
+ *  platform ships 7 agents or 20. */
+const AGENTS_SHOWN = 4;
 ---
 
 <Base
@@ -259,7 +264,13 @@ const ctaPlatform = platforms[0];
 
   {/* ══════════════ 48 AGENTS ══════════════
       /ai-agents/ is not built yet, so names render as text rather than dead
-      anchors. All 48 stay in the HTML — only the links are withheld. */}
+      anchors. All 48 stay in the HTML — only the links are withheld.
+
+      Each column shows four and puts the rest behind a native <details>,
+      same zero-JS mechanism as the FAQ. Edvation alone has 20, which ran
+      the section far past a screen. Collapsed, not removed: the remaining
+      agents are in the markup either way, so a crawler and a JS-off reader
+      still get all 48 — <details> only changes whether they are painted. */}
   <section class="section band">
     <div class="shell">
       <h2 class="t-h2" style="max-width: 20ch;">48 AI agents, each with one job</h2>
@@ -269,28 +280,43 @@ const ctaPlatform = platforms[0];
       </p>
 
       <div class="mt-12 grid gap-10 md:grid-cols-2 xl:grid-cols-4">
-        {platforms.map((p) => (
-          <div>
-            <div class="flex items-baseline justify-between gap-3 pb-2.5" style={`border-bottom: 2px solid ${p.hue};`}>
-              <p class="t-label" style={`color: ${p.hue};`}>{p.name}</p>
-              <p class="t-cap mono" style="color: var(--color-muted);">{p.agentCount} agents</p>
+        {platforms.map((p) => {
+          const list = agentsFor(p.slug);
+          const shown = list.slice(0, AGENTS_SHOWN);
+          const rest = list.slice(AGENTS_SHOWN);
+          const row = (a: (typeof list)[number]) => (
+            <li class="py-3" style="border-bottom: 1px solid var(--color-hairline);">
+              {agentsPlanned ? (
+                <span class="t-sm font-medium block" style="color: var(--color-ink);">{a.name}</span>
+              ) : (
+                <a href={`/ai-agents/#${a.slug}`} class="t-sm font-medium block no-underline" style="color: var(--color-ink);">
+                  {a.name}
+                </a>
+              )}
+              <span class="t-cap block mt-0.5" style="color: var(--color-muted);">{a.summary}</span>
+            </li>
+          );
+          return (
+            <div>
+              <div class="flex items-baseline justify-between gap-3 pb-2.5" style={`border-bottom: 2px solid ${p.hue};`}>
+                <p class="t-label" style={`color: ${p.hue};`}>{p.name}</p>
+                <p class="t-cap mono" style="color: var(--color-muted);">{p.agentCount} agents</p>
+              </div>
+
+              <ul class="list-none m-0 p-0">{shown.map(row)}</ul>
+
+              {rest.length > 0 && (
+                <details class="agent-more">
+                  <summary class="agent-more__toggle" style={`--hue: ${p.hue};`}>
+                    <span class="agent-more__label" data-more={`View ${rest.length} more`} data-less="Show fewer"></span>
+                    <Icon name="chevron-down" size={14} class="agent-more__chev" />
+                  </summary>
+                  <ul class="list-none m-0 p-0">{rest.map(row)}</ul>
+                </details>
+              )}
             </div>
-            <ul class="list-none m-0 p-0">
-              {agentsFor(p.slug).map((a) => (
-                <li class="py-3" style="border-bottom: 1px solid var(--color-hairline);">
-                  {agentsPlanned ? (
-                    <span class="t-sm font-medium block" style="color: var(--color-ink);">{a.name}</span>
-                  ) : (
-                    <a href={`/ai-agents/#${a.slug}`} class="t-sm font-medium block no-underline" style="color: var(--color-ink);">
-                      {a.name}
-                    </a>
-                  )}
-                  <span class="t-cap block mt-0.5" style="color: var(--color-muted);">{a.summary}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   </section>
