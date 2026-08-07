@@ -89,10 +89,22 @@
      so every route moves together. */
   --section-y: clamp(3.5rem, 7.5vw, 7.5rem);
 
-  /* Platform sub-nav height. The sub-nav sets its row to exactly this, and the
-     comparison table's sticky <thead> offsets by it — one value, so the two
-     cannot drift apart and leave the header floating or clipped. */
-  --subnav-h: 56px;
+  /* Platform sub-nav bar height. The sub-nav sets its row to exactly this, and
+     the comparison table's sticky <thead> offsets by it — one value, so the two
+     cannot drift apart and leave the header floating or clipped.
+     48, not 56: it is a floating bar under a 60px one now, and a secondary
+     control that matches its parent's height stops reading as secondary. */
+  --subnav-h: 48px;
+
+  /* Everything the sticky chrome occupies: the nav wrapper, the sub-nav bar,
+     and the gutter below it — which is --nav-pad-y, the same gutter the nav
+     keeps above and below its own pill, so the three gaps are one measurement.
+
+     ONE token, because six places need this number: the full-screen hero on
+     five routes, the sticky table head, the roster seat bar and the showcase
+     pin. Six copies of `68px` were wrong the day the nav became a pill; a
+     seventh set of hand-arithmetic would go the same way. */
+  --chrome-h: calc(var(--nav-h) + var(--subnav-h) + var(--nav-pad-y));
 
   /* Motion — one entrance curve, three durations. DESIGN.md §7. */
   --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
